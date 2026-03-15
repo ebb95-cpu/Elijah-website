@@ -1,0 +1,464 @@
+/* ─── Ask Elijah Modal ─── */
+#ask-screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease;
+}
+
+#ask-screen.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#ask-card {
+  position: relative;
+  width: min(540px, 90vw);
+  padding: clamp(2rem, 5vw, 3.5rem);
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #0a0a0a;
+}
+
+#ask-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.4rem;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+  touch-action: manipulation;
+}
+#ask-close:hover { color: rgba(255,255,255,0.8); }
+
+.ask-dot-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 0.6rem;
+}
+
+.ask-dot { font-size: 8px; color: #fff; }
+.ask-dash { color: rgba(255,255,255,0.2); letter-spacing: -0.1em; font-size: 0.9rem; }
+
+.ask-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  letter-spacing: 0.08em;
+  color: #fff;
+}
+
+.ask-beta-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 1.4rem;
+}
+
+#ask-desc {
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.75;
+  margin-bottom: 1.8rem;
+}
+
+#ask-input-row {
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  margin-bottom: 1.4rem;
+}
+
+#ask-email {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 300;
+  padding: 0.7rem 0;
+  caret-color: rgba(255,255,255,0.7);
+}
+
+#ask-email::placeholder { color: rgba(255,255,255,0.22); }
+
+#ask-actions { margin-bottom: 1rem; }
+
+.dot-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.7);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.2rem;
+  min-height: 44px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color 0.25s, color 0.25s;
+}
+.dot-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+.btn-dot { font-size: 7px; }
+.btn-dash { color: rgba(255,255,255,0.2); letter-spacing: -0.05em; }
+
+#ask-response {
+  font-size: 0.82rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.7;
+  margin-top: 0.5rem;
+  display: none;
+}
+
+/* ─── Continue the Journey Screen ─── */
+#sections-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 150;
+  opacity: 0;
+  pointer-events: none;
+  overflow-y: auto;
+  transition: opacity 1s ease;
+}
+
+#sections-screen.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#sections-inner {
+  min-height: 100vh;
+  padding: clamp(4rem, 10vh, 7rem) clamp(1.5rem, 8vw, 6rem);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Section header */
+#sections-header {
+  margin-bottom: clamp(2rem, 4vh, 3.5rem);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+#sections-screen.visible #sections-header {
+  opacity: 1; transform: translateY(0); transition-delay: 0.15s;
+}
+
+.section-dot-row { display: flex; align-items: center; gap: 14px; }
+.s-dot { font-size: 9px; color: rgba(255,255,255,0.5); }
+.s-dash { color: rgba(255,255,255,0.15); letter-spacing: -0.05em; font-size: 1rem; }
+
+.s-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  letter-spacing: 0.07em;
+  color: #fff;
+}
+
+/* ─── Three-dot navigation ─── */
+#main-nav { /* container only */ }
+
+.nav-entry {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+#sections-screen.visible #nav-ask      { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+#sections-screen.visible #nav-resources { opacity: 1; transform: translateY(0); transition-delay: 0.45s; }
+#sections-screen.visible #nav-journey  { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.45);
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  letter-spacing: 0.08em;
+  padding: 1.4rem 0;
+  cursor: pointer;
+  text-align: left;
+  touch-action: manipulation;
+  transition: color 0.3s ease;
+}
+.nav-btn:hover { color: rgba(255,255,255,0.8); }
+
+.nav-dot {
+  font-size: 8px;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  transition: color 0.3s ease;
+}
+.nav-dash {
+  color: rgba(255,255,255,0.12);
+  letter-spacing: -0.05em;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+}
+.nav-label { flex: 1; }
+
+.nav-entry.open .nav-btn  { color: #fff; }
+.nav-entry.open .nav-dot  { color: rgba(255,255,255,0.85); }
+
+/* Resources panel */
+.nav-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-entry.open .nav-panel { max-height: 6000px; }
+
+.nav-panel-inner { padding-bottom: 2rem; }
+
+/* ─── Category accordion ─── */
+.cat-entry {
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.cat-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 1rem 0;
+  min-height: 44px;
+  cursor: pointer;
+  text-align: left;
+  touch-action: manipulation;
+  transition: color 0.25s ease;
+}
+.cat-toggle:hover { color: rgba(255,255,255,0.7); }
+.cat-entry.open .cat-toggle { color: #fff; }
+
+.cat-dot {
+  font-size: 6px;
+  color: rgba(255,255,255,0.22);
+  flex-shrink: 0;
+  transition: color 0.25s;
+}
+.cat-entry.open .cat-dot { color: rgba(255,255,255,0.75); }
+
+.cat-dash { color: rgba(255,255,255,0.1); letter-spacing: -0.05em; }
+.cat-label { flex: 1; }
+
+.cat-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cat-entry.open .cat-body { max-height: 2000px; }
+
+.cat-body-inner { padding-bottom: 1.2rem; }
+
+/* ─── Resource cards ─── */
+.resource-card {
+  display: flex;
+  gap: 1.2rem;
+  align-items: flex-start;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.rc-thumb {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.rc-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rc-content { flex: 1; min-width: 0; }
+
+.rc-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin-bottom: 0.2rem;
+}
+
+.rc-author {
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 0.5rem;
+}
+
+.rc-desc {
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.48);
+  line-height: 1.65;
+  margin-bottom: 0.75rem;
+}
+
+.rc-btn {
+  display: inline-block;
+  font-size: 0.63rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  padding-bottom: 1px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.rc-btn:hover { color: #fff; border-color: rgba(255,255,255,0.55); }
+
+/* Affiliate note */
+.affiliate-note {
+  font-size: 0.63rem;
+  color: rgba(255,255,255,0.2);
+  font-style: italic;
+  margin-top: 1.2rem;
+  line-height: 1.65;
+}
+
+/* ─── Dot list (Where to Find Me) ─── */
+.dot-list { display: flex; flex-direction: column; }
+
+.dot-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.8rem 0;
+  min-height: 44px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.dot-link:first-child { border-top: 1px solid rgba(255,255,255,0.05); }
+
+.dot-link::before {
+  content: '●';
+  font-size: 6px;
+  color: rgba(255,255,255,0.35);
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.dot-link:hover { opacity: 0.65; }
+.dot-link:hover::before { color: #fff; }
+
+.dl-platform {
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  width: 120px;
+  flex-shrink: 0;
+}
+.dl-handle {
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.75);
+  flex: 1;
+}
+
+/* ─── Footer ─── */
+#site-footer {
+  margin-top: clamp(3rem, 6vh, 5rem);
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+#sections-screen.visible #site-footer { opacity: 1; transition-delay: 0.8s; }
+
+.footer-dots { display: flex; gap: 7px; align-items: center; }
+.f-dot { display: block; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.22); }
+
+.footer-motto {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.5);
+}
+.footer-copy {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.18);
+}
+
+/* ─── Tablet ─── */
+@media (max-width: 1024px) {
+  #ask-card { width: min(540px, 88vw); }
+  #sections-inner { padding: clamp(3rem, 7vh, 5rem) clamp(1.5rem, 5vw, 4rem); }
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 768px) {
+  #ask-card { padding: 1.8rem 1.4rem; width: min(540px, 92vw); }
+  .ask-title { font-size: clamp(1.6rem, 7vw, 2.2rem); }
+  #sections-inner { padding: 3rem 1.2rem 4rem; }
+  .s-title { font-size: clamp(2rem, 9vw, 3rem); }
+  .nav-btn { font-size: clamp(1.3rem, 6vw, 1.9rem); padding: 1.2rem 0; }
+  .dl-platform { width: 90px; font-size: 0.64rem; }
+  .dl-handle { font-size: 0.8rem; }
+  .rc-thumb { width: 60px; height: 60px; }
+}
+
+/* ─── Small phones ─── */
+@media (max-width: 480px) {
+  #ask-card { padding: 1.5rem 1.1rem; width: 94vw; }
+  .ask-title { font-size: clamp(1.4rem, 8vw, 1.9rem); }
+  #ask-desc { font-size: 0.8rem; }
+  .s-title { font-size: clamp(1.8rem, 10vw, 2.6rem); }
+  .nav-btn { font-size: clamp(1.2rem, 7vw, 1.7rem); padding: 1rem 0; }
+  #sections-inner { padding: 2.5rem 1rem 3rem; }
+  .dot-btn { font-size: 0.68rem; padding: 0.7rem 1rem; }
+  .dl-platform { width: 80px; font-size: 0.6rem; }
+  .rc-thumb { width: 52px; height: 52px; }
+  .rc-title { font-size: 1rem; }
+  .rc-desc { font-size: 0.76rem; }
+}

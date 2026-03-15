@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elijah Bryant</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- Styles (no old map.css, hub.css, or social.css) -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/intro.css" />
+  <link rel="stylesheet" href="css/journey.css" />
+  <link rel="stylesheet" href="css/sections.css" />
+</head>
+<body>
+
+  <!-- ── SCREEN 1: Intro ── -->
+  <div id="intro-screen">
+    <div id="intro-inner">
+      <h1 id="intro-name">Elijah Bryant</h1>
+
+      <!-- Dot slider -->
+      <div class="journey-slider" id="intro-slider">
+        <div class="slider-track">
+          <div class="slider-fill"></div>
+          <div class="slider-dot faith"></div>
+          <div class="slider-dot family"></div>
+          <div class="slider-dot purpose"></div>
+          <div class="slider-handle" id="sliderHandle"></div>
+        </div>
+        <div class="slider-labels">
+          <span>Faith</span>
+          <span>Family</span>
+          <span>Purpose</span>
+        </div>
+      </div>
+
+      <p id="intro-cta">Connect the dots to begin the journey &rarr;</p>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 1b: Reflection (returning visitors) ── -->
+  <div id="reflection-screen">
+    <div id="reflect-inner">
+      <h1 id="reflect-name">Elijah Bryant</h1>
+      <p id="reflect-question">What did your last dot teach you?</p>
+
+      <!-- Dot slider (returning visitors) -->
+      <div class="journey-slider" id="reflect-slider">
+        <div class="slider-track">
+          <div class="slider-fill"></div>
+          <div class="slider-dot faith"></div>
+          <div class="slider-dot family"></div>
+          <div class="slider-dot purpose"></div>
+          <div class="slider-handle" id="reflectHandle"></div>
+        </div>
+        <div class="slider-labels">
+          <span>Faith</span>
+          <span>Family</span>
+          <span>Purpose</span>
+        </div>
+      </div>
+
+      <p id="reflect-cta">Connect the dots to begin the journey &rarr;</p>
+    </div>
+
+    <!-- Brand moment shown after slider completion -->
+    <div id="reflect-brand">
+      <span class="fc-text">Faith <span class="fc-plus">+</span> Consistency</span>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 2: Journey Map ── -->
+  <div id="journey-screen">
+    <div id="map"></div>
+
+    <!-- Skip button (top-right, appears during animation) -->
+    <button id="skip-btn">skip &rarr;</button>
+
+    <!-- Location info card (bottom-left overlay) -->
+    <div id="location-card">
+      <div id="loc-number">01</div>
+      <div id="loc-city">Atlanta</div>
+      <div id="loc-sub">Georgia</div>
+      <div id="loc-message">Where the dream started.</div>
+    </div>
+
+    <!-- Journey message dimming overlay (for final messages) -->
+    <div id="journey-overlay"></div>
+
+    <!-- Final messages (shown over dimmed map) -->
+    <div id="final-msg-1" class="final-msg">
+      Every experience is a dot.
+    </div>
+    <div id="final-msg-2" class="final-msg final-msg--lines">
+      <span class="fm-line">Everyone's journey is different.</span>
+      <span class="fm-line">Focus on your journey.</span>
+      <span class="fm-line">What will you learn from each dot?</span>
+    </div>
+    <div id="final-msg-3" class="final-msg">
+      <span class="fc-text">Faith <span class="fc-plus">+</span> Consistency</span>
+    </div>
+  </div>
+
+  <!-- ── MODAL: Ask Elijah (Beta) ── -->
+  <div id="ask-screen">
+    <div id="ask-card">
+      <button id="ask-close">&#x2715;</button>
+      <div class="ask-dot-row">
+        <span class="ask-dot">&#9679;</span>
+        <span class="ask-dash">&#x2015;&#x2015;&#x2015;</span>
+        <span class="ask-title">Ask Elijah</span>
+      </div>
+      <p class="ask-beta-tag">Currently in Beta</p>
+      <p id="ask-desc">This will soon be a place where you can ask me any question — about training, books, mindset, nutrition, tools I use, or anything else. I'll respond with answers based on my experience and what I've learned along the way.</p>
+      <div id="ask-input-row">
+        <input type="email" id="ask-email" placeholder="Enter your email to get notified when Ask Elijah goes live." autocomplete="email" />
+      </div>
+      <div id="ask-actions">
+        <button id="ask-submit" class="dot-btn">
+          <span class="btn-dot">&#9679;</span>
+          <span class="btn-dash">&#x2015;&#x2015;</span>
+          <span>Notify Me</span>
+        </button>
+      </div>
+      <div id="ask-response"></div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 4: Continue the Journey ── -->
+  <div id="sections-screen">
+    <div id="sections-inner">
+
+      <!-- Header -->
+      <div id="sections-header">
+        <div class="section-dot-row">
+          <span class="s-dot">&#9679;</span>
+          <span class="s-dash">&#x2015;&#x2015;&#x2015;&#x2015;&#x2015;</span>
+          <h2 class="s-title">Continue the Journey</h2>
+        </div>
+      </div>
+
+      <!-- ── Three-dot navigation ── -->
+      <nav id="main-nav">
+
+        <!-- ● Ask Elijah -->
+        <div class="nav-entry" id="nav-ask">
+          <button class="nav-btn" id="nav-ask-btn">
+            <span class="nav-dot">&#9679;</span>
+            <span class="nav-dash">&#x2015;&#x2015;&#x2015;</span>
+            <span class="nav-label">Ask Elijah</span>
+          </button>
+        </div>
+
+        <!-- ● Resources -->
+        <div class="nav-entry" id="nav-resources">
+          <button class="nav-btn" id="nav-resources-btn" aria-expanded="false">
+            <span class="nav-dot">&#9679;</span>
+            <span class="nav-dash">&#x2015;&#x2015;&#x2015;</span>
+            <span class="nav-label">Resources</span>
+          </button>
+          <div class="nav-panel" id="resources-panel">
+            <div class="nav-panel-inner">
+
+              <!-- Category: Tools I Use -->
+              <div class="cat-entry" id="cat-tools">
+                <button class="cat-toggle" aria-expanded="false">
+                  <span class="cat-dot">&#9679;</span>
+                  <span class="cat-dash">&#x2015;&#x2015;</span>
+                  <span class="cat-label">Tools I Use</span>
+                </button>
+                <div class="cat-body"><div class="cat-body-inner">
+                  <div class="resource-card">
+                    <div class="rc-thumb"><img src="/images/placeholders/tool.svg" alt="Whoop" /></div>
+                    <div class="rc-content">
+                      <h4 class="rc-title">Whoop</h4>
+                      <p class="rc-desc">A recovery and sleep tracking tool I use to understand how my body is responding to training.</p>
+                      <a class="rc-btn" href="#" target="_blank" rel="noopener">View Tool &#x2192;</a>
+                    </div>
+                  </div>
+                </div></div>
+              </div>
+
+              <!-- Category: Vitamins -->
+              <div class="cat-entry" id="cat-vitamins">
+                <button class="cat-toggle" aria-expanded="false">
+                  <span class="cat-dot">&#9679;</span>
+                  <span class="cat-dash">&#x2015;&#x2015;</span>
+                  <span class="cat-label">Vitamins</span>
+                </button>
+                <div class="cat-body"><div class="cat-body-inner">
+                  <div class="resource-card">
+                    <div class="rc-thumb"><img src="/images/placeholders/vitamin.svg" alt="Magnesium Glycinate" /></div>
+                    <div class="rc-content">
+                      <h4 class="rc-title">Magnesium Glycinate</h4>
+                      <p class="rc-desc">Helps with sleep, recovery, and relaxation.</p>
+                      <a class="rc-btn" href="#" target="_blank" rel="noopener">View &#x2192;</a>
+                    </div>
+                  </div>
+                </div></div>
+              </div>
+
+              <!-- Category: Books -->
+              <div class="cat-entry" id="cat-books">
+                <button class="cat-toggle" aria-expanded="false">
+                  <span class="cat-dot">&#9679;</span>
+                  <span class="cat-dash">&#x2015;&#x2015;</span>
+                  <span class="cat-label">Books</span>
+                </button>
+                <div class="cat-body"><div class="cat-body-inner">
+                  <div class="resource-card">
+                    <div class="rc-thumb"><img src="/images/placeholders/book.svg" alt="Atomic Habits" /></div>
+                    <div class="rc-content">
+                      <h4 class="rc-title">Atomic Habits</h4>
+                      <p class="rc-author">James Clear</p>
+                      <p class="rc-desc">This book changed the way I think about growth. Small improvements done consistently lead to massive results over time.</p>
+                      <a class="rc-btn" href="https://www.amazon.com/dp/0735211299" target="_blank" rel="noopener">View Book &#x2192;</a>
+                    </div>
+                  </div>
+                </div></div>
+              </div>
+
+              <!-- Category: Recipes -->
+              <div class="cat-entry" id="cat-recipes">
+                <button class="cat-toggle" aria-expanded="false">
+                  <span class="cat-dot">&#9679;</span>
+                  <span class="cat-dash">&#x2015;&#x2015;</span>
+                  <span class="cat-label">Recipes</span>
+                </button>
+                <div class="cat-body"><div class="cat-body-inner">
+                  <div class="resource-card">
+                    <div class="rc-thumb"><img src="/images/placeholders/recipe.svg" alt="Recovery Smoothie" /></div>
+                    <div class="rc-content">
+                      <h4 class="rc-title">Recovery Smoothie</h4>
+                      <p class="rc-desc">Coming soon.</p>
+                    </div>
+                  </div>
+                  <div class="resource-card">
+                    <div class="rc-thumb"><img src="/images/placeholders/recipe.svg" alt="Game Day Breakfast" /></div>
+                    <div class="rc-content">
+                      <h4 class="rc-title">Game Day Breakfast</h4>
+                      <p class="rc-desc">Coming soon.</p>
+                    </div>
+                  </div>
+                </div></div>
+              </div>
+
+              <!-- Category: Podcasts -->
+              <div class="cat-entry" id="cat-podcasts">
+                <button class="cat-toggle" aria-expanded="false">
+                  <span class="cat-dot">&#9679;</span>
+                  <span class="cat-dash">&#x2015;&#x2015;</span>
+                  <span class="cat-label">Podcasts</span>
+                </button>
+                <div class="cat-body"><div class="cat-body-inner">
+                  <div class="resource-card">
+                    <div class="rc-thumb"><img src="/images/placeholders/podcast.svg" alt="Huberman Lab" /></div>
+                    <div class="rc-content">
+                      <h4 class="rc-title">Huberman Lab</h4>
+                      <p class="rc-desc">Science-based tools for everyday life. One of my go-to listens for understanding health and performance.</p>
+                    </div>
+                  </div>
+                  <div class="resource-card">
+                    <div class="rc-thumb"><img src="/images/placeholders/podcast.svg" alt="Mind Pump" /></div>
+                    <div class="rc-content">
+                      <h4 class="rc-title">Mind Pump</h4>
+                      <p class="rc-desc">Straight-talk on fitness, training, and the real science behind what works.</p>
+                    </div>
+                  </div>
+                </div></div>
+              </div>
+
+              <!-- Category: Where to Find Me -->
+              <div class="cat-entry" id="cat-socials">
+                <button class="cat-toggle" aria-expanded="false">
+                  <span class="cat-dot">&#9679;</span>
+                  <span class="cat-dash">&#x2015;&#x2015;</span>
+                  <span class="cat-label">Where to Find Me</span>
+                </button>
+                <div class="cat-body"><div class="cat-body-inner">
+                  <ul class="dot-list">
+                    <li><a class="dot-link" href="https://www.instagram.com/elijahbryant3/" target="_blank" rel="noopener">
+                      <span class="dl-platform">Instagram</span>
+                      <span class="dl-handle">@elijahbryant3</span>
+                    </a></li>
+                    <li><a class="dot-link" href="https://x.com/Elijah_Bryant3" target="_blank" rel="noopener">
+                      <span class="dl-platform">Twitter / X</span>
+                      <span class="dl-handle">@Elijah_Bryant3</span>
+                    </a></li>
+                    <li><a class="dot-link" href="https://www.tiktok.com/@elijah.bryant3" target="_blank" rel="noopener">
+                      <span class="dl-platform">TikTok</span>
+                      <span class="dl-handle">@elijah.bryant3</span>
+                    </a></li>
+                    <li><a class="dot-link" href="https://www.youtube.com/@ElijahBryant3" target="_blank" rel="noopener">
+                      <span class="dl-platform">YouTube</span>
+                      <span class="dl-handle">@ElijahBryant3</span>
+                    </a></li>
+                    <li><a class="dot-link" href="https://www.instagram.com/consistencyclub3/" target="_blank" rel="noopener">
+                      <span class="dl-platform">Consistency Club</span>
+                      <span class="dl-handle">@consistencyclub3</span>
+                    </a></li>
+                  </ul>
+                  <p class="affiliate-note">Some links may be affiliate links. I only recommend things I personally use and trust.</p>
+                </div></div>
+              </div>
+
+            </div><!-- /nav-panel-inner -->
+          </div><!-- /resources-panel -->
+        </div><!-- /nav-resources -->
+
+        <!-- ● My Journey -->
+        <div class="nav-entry" id="nav-journey">
+          <button class="nav-btn" id="nav-journey-btn">
+            <span class="nav-dot">&#9679;</span>
+            <span class="nav-dash">&#x2015;&#x2015;&#x2015;</span>
+            <span class="nav-label">My Journey</span>
+          </button>
+        </div>
+
+      </nav><!-- /main-nav -->
+
+      <!-- Footer -->
+      <footer id="site-footer">
+        <div class="footer-dots">
+          <span class="f-dot"></span>
+          <span class="f-dot"></span>
+          <span class="f-dot"></span>
+        </div>
+        <p class="footer-motto">Faith + Consistency</p>
+        <p class="footer-copy">&copy; 2025 Elijah Bryant</p>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- App scripts (no old map.js or transitions.js) -->
+  <script src="js/intro.js"></script>
+  <script src="js/journey.js"></script>
+  <script src="js/sections.js"></script>
+</body>
+</html>

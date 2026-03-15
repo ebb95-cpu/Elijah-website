@@ -1,0 +1,41 @@
+import { MapDot } from '@/types';
+
+export const MOVEMENT_DOTS: MapDot[] = [
+  { country: 'United States', coordinates: [-95.7129, 37.0902], count: 200 },
+  { country: 'Canada', coordinates: [-96.8165, 56.1304], count: 87 },
+  { country: 'United Kingdom', coordinates: [-3.4360, 55.3781], count: 143 },
+  { country: 'Germany', coordinates: [10.4515, 51.1657], count: 98 },
+  { country: 'France', coordinates: [2.2137, 46.2276], count: 76 },
+  { country: 'Israel', coordinates: [34.8516, 31.0461], count: 165 },
+  { country: 'Turkey', coordinates: [35.2433, 38.9637], count: 112 },
+  { country: 'Australia', coordinates: [133.7751, -25.2744], count: 54 },
+  { country: 'Brazil', coordinates: [-51.9253, -14.2350], count: 67 },
+  { country: 'Japan', coordinates: [138.2529, 36.2048], count: 43 },
+  { country: 'South Korea', coordinates: [127.7669, 35.9078], count: 38 },
+  { country: 'Spain', coordinates: [-3.7492, 40.4637], count: 59 },
+  { country: 'Italy', coordinates: [12.5674, 41.8719], count: 48 },
+  { country: 'Netherlands', coordinates: [5.2913, 52.1326], count: 62 },
+  { country: 'Sweden', coordinates: [18.6435, 60.1282], count: 31 },
+  { country: 'Nigeria', coordinates: [8.6753, 9.0820], count: 89 },
+  { country: 'South Africa', coordinates: [22.9375, -30.5595], count: 44 },
+  { country: 'UAE', coordinates: [53.8478, 23.4241], count: 57 },
+  { country: 'Singapore', coordinates: [103.8198, 1.3521], count: 29 },
+  { country: 'Mexico', coordinates: [-102.5528, 23.6345], count: 73 },
+  { country: 'Argentina', coordinates: [-63.6167, -38.4161], count: 35 },
+  { country: 'India', coordinates: [78.9629, 20.5937], count: 91 },
+  { country: 'New Zealand', coordinates: [174.8860, -40.9006], count: 18 },
+  { country: 'Poland', coordinates: [19.1451, 51.9194], count: 26 },
+  { country: 'Portugal', coordinates: [-8.2245, 39.3999], count: 33 },
+  { country: 'Greece', coordinates: [21.8243, 39.0742], count: 22 },
+  { country: 'Philippines', coordinates: [121.7740, 12.8797], count: 47 },
+  { country: 'Kenya', coordinates: [37.9062, -0.0236], count: 39 },
+  { country: 'Ghana', coordinates: [-1.0232, 7.9465], count: 28 },
+  { country: 'Norway', coordinates: [8.4689, 60.4720], count: 19 },
+];
+
+export const METRICS = {
+  subscribers: 4200,
+  countries: 47,
+  questionsAnswered: 312,
+  communityMembers: 1800,
+};

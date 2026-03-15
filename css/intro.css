@@ -1,0 +1,295 @@
+/* ─── Intro Screen ─── */
+#intro-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#intro-screen.fading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#intro-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+}
+
+#intro-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2.1rem, 6.5vw, 4.4rem);
+  letter-spacing: 0.18em;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(-16px);
+  animation: fadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+/* CTA hint */
+#intro-cta {
+  margin-top: 2.6rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  opacity: 0;
+  animation: fadeIn 0.8s ease 1.8s forwards;
+}
+
+/* ─── Dot Slider ─── */
+.journey-slider {
+  margin-top: 3.5rem;
+  touch-action: none;
+  user-select: none;
+  opacity: 0;
+  animation: fadeIn 0.9s ease 0.9s forwards;
+  transition: opacity 0.4s ease;
+}
+
+.slider-track {
+  position: relative;
+  width: 420px;
+  height: 1px;
+  background: rgba(255,255,255,0.35);
+  margin: 40px auto;
+}
+
+.slider-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 1px;
+  background: #fff;
+  pointer-events: none;
+}
+
+.slider-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: white;
+  top: -4px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.faith   { left: 0%; }
+.family  { left: 50%; }
+.purpose { left: 100%; }
+
+.slider-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: white;
+  top: -4px;
+  left: 0;
+  transform: translateX(-50%);
+  cursor: grab;
+  touch-action: none;
+}
+
+.slider-handle:active { cursor: grabbing; }
+
+.slider-labels {
+  position: relative;
+  width: 420px;
+  height: 20px;
+  margin: 14px auto;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+
+.slider-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.slider-labels span:nth-child(1) { left: 0%; }
+.slider-labels span:nth-child(2) { left: 50%; }
+.slider-labels span:nth-child(3) { left: 100%; }
+
+/* ─── Reflection Screen (returning visitors) ─── */
+#reflection-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+#reflection-screen.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#reflect-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+  transition: opacity 0.5s ease;
+}
+
+#reflect-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2.1rem, 6.5vw, 4.4rem);
+  letter-spacing: 0.18em;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+#reflection-screen.visible #reflect-name {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#reflect-question {
+  margin-top: 0.75rem;
+  font-size: clamp(0.72rem, 1.8vw, 0.9rem);
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.38);
+  opacity: 0;
+  transition: opacity 0.8s ease 0.25s;
+}
+
+#reflection-screen.visible #reflect-question {
+  opacity: 1;
+}
+
+/* Reflection slider — same .journey-slider styles, delayed fade-in */
+#reflect-slider {
+  opacity: 0;
+  transition: opacity 0.9s ease 0.5s;
+}
+
+#reflection-screen.visible #reflect-slider {
+  opacity: 1;
+}
+
+#reflect-cta {
+  margin-top: 2.2rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+  opacity: 0;
+  transition: opacity 0.8s ease 0.9s;
+}
+
+#reflection-screen.visible #reflect-cta {
+  opacity: 1;
+}
+
+/* Brand moment overlay (Faith + Consistency) */
+#reflect-brand {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease;
+}
+
+#reflect-brand.visible {
+  opacity: 1;
+}
+
+/* ─── Animations ─── */
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* ─── Tablet ─── */
+@media (max-width: 1024px) {
+  #intro-name, #reflect-name {
+    font-size: clamp(1.9rem, 5.5vw, 3.6rem);
+  }
+
+  .slider-track,
+  .slider-labels {
+    width: min(380px, 84vw);
+  }
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 768px) {
+  #intro-name, #reflect-name {
+    font-size: clamp(1.6rem, 8.8vw, 2.6rem);
+    letter-spacing: 0.12em;
+  }
+
+  .journey-slider { margin-top: 2.8rem; }
+
+  .slider-track,
+  .slider-labels {
+    width: min(300px, 80vw);
+  }
+
+  .slider-labels {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  #intro-cta, #reflect-cta {
+    font-size: 0.58rem;
+    margin-top: 2rem;
+    letter-spacing: 0.18em;
+  }
+}
+
+/* ─── Small phones ─── */
+@media (max-width: 480px) {
+  #intro-name, #reflect-name {
+    font-size: clamp(1.4rem, 9.5vw, 2.1rem);
+    letter-spacing: 0.1em;
+  }
+
+  .journey-slider { margin-top: 2.2rem; }
+
+  .slider-track,
+  .slider-labels {
+    width: min(260px, 82vw);
+  }
+
+  .slider-labels {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+
+  #intro-cta, #reflect-cta {
+    font-size: 0.54rem;
+    letter-spacing: 0.15em;
+    margin-top: 1.8rem;
+  }
+}
