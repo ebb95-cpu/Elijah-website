@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
 
   <!-- Styles (no old map.css, hub.css, or social.css) -->
   <link rel="stylesheet" href="css/main.css" />
@@ -134,207 +134,26 @@
 
   <!-- ── SCREEN 4: Continue the Journey ── -->
   <div id="sections-screen">
-    <div id="sections-inner">
-
-      <!-- Header -->
-      <div id="sections-header">
-        <div class="section-dot-row">
-          <span class="s-dot">&#9679;</span>
-          <span class="s-dash">&#x2015;&#x2015;&#x2015;&#x2015;&#x2015;</span>
-          <h2 class="s-title">Continue the Journey</h2>
+    <div id="page">
+      <div id="header">
+        <div id="logo">Faith + Consistency</div>
+      </div>
+      <div id="canvas-zone">
+        <div id="wrap">
+          <canvas id="c"></canvas>
+          <div id="lbl-ask"  class="dlabel"></div>
+          <div id="lbl-res"  class="dlabel"></div>
+          <div id="lbl-jour" class="dlabel"></div>
         </div>
       </div>
-
-      <!-- ── Three-dot navigation ── -->
-      <nav id="main-nav">
-
-        <!-- ● Ask Elijah -->
-        <div class="nav-entry" id="nav-ask">
-          <button class="nav-btn" id="nav-ask-btn">
-            <span class="nav-dot">&#9679;</span>
-            <span class="nav-dash">&#x2015;&#x2015;&#x2015;</span>
-            <span class="nav-label">Ask Elijah</span>
-          </button>
+      <div id="footer">
+        <p id="instr">drag the dot · continue your journey</p>
+        <div id="panel">
+          <p id="ptitle"></p>
+          <p id="pdesc"></p>
+          <button id="rbtn">&larr; start over</button>
         </div>
-
-        <!-- ● Resources -->
-        <div class="nav-entry" id="nav-resources">
-          <button class="nav-btn" id="nav-resources-btn" aria-expanded="false">
-            <span class="nav-dot">&#9679;</span>
-            <span class="nav-dash">&#x2015;&#x2015;&#x2015;</span>
-            <span class="nav-label">Resources</span>
-          </button>
-          <div class="nav-panel" id="resources-panel">
-            <div class="nav-panel-inner">
-
-              <!-- Category: Tools I Use -->
-              <div class="cat-entry" id="cat-tools">
-                <button class="cat-toggle" aria-expanded="false">
-                  <span class="cat-dot">&#9679;</span>
-                  <span class="cat-dash">&#x2015;&#x2015;</span>
-                  <span class="cat-label">Tools I Use</span>
-                </button>
-                <div class="cat-body"><div class="cat-body-inner">
-                  <div class="resource-card">
-                    <div class="rc-thumb"><img src="/images/placeholders/tool.svg" alt="Whoop" /></div>
-                    <div class="rc-content">
-                      <h4 class="rc-title">Whoop</h4>
-                      <p class="rc-desc">A recovery and sleep tracking tool I use to understand how my body is responding to training.</p>
-                      <a class="rc-btn" href="#" target="_blank" rel="noopener">View Tool &#x2192;</a>
-                    </div>
-                  </div>
-                </div></div>
-              </div>
-
-              <!-- Category: Vitamins -->
-              <div class="cat-entry" id="cat-vitamins">
-                <button class="cat-toggle" aria-expanded="false">
-                  <span class="cat-dot">&#9679;</span>
-                  <span class="cat-dash">&#x2015;&#x2015;</span>
-                  <span class="cat-label">Vitamins</span>
-                </button>
-                <div class="cat-body"><div class="cat-body-inner">
-                  <div class="resource-card">
-                    <div class="rc-thumb"><img src="/images/placeholders/vitamin.svg" alt="Magnesium Glycinate" /></div>
-                    <div class="rc-content">
-                      <h4 class="rc-title">Magnesium Glycinate</h4>
-                      <p class="rc-desc">Helps with sleep, recovery, and relaxation.</p>
-                      <a class="rc-btn" href="#" target="_blank" rel="noopener">View &#x2192;</a>
-                    </div>
-                  </div>
-                </div></div>
-              </div>
-
-              <!-- Category: Books -->
-              <div class="cat-entry" id="cat-books">
-                <button class="cat-toggle" aria-expanded="false">
-                  <span class="cat-dot">&#9679;</span>
-                  <span class="cat-dash">&#x2015;&#x2015;</span>
-                  <span class="cat-label">Books</span>
-                </button>
-                <div class="cat-body"><div class="cat-body-inner">
-                  <div class="resource-card">
-                    <div class="rc-thumb"><img src="/images/placeholders/book.svg" alt="Atomic Habits" /></div>
-                    <div class="rc-content">
-                      <h4 class="rc-title">Atomic Habits</h4>
-                      <p class="rc-author">James Clear</p>
-                      <p class="rc-desc">This book changed the way I think about growth. Small improvements done consistently lead to massive results over time.</p>
-                      <a class="rc-btn" href="https://www.amazon.com/dp/0735211299" target="_blank" rel="noopener">View Book &#x2192;</a>
-                    </div>
-                  </div>
-                </div></div>
-              </div>
-
-              <!-- Category: Recipes -->
-              <div class="cat-entry" id="cat-recipes">
-                <button class="cat-toggle" aria-expanded="false">
-                  <span class="cat-dot">&#9679;</span>
-                  <span class="cat-dash">&#x2015;&#x2015;</span>
-                  <span class="cat-label">Recipes</span>
-                </button>
-                <div class="cat-body"><div class="cat-body-inner">
-                  <div class="resource-card">
-                    <div class="rc-thumb"><img src="/images/placeholders/recipe.svg" alt="Recovery Smoothie" /></div>
-                    <div class="rc-content">
-                      <h4 class="rc-title">Recovery Smoothie</h4>
-                      <p class="rc-desc">Coming soon.</p>
-                    </div>
-                  </div>
-                  <div class="resource-card">
-                    <div class="rc-thumb"><img src="/images/placeholders/recipe.svg" alt="Game Day Breakfast" /></div>
-                    <div class="rc-content">
-                      <h4 class="rc-title">Game Day Breakfast</h4>
-                      <p class="rc-desc">Coming soon.</p>
-                    </div>
-                  </div>
-                </div></div>
-              </div>
-
-              <!-- Category: Podcasts -->
-              <div class="cat-entry" id="cat-podcasts">
-                <button class="cat-toggle" aria-expanded="false">
-                  <span class="cat-dot">&#9679;</span>
-                  <span class="cat-dash">&#x2015;&#x2015;</span>
-                  <span class="cat-label">Podcasts</span>
-                </button>
-                <div class="cat-body"><div class="cat-body-inner">
-                  <div class="resource-card">
-                    <div class="rc-thumb"><img src="/images/placeholders/podcast.svg" alt="Huberman Lab" /></div>
-                    <div class="rc-content">
-                      <h4 class="rc-title">Huberman Lab</h4>
-                      <p class="rc-desc">Science-based tools for everyday life. One of my go-to listens for understanding health and performance.</p>
-                    </div>
-                  </div>
-                  <div class="resource-card">
-                    <div class="rc-thumb"><img src="/images/placeholders/podcast.svg" alt="Mind Pump" /></div>
-                    <div class="rc-content">
-                      <h4 class="rc-title">Mind Pump</h4>
-                      <p class="rc-desc">Straight-talk on fitness, training, and the real science behind what works.</p>
-                    </div>
-                  </div>
-                </div></div>
-              </div>
-
-              <!-- Category: Where to Find Me -->
-              <div class="cat-entry" id="cat-socials">
-                <button class="cat-toggle" aria-expanded="false">
-                  <span class="cat-dot">&#9679;</span>
-                  <span class="cat-dash">&#x2015;&#x2015;</span>
-                  <span class="cat-label">Where to Find Me</span>
-                </button>
-                <div class="cat-body"><div class="cat-body-inner">
-                  <ul class="dot-list">
-                    <li><a class="dot-link" href="https://www.instagram.com/elijahbryant3/" target="_blank" rel="noopener">
-                      <span class="dl-platform">Instagram</span>
-                      <span class="dl-handle">@elijahbryant3</span>
-                    </a></li>
-                    <li><a class="dot-link" href="https://x.com/Elijah_Bryant3" target="_blank" rel="noopener">
-                      <span class="dl-platform">Twitter / X</span>
-                      <span class="dl-handle">@Elijah_Bryant3</span>
-                    </a></li>
-                    <li><a class="dot-link" href="https://www.tiktok.com/@elijah.bryant3" target="_blank" rel="noopener">
-                      <span class="dl-platform">TikTok</span>
-                      <span class="dl-handle">@elijah.bryant3</span>
-                    </a></li>
-                    <li><a class="dot-link" href="https://www.youtube.com/@ElijahBryant3" target="_blank" rel="noopener">
-                      <span class="dl-platform">YouTube</span>
-                      <span class="dl-handle">@ElijahBryant3</span>
-                    </a></li>
-                    <li><a class="dot-link" href="https://www.instagram.com/consistencyclub3/" target="_blank" rel="noopener">
-                      <span class="dl-platform">Consistency Club</span>
-                      <span class="dl-handle">@consistencyclub3</span>
-                    </a></li>
-                  </ul>
-                  <p class="affiliate-note">Some links may be affiliate links. I only recommend things I personally use and trust.</p>
-                </div></div>
-              </div>
-
-            </div><!-- /nav-panel-inner -->
-          </div><!-- /resources-panel -->
-        </div><!-- /nav-resources -->
-
-        <!-- ● My Journey -->
-        <div class="nav-entry" id="nav-journey">
-          <button class="nav-btn" id="nav-journey-btn">
-            <span class="nav-dot">&#9679;</span>
-            <span class="nav-dash">&#x2015;&#x2015;&#x2015;</span>
-            <span class="nav-label">My Journey</span>
-          </button>
-        </div>
-
-      </nav><!-- /main-nav -->
-
-      <!-- Footer -->
-      <footer id="site-footer">
-        <div class="footer-dots">
-          <span class="f-dot"></span>
-          <span class="f-dot"></span>
-          <span class="f-dot"></span>
-        </div>
-        <p class="footer-motto">Faith + Consistency</p>
-        <p class="footer-copy">&copy; 2025 Elijah Bryant</p>
-      </footer>
-
+      </div>
     </div>
   </div>
 
