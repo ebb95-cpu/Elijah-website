@@ -210,6 +210,15 @@
 
 .dlabel.lit { color: #d4c9b0; }
 
+#lbl-back {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(0.6rem, 1.6vw, 0.75rem);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #2a2a2a;
+}
+#lbl-back.lit { color: #999; }
+
 #footer {
   padding: 0 2rem 2rem;
   display: flex;
@@ -274,6 +283,296 @@
 }
 
 #rbtn:hover { color: #aaa; border-color: #666; }
+
+/* ─── Books orbit ─── */
+#books-orbit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Search bar — subtle top-right line */
+#books-search {
+  position: fixed;
+  top: 1.5rem;
+  right: 2rem;
+  z-index: 250;
+  display: none;
+}
+
+#books-search.show { display: block; }
+
+#books-search-input {
+  width: 120px;
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px solid rgba(255,255,255,0.1);
+  border-radius: 0;
+  padding: 4px 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.5);
+  outline: none;
+  transition: border-color 0.3s, width 0.3s, color 0.3s;
+  text-align: right;
+}
+
+#books-search-input::placeholder {
+  color: rgba(255,255,255,0.12);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+#books-search-input:focus {
+  border-color: rgba(212,201,176,0.3);
+  color: #e8e0d0;
+  width: 180px;
+}
+
+.book-thumb {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(212,201,176,0.25);
+  background: #151515;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.4s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1), border-color 0.3s ease, box-shadow 0.3s ease;
+  pointer-events: none;
+}
+
+.book-thumb.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.book-thumb.hovered {
+  transform: scale(2.8);
+  border-color: rgba(232,224,208,0.6);
+  box-shadow: 0 0 20px rgba(232,224,208,0.12);
+  z-index: 15;
+}
+
+.book-thumb.snapped {
+  border-color: #e8e0d0;
+  transform: scale(3.2);
+  box-shadow: 0 0 24px rgba(232,224,208,0.2);
+  z-index: 20;
+}
+
+.book-thumb.read-badge {
+  box-shadow: 0 0 0 2.5px rgba(120,180,100,0.5);
+}
+
+.book-thumb.read-badge.hovered {
+  box-shadow: 0 0 0 2.5px rgba(120,180,100,0.5), 0 0 20px rgba(232,224,208,0.12);
+}
+
+.book-placeholder {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  border: 1.5px solid rgba(212,201,176,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.5rem;
+  color: rgba(212,201,176,0.4);
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.4s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1), border-color 0.3s ease, box-shadow 0.3s ease;
+  pointer-events: none;
+}
+
+.book-placeholder.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.book-placeholder.hovered {
+  transform: scale(2.8);
+  border-color: rgba(232,224,208,0.6);
+  box-shadow: 0 0 20px rgba(232,224,208,0.12);
+  z-index: 15;
+}
+
+.book-placeholder.snapped {
+  border-color: #e8e0d0;
+  transform: scale(3.2);
+  box-shadow: 0 0 24px rgba(232,224,208,0.2);
+  z-index: 20;
+}
+
+.book-title-hover {
+  position: absolute;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #e8e0d0;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.book-title-hover.visible {
+  opacity: 1;
+}
+
+/* Books navigation */
+#books-nav {
+  display: none;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+#books-nav.show {
+  display: flex;
+}
+
+.books-nav-btn {
+  background: transparent;
+  border: 0.5px solid #2c2c2c;
+  color: #444;
+  padding: 5px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 1px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.books-nav-btn:hover { color: #aaa; border-color: #666; }
+
+#books-page-info {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  color: #444;
+}
+
+/* ─── Book Detail Overlay ─── */
+#book-detail {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,8,0.96);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+#book-detail.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#book-detail-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  max-width: 400px;
+  width: 90vw;
+  text-align: center;
+}
+
+#bd-cover {
+  width: 140px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid rgba(212,201,176,0.15);
+  background: #151515;
+}
+
+#bd-cover.hidden { display: none; }
+
+#bd-placeholder {
+  width: 140px;
+  height: 200px;
+  border-radius: 4px;
+  border: 1px solid rgba(212,201,176,0.15);
+  background: #151515;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: rgba(212,201,176,0.35);
+}
+
+#bd-placeholder.show { display: flex; }
+
+#bd-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: #e8e0d0;
+}
+
+#bd-author {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+#bd-status {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 2px;
+}
+
+#bd-status.read {
+  color: rgba(120,180,100,0.8);
+  border: 0.5px solid rgba(120,180,100,0.3);
+}
+
+#bd-status.to-read {
+  color: rgba(212,201,176,0.5);
+  border: 0.5px solid rgba(212,201,176,0.15);
+}
+
+#bd-notes {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.7;
+  max-width: 340px;
+}
+
+#bd-close {
+  margin-top: 0.5rem;
+}
 
 /* ─── Tablet ─── */
 @media (max-width: 1024px) {

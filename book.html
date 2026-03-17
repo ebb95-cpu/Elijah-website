@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book — Elijah Bryant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; scroll-behavior:smooth; }
+    body {
+      background: #080808;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+    a { text-decoration:none; color:inherit; }
+    ::selection { background: rgba(255,255,255,0.12); }
+
+    /* Back nav */
+    .back-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 1.5rem 2rem;
+      z-index: 100;
+      background: linear-gradient(to bottom, #080808 60%, transparent);
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.55rem;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #555;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #aaa; }
+    .back-dot { font-size: 6px; color: rgba(212,201,176,0.4); }
+
+    /* Main layout */
+    .book-page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+    }
+
+    /* Hero */
+    .book-hero {
+      display: flex;
+      gap: clamp(1.5rem, 4vw, 2.5rem);
+      align-items: flex-start;
+      margin-bottom: 3rem;
+    }
+
+    .book-cover-wrap {
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .book-cover {
+      width: clamp(120px, 22vw, 180px);
+      height: auto;
+      border-radius: 4px;
+      border: 1px solid rgba(212,201,176,0.12);
+      background: #151515;
+      display: block;
+    }
+
+    .book-cover-placeholder {
+      width: clamp(120px, 22vw, 180px);
+      height: clamp(170px, 30vw, 260px);
+      border-radius: 4px;
+      border: 1px solid rgba(212,201,176,0.12);
+      background: #151515;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      color: rgba(212,201,176,0.25);
+    }
+
+    .book-meta {
+      flex: 1;
+      padding-top: 0.5rem;
+    }
+
+    .book-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: #e8e0d0;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+
+    .book-author {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    .book-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .tag {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.5rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    .tag-genre {
+      color: rgba(212,201,176,0.7);
+      border: 0.5px solid rgba(212,201,176,0.2);
+    }
+
+    .tag-read {
+      color: rgba(120,180,100,0.8);
+      border: 0.5px solid rgba(120,180,100,0.3);
+    }
+
+    .tag-list {
+      color: rgba(212,201,176,0.45);
+      border: 0.5px solid rgba(212,201,176,0.12);
+    }
+
+    .buy-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.55rem;
+      font-weight: 300;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #e8e0d0;
+      border: 0.5px solid rgba(212,201,176,0.3);
+      padding: 8px 18px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      margin-top: 0.5rem;
+    }
+    .buy-link:hover { border-color: rgba(212,201,176,0.7); }
+    .buy-arrow { font-size: 0.7rem; }
+
+    /* Sections */
+    .book-section {
+      margin-bottom: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .section-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.55rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-dot {
+      font-size: 5px;
+      color: rgba(212,201,176,0.35);
+    }
+
+    .section-body {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.8;
+    }
+
+    .section-body.empty {
+      font-style: italic;
+      color: rgba(255,255,255,0.2);
+    }
+
+    /* Footer */
+    .book-footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      text-align: center;
+    }
+
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 1.1rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.2);
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      .book-hero {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .book-tags { justify-content: center; }
+      .book-meta { padding-top: 0; }
+      .book-page { padding: 5rem 1.2rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="back-nav">
+    <a class="back-link" href="index.html">
+      <span class="back-dot">&#9679;</span>
+      <span>&larr; back to books</span>
+    </a>
+  </nav>
+
+  <div class="book-page" id="book-page">
+    <!-- Populated by JS -->
+  </div>
+
+  <script src="js/books-data.js"></script>
+  <script>
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    var bookId = parseInt(params.get('id'), 10);
+    var book = getBookById(bookId);
+
+    if (!book) {
+      document.getElementById('book-page').innerHTML = '<p style="text-align:center;color:#555;margin-top:4rem;">Book not found.</p>';
+      return;
+    }
+
+    document.title = book.title + ' — Elijah Bryant';
+
+    var coverUrl = getBookCover(book.isbn);
+    var amazonUrl = getAmazonLink(book);
+    var initials = book.title.split(' ').slice(0,2).map(function(w){ return w.charAt(0).toUpperCase(); }).join('');
+
+    var coverHtml;
+    if (coverUrl) {
+      coverHtml = '<img class="book-cover" id="book-cover-img" src="' + coverUrl + '" alt="' + book.title + '" onerror="this.style.display=\'none\';document.getElementById(\'cover-fallback\').style.display=\'flex\';" />' +
+                  '<div class="book-cover-placeholder" id="cover-fallback" style="display:none;">' + initials + '</div>';
+    } else {
+      coverHtml = '<div class="book-cover-placeholder">' + initials + '</div>';
+    }
+
+    var statusTag = book.read
+      ? '<span class="tag tag-read">Read \u2713</span>'
+      : '<span class="tag tag-list">On my list</span>';
+
+    var html = '' +
+      '<div class="book-hero">' +
+        '<div class="book-cover-wrap">' + coverHtml + '</div>' +
+        '<div class="book-meta">' +
+          '<h1 class="book-title">' + book.title + '</h1>' +
+          (book.author ? '<p class="book-author">' + book.author + '</p>' : '') +
+          '<div class="book-tags">' +
+            '<span class="tag tag-genre">' + book.genre + '</span>' +
+            statusTag +
+          '</div>' +
+          '<a class="buy-link" href="' + amazonUrl + '" target="_blank" rel="noopener">' +
+            'Get this book <span class="buy-arrow">&rarr;</span>' +
+          '</a>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="book-section">' +
+        '<div class="section-label"><span class="section-dot">&#9679;</span> Why I chose this book</div>' +
+        '<div class="section-body ' + (book.why ? '' : 'empty') + '">' +
+          (book.why || 'Coming soon — I\'ll share why this book caught my attention.') +
+        '</div>' +
+      '</div>' +
+
+      '<div class="book-section">' +
+        '<div class="section-label"><span class="section-dot">&#9679;</span> What it did for me</div>' +
+        '<div class="section-body ' + (book.helped ? '' : 'empty') + '">' +
+          (book.helped || 'Coming soon — I\'ll share the impact this book had.') +
+        '</div>' +
+      '</div>' +
+
+      '<div class="book-section">' +
+        '<div class="section-label"><span class="section-dot">&#9679;</span> My notes</div>' +
+        '<div class="section-body ' + (book.notes ? '' : 'empty') + '">' +
+          (book.notes || 'Coming soon — I\'ll add my key takeaways and notes.') +
+        '</div>' +
+      '</div>' +
+
+      '<div class="book-footer">' +
+        '<p class="footer-brand">Faith + Consistency</p>' +
+      '</div>';
+
+    document.getElementById('book-page').innerHTML = html;
+  })();
+  </script>
+</body>
+</html>

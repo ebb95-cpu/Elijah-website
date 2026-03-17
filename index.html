@@ -132,6 +132,11 @@
     </div>
   </div>
 
+  <!-- Book search (fixed top-right, shown in book mode) -->
+  <div id="books-search">
+    <input type="text" id="books-search-input" placeholder="Search" autocomplete="off" />
+  </div>
+
   <!-- ── SCREEN 4: Continue the Journey ── -->
   <div id="sections-screen">
     <div id="page">
@@ -141,9 +146,18 @@
       <div id="canvas-zone">
         <div id="wrap">
           <canvas id="c"></canvas>
+          <!-- Main level labels -->
           <div id="lbl-ask"  class="dlabel"></div>
           <div id="lbl-res"  class="dlabel"></div>
           <div id="lbl-jour" class="dlabel"></div>
+          <!-- Resources sub-level labels -->
+          <div id="lbl-books"  class="dlabel"></div>
+          <div id="lbl-tools"  class="dlabel"></div>
+          <div id="lbl-guides" class="dlabel"></div>
+          <!-- Back dot label (shown on sub-levels) -->
+          <div id="lbl-back" class="dlabel"></div>
+          <!-- Book thumbnails container (populated by JS) -->
+          <div id="books-orbit"></div>
         </div>
       </div>
       <div id="footer">
@@ -157,12 +171,14 @@
     </div>
   </div>
 
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- App scripts (no old map.js or transitions.js) -->
+  <!-- App scripts -->
   <script src="js/intro.js"></script>
   <script src="js/journey.js"></script>
+  <script src="js/books-data.js"></script>
   <script src="js/sections.js"></script>
 </body>
 </html>
