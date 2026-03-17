@@ -195,24 +195,30 @@
       canvas.height = Math.round(H * devicePixelRatio);
       ctx.setTransform(1,0,0,1,0,0);
       ctx.scale(devicePixelRatio, devicePixelRatio);
-      cx = W/2; cy = H*0.50; // shifted down so books don't cover the logo
+      cx = W/2; cy = H*0.55; // push center down to make room for back dot above
       src.x = cx; src.y = cy; src.r = 10*sc;
 
-      // Arrange ALL books in concentric rings
+      // Arrange ALL books in concentric rings — first ring well away from center
       var remaining = allBooks.slice();
-      var ringRadius = 60 * sc;
-      var ringGap = 38 * sc;
+      var ringRadius = 120 * sc;
+      var ringGap = 42 * sc;
       var ringIndex = 0;
 
       while (remaining.length > 0) {
-        var circumference = 2 * Math.PI * ringRadius;
+        // Skip the top zone where Back dot lives, distribute symmetrically
+        // PI/2 is straight down. We center the arc on the bottom and spread evenly.
+        var gapHalf = 0.55; // radians (~31°) on each side of straight-up to keep clear
+        var arcSpan = (2 * Math.PI) - (2 * gapHalf);
+        var arcCenter = Math.PI / 2; // bottom center
         var spacing = (bookR * 2) + 6 * sc;
-        var count = Math.min(Math.floor(circumference / spacing), remaining.length);
+        var arcLength = arcSpan * ringRadius;
+        var count = Math.min(Math.floor(arcLength / spacing), remaining.length);
         if (count < 1) count = 1;
 
         var batch = remaining.splice(0, count);
         batch.forEach(function(book, i) {
-          var angle = (i / count) * Math.PI * 2 - Math.PI/2;
+          // Center the distribution on the bottom, spread symmetrically
+          var angle = arcCenter - (arcSpan / 2) + ((i + 0.5) / count) * arcSpan;
           var bx = cx + Math.cos(angle) * ringRadius;
           var by = cy + Math.sin(angle) * ringRadius;
 
@@ -261,17 +267,16 @@
         ringIndex++;
       }
 
-      // Show back dot at top (below logo area)
+      // Back dot — halfway between top of canvas and center, totally isolated
       var backLbl = document.getElementById('lbl-back');
-      var backY = Math.max(30*sc, cy - 50*sc);
+      var backY = cy * 0.35; // well above center, below logo
       backLbl.style.left = '50%';
-      backLbl.style.top = Math.max(4, (backY/H*100) - 4) + '%';
+      backLbl.style.top = ((backY/H*100) + 3.5) + '%';
       backLbl.textContent = 'Back';
       backLbl.style.opacity = '1';
+      bookPositions.backDot = { x:cx, y:backY, r:8*sc };
 
-      bookPositions.backDot = { x:cx, y:backY, r:6*sc };
-
-      // Show search bar
+      document.getElementById('books-back-link').classList.add('show');
       document.getElementById('books-search').classList.add('show');
     }
 
@@ -286,7 +291,7 @@
     function getSnapBook(pos) {
       for (var i = 0; i < bookPositions.length; i++) {
         var bp = bookPositions[i];
-        if (bp.filtered) continue; // skip search-filtered books
+        if (bp.filtered) continue;
         var dx = pos.x - bp.x, dy = pos.y - bp.y;
         if (Math.sqrt(dx*dx+dy*dy) < bp.r + 15*sc) return bp;
       }
@@ -336,9 +341,10 @@
         lastHoveredBp = closest;
         if (closest.el) closest.el.classList.add('hovered');
         if (!hoverTitleEl) createHoverTitle();
-        hoverTitleEl.textContent = closest.book.title;
+        hoverTitleEl.innerHTML = '<span class="bth-title">' + closest.book.title + '</span>' +
+          (closest.book.author ? '<span class="bth-author">' + closest.book.author + '</span>' : '');
         hoverTitleEl.style.left = closest.x + 'px';
-        hoverTitleEl.style.top = (closest.y - closest.r - 16*sc) + 'px';
+        hoverTitleEl.style.top = (closest.y + closest.r*7 + 8*sc) + 'px';
         hoverTitleEl.classList.add('visible');
       } else if (!closest && lastHoveredBp) {
         clearHover();
@@ -384,6 +390,11 @@
     // Prevent canvas drag when typing in search
     searchInput.addEventListener('mousedown', function(e) { e.stopPropagation(); });
     searchInput.addEventListener('touchstart', function(e) { e.stopPropagation(); });
+
+    // Books back link
+    document.getElementById('books-back-link').addEventListener('click', function() {
+      if (!fading && isBookMode) exitBookMode();
+    });
 
     // ─── Level switching ────────────────────────────────────────────────────
 
@@ -435,9 +446,10 @@
           revealed = null; lineP = 0; dragPos = null; snapDest = null;
           t0 = Date.now();
 
-          // Reset wrap height and search
+          // Reset wrap height, search, and back link
           wrap.style.height = '';
           document.getElementById('books-search-input').value = '';
+          document.getElementById('books-back-link').classList.remove('show');
           document.getElementById('panel').classList.remove('show');
           document.getElementById('instr').textContent = 'drag the dot \u00b7 explore resources';
           document.getElementById('instr').style.opacity = '1';
@@ -597,24 +609,27 @@
     function drawBookMode(t) {
       // Draw dim lines from center to each book
       bookPositions.forEach(function(bp) {
-        if (!bp.book) return; // skip backDot
+        if (!bp.book) return;
         ctx.beginPath(); ctx.moveTo(src.x,src.y); ctx.lineTo(bp.x,bp.y);
         ctx.strokeStyle = 'rgba(255,255,255,0.06)';
         ctx.lineWidth = 0.5; ctx.stroke();
       });
 
-      // Draw back dot
+      // Draw back dot — isolated above, straight up from center
       if (bookPositions.backDot) {
         var bd = bookPositions.backDot;
         var isSnapBack = snapBook && snapBook.isBack;
+        // Vertical line from center to back dot
         ctx.beginPath(); ctx.moveTo(src.x,src.y); ctx.lineTo(bd.x,bd.y);
-        ctx.strokeStyle = isSnapBack ? 'rgba(212,201,176,0.55)' : 'rgba(255,255,255,0.12)';
-        ctx.lineWidth = isSnapBack ? 1.2 : 0.75; ctx.stroke();
-        var bdr = isSnapBack ? bd.r+3*sc : bd.r;
+        ctx.strokeStyle = isSnapBack ? 'rgba(212,201,176,0.5)' : 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = isSnapBack ? 1.5 : 0.5; ctx.stroke();
+        // The dot itself — larger than book dots
+        var bdr = isSnapBack ? bd.r+4*sc : bd.r;
         ctx.beginPath(); ctx.arc(bd.x,bd.y,bdr,0,Math.PI*2);
-        ctx.fillStyle = 'rgba(212,201,176,'+(isSnapBack?'0.95':'0.35')+')'; ctx.fill();
+        ctx.fillStyle = isSnapBack ? 'rgba(212,201,176,0.95)' : 'rgba(212,201,176,0.3)';
+        ctx.fill();
         if (isSnapBack) {
-          ctx.beginPath(); ctx.arc(bd.x,bd.y,bdr+8*sc,0,Math.PI*2);
+          ctx.beginPath(); ctx.arc(bd.x,bd.y,bdr+10*sc,0,Math.PI*2);
           ctx.strokeStyle='rgba(212,201,176,0.15)'; ctx.lineWidth=1; ctx.stroke();
         }
       }
@@ -630,10 +645,18 @@
         ctx.beginPath(); ctx.moveTo(src.x,src.y); ctx.lineTo(tx,ty);
         ctx.strokeStyle=g; ctx.lineWidth=1.8; ctx.stroke();
 
-        // Highlight snapped book thumbnail
+        // Highlight snapped book thumbnail + show title card
         bookPositions.forEach(function(bp) {
           if (bp.el) bp.el.classList.toggle('snapped', !!(snap && !snap.isBack && snap.book && snap.book.id === bp.book.id));
         });
+        if (snap && !snap.isBack && snap.book) {
+          if (!hoverTitleEl) createHoverTitle();
+          hoverTitleEl.innerHTML = '<span class="bth-title">' + snap.book.title + '</span>' +
+            (snap.book.author ? '<span class="bth-author">' + snap.book.author + '</span>' : '');
+          hoverTitleEl.classList.add('visible');
+        } else {
+          if (hoverTitleEl) hoverTitleEl.classList.remove('visible');
+        }
         // Back dot label highlight
         var backLbl = document.getElementById('lbl-back');
         if (backLbl) backLbl.classList.toggle('lit', !!(snap && snap.isBack));
@@ -702,17 +725,14 @@
       if (isBookMode) {
         if (snapBook) {
           if (snapBook.isBack) {
-            // Go back to resources
             setTimeout(exitBookMode, 400);
           } else {
             revealedBook = snapBook; bookLineP = 0;
-            // Show book detail after line animation
             var theBook = snapBook.book;
             setTimeout(function() { navigateToBook(theBook); }, 700);
           }
         }
         snapBook = null; dragPos = null;
-        // Clear thumbnail highlights
         bookPositions.forEach(function(bp) {
           if (bp.el) bp.el.classList.remove('snapped');
         });

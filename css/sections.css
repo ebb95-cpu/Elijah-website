@@ -291,6 +291,33 @@
   pointer-events: none;
 }
 
+/* Books back link — subtle top-left */
+#books-back-link {
+  position: fixed;
+  top: 1.5rem;
+  left: 2rem;
+  z-index: 250;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.15);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+#books-back-link.show { display: flex; }
+#books-back-link:hover { color: rgba(255,255,255,0.5); }
+
+.back-dot-icon {
+  font-size: 5px;
+  color: rgba(212,201,176,0.3);
+}
+
 /* Search bar — subtle top-right line */
 #books-search {
   position: fixed;
@@ -351,9 +378,9 @@
 }
 
 .book-thumb.hovered {
-  transform: scale(2.8);
+  transform: scale(7);
   border-color: rgba(232,224,208,0.6);
-  box-shadow: 0 0 20px rgba(232,224,208,0.12);
+  box-shadow: 0 0 30px rgba(232,224,208,0.2);
   z-index: 15;
 }
 
@@ -398,9 +425,9 @@
 }
 
 .book-placeholder.hovered {
-  transform: scale(2.8);
+  transform: scale(7);
   border-color: rgba(232,224,208,0.6);
-  box-shadow: 0 0 20px rgba(232,224,208,0.12);
+  box-shadow: 0 0 30px rgba(232,224,208,0.2);
   z-index: 15;
 }
 
@@ -412,23 +439,49 @@
 }
 
 .book-title-hover {
-  position: absolute;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.5rem;
-  font-weight: 300;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #e8e0d0;
-  white-space: nowrap;
+  position: fixed;
+  left: 50% !important;
+  bottom: 100px;
+  top: auto !important;
+  transform: translateX(-50%);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.25s ease;
-  transform: translateX(-50%);
-  z-index: 20;
+  transition: opacity 0.3s ease;
+  z-index: 300;
+  text-align: center;
+  background: rgba(0,0,0,0.88);
+  border: 0.5px solid rgba(212,201,176,0.15);
+  padding: 14px 24px;
+  border-radius: 3px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  min-width: 200px;
+  max-width: 320px;
 }
 
 .book-title-hover.visible {
   opacity: 1;
+}
+
+.book-title-hover .bth-title {
+  display: block;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.book-title-hover .bth-author {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(212,201,176,0.6);
+  margin-top: 6px;
 }
 
 /* Books navigation */
