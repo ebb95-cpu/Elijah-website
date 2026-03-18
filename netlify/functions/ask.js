@@ -138,17 +138,33 @@ exports.handler = async function (event) {
 
   try {
     // 1. Embed the question
-    const queryEmbedding = await embedQuery(message);
+    let queryEmbedding;
+    try {
+      queryEmbedding = await embedQuery(message);
+    } catch (embedErr) {
+      console.error('Embedding error:', embedErr);
+      queryEmbedding = null;
+    }
 
-    // 2. Search knowledge base
-    const matches = await searchKnowledge(queryEmbedding);
+    // 2. Search knowledge base (skip if embedding failed or index is empty)
+    let matches = [];
+    if (queryEmbedding) {
+      try {
+        matches = await searchKnowledge(queryEmbedding);
+      } catch (searchErr) {
+        console.error('Pinecone search error:', searchErr);
+        matches = [];
+      }
+    }
 
     // 3. Build context from matches
     const contextChunks = matches.map(function (m, i) {
       const meta = m.metadata || {};
       return `[Source ${i + 1}: ${meta.title || 'Unknown'} | ${meta.source_type || ''} | ${meta.url || ''}]\n${meta.text || ''}`;
     });
-    const context = contextChunks.join('\n\n---\n\n');
+    const context = contextChunks.length > 0
+      ? contextChunks.join('\n\n---\n\n')
+      : 'No content from my knowledge base matched this question. Answer based on general knowledge while staying in character as Elijah.';
 
     // 4. Build conversation messages
     const messages = [];
@@ -198,23 +214,26 @@ exports.handler = async function (event) {
         };
       });
 
-    // 9. Log to Supabase
+    // 9. Log to Supabase (non-blocking — don't let DB errors break the chat)
     let questionId = null;
-    if (userId) {
-      const { data } = await supabase.from('questions').insert({
-        user_id: userId,
-        question_text: message,
-        response_text: cleanResponse,
-        sources_used: JSON.stringify(sources),
-        confidence: confidence,
-        status: escalated ? 'needs_elijah' : 'answered',
-        notify_user: false
-      }).select('id').single();
+    try {
+      if (userId) {
+        const { data } = await supabase.from('questions').insert({
+          user_id: userId,
+          question_text: message,
+          response_text: cleanResponse,
+          sources_used: JSON.stringify(sources),
+          confidence: confidence,
+          status: escalated ? 'needs_elijah' : 'answered',
+          notify_user: false
+        }).select('id').single();
 
-      if (data) questionId = data.id;
+        if (data) questionId = data.id;
 
-      // Update user profile
-      await supabase.rpc('increment_question_count', { uid: userId }).catch(function () {});
+        await supabase.rpc('increment_question_count', { uid: userId }).catch(function () {});
+      }
+    } catch (dbErr) {
+      console.error('Supabase log error:', dbErr);
     }
 
     return {
