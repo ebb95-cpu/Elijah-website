@@ -34,8 +34,11 @@ html, body {
   pointer-events: auto;
 }
 
-/* Start with auth visible */
-#auth-screen { opacity: 1; pointer-events: auto; }
+/* Start with auth visible — uses .visible class like the rest */
+#auth-screen { z-index: 20; }
+#chat-screen { z-index: 15; }
+#magic-link-screen { z-index: 20; }
+#notify-modal { z-index: 50; }
 
 /* ── Dot Row (shared brand element) ── */
 .dot-row {
