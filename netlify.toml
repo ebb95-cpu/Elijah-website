@@ -1,6 +1,16 @@
 [build]
-  command = ""
-    publish = "."
+  command = "npm install"
+  publish = "."
 
-    [build.environment]
-      NODE_VERSION = "18"
+  [build.environment]
+    NODE_VERSION = "18"
+
+[functions]
+  directory = "netlify/functions"
+
+# Scheduled functions
+[functions."ingest-youtube"]
+  schedule = "0 6 * * *"
+
+[functions."ingest-social"]
+  schedule = "0 7 * * *"

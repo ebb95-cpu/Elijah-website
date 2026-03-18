@@ -755,7 +755,7 @@
           if (snapDest.id === 'back') {
             setTimeout(function() { switchLevel('main'); }, 600);
           } else if (snapDest.id === 'ask') {
-            setTimeout(openAsk, 600);
+            setTimeout(function() { window.location.href = '/ask-elijah/'; }, 600);
           } else if (snapDest.id === 'jour') {
             setTimeout(function() { location.reload(); }, 600);
           } else if (snapDest.id === 'res') {

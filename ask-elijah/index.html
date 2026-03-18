@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ask Elijah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/ask.css" />
+</head>
+<body>
+
+  <!-- ── SIGN-IN SCREEN ── -->
+  <div id="auth-screen">
+    <div id="auth-card">
+      <div class="dot-row">
+        <span class="dot-icon">&#9679;</span>
+        <span class="dot-dash">&#x2015;&#x2015;&#x2015;</span>
+        <span class="dot-title">Ask Elijah</span>
+      </div>
+      <p class="auth-tagline">Your questions. My experience. Real answers.</p>
+
+      <div id="auth-buttons">
+        <!-- Google & Apple sign-in (hidden until configured) -->
+        <button class="auth-btn" id="auth-apple" style="display:none">
+          Continue with Apple
+        </button>
+        <button class="auth-btn" id="auth-google" style="display:none">
+          Continue with Google
+        </button>
+        <form id="auth-email-form">
+          <input type="email" id="auth-email-input" placeholder="Enter your email" autocomplete="email" required />
+          <button type="submit" class="auth-btn auth-btn--email">Continue with Email</button>
+        </form>
+      </div>
+
+      <p class="auth-footer">By continuing, you agree to our terms of use.</p>
+    </div>
+  </div>
+
+  <!-- ── MAGIC LINK SENT ── -->
+  <div id="magic-link-screen">
+    <div id="magic-link-card">
+      <div class="dot-row">
+        <span class="dot-icon">&#9679;</span>
+        <span class="dot-dash">&#x2015;&#x2015;&#x2015;</span>
+        <span class="dot-title">Check your email</span>
+      </div>
+      <p class="magic-link-msg">I sent you a sign-in link. Click it to continue.</p>
+      <button class="auth-btn auth-btn--back" id="back-to-auth">Back to sign in</button>
+    </div>
+  </div>
+
+  <!-- ── CHAT SCREEN ── -->
+  <div id="chat-screen">
+    <!-- Header -->
+    <div id="chat-header">
+      <div class="dot-row">
+        <span class="dot-icon">&#9679;</span>
+        <span class="dot-dash">&#x2015;&#x2015;</span>
+        <span class="dot-title">Ask Elijah</span>
+      </div>
+      <button id="chat-menu-btn">&#8942;</button>
+    </div>
+
+    <!-- Messages area -->
+    <div id="chat-messages">
+      <!-- Welcome message -->
+      <div id="welcome-section">
+        <div class="welcome-avatar">E</div>
+        <p class="welcome-text">What's on your mind? I'm here to share what I've learned from my journey — training, books, mindset, whatever you're working through.</p>
+        <div id="suggested-questions">
+          <button class="suggested-q" data-q="What does your morning routine look like?">What does your morning routine look like?</button>
+          <button class="suggested-q" data-q="What books changed your perspective the most?">What books changed your perspective the most?</button>
+          <button class="suggested-q" data-q="How do you stay consistent when motivation drops?">How do you stay consistent when motivation drops?</button>
+          <button class="suggested-q" data-q="What's your approach to nutrition?">What's your approach to nutrition?</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing indicator -->
+    <div id="typing-indicator">
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+    </div>
+
+    <!-- Input bar -->
+    <div id="chat-input-bar">
+      <textarea id="chat-input" placeholder="Ask me anything..." rows="1"></textarea>
+      <button id="chat-send">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── NOTIFY MODAL ── -->
+  <div id="notify-modal">
+    <div id="notify-card">
+      <p class="notify-msg">I've sent your question directly to Elijah. Want to get notified when he responds?</p>
+      <div class="notify-actions">
+        <button id="notify-yes" class="auth-btn">Yes, notify me</button>
+        <button id="notify-no" class="auth-btn auth-btn--back">No thanks</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ask.js"></script>
+</body>
+</html>
