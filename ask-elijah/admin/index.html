@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ask Elijah — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@300;400;500&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+
+  <!-- ── LOGIN GATE ── -->
+  <div id="admin-login">
+    <div class="admin-login-card">
+      <div class="dot-row">
+        <span class="dot-icon">&#9679;</span>
+        <span class="dot-dash">&#x2015;&#x2015;</span>
+        <span class="dot-title">Admin</span>
+      </div>
+      <form id="admin-login-form">
+        <input type="password" id="admin-password" placeholder="Password" autocomplete="current-password" />
+        <button type="submit" class="admin-btn">Enter</button>
+      </form>
+      <button class="admin-forgot-link" id="forgot-password">Forgot password?</button>
+      <p id="forgot-msg" class="forgot-msg"></p>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+  <div id="admin-dashboard">
+    <!-- Sidebar -->
+    <nav id="admin-nav">
+      <div class="admin-logo">
+        <span class="dot-icon">&#9679;</span>
+        <span>Ask Elijah</span>
+      </div>
+      <div class="nav-links">
+        <button class="nav-link active" data-tab="overview">Overview</button>
+        <button class="nav-link" data-tab="escalated">
+          Escalated <span id="escalated-badge" class="nav-badge">0</span>
+        </button>
+        <button class="nav-link" data-tab="questions">Questions</button>
+        <button class="nav-link" data-tab="users">Users</button>
+        <button class="nav-link" data-tab="upload">Upload</button>
+        <button class="nav-link" data-tab="ingestion">Knowledge Base</button>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main id="admin-main">
+
+      <!-- ── Overview Tab ── -->
+      <section id="tab-overview" class="tab-content active">
+        <h2>Overview</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-num" id="stat-users">—</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-questions">—</div>
+            <div class="stat-label">Questions Asked</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-escalated">—</div>
+            <div class="stat-label">Needs Your Answer</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-chunks">—</div>
+            <div class="stat-label">Knowledge Chunks</div>
+          </div>
+        </div>
+        <div class="recent-section">
+          <h3>Recent Questions</h3>
+          <div id="recent-questions"></div>
+        </div>
+      </section>
+
+      <!-- ── Escalated Tab ── -->
+      <section id="tab-escalated" class="tab-content">
+        <div class="tab-header">
+          <h2>Escalated Questions</h2>
+          <p class="tab-desc">Questions the AI couldn't confidently answer. Your response will be polished and added to the knowledge base.</p>
+        </div>
+        <div id="escalated-list"></div>
+
+        <!-- Answer editor modal -->
+        <div id="answer-editor" class="editor-overlay">
+          <div class="editor-card">
+            <div class="editor-header">
+              <h3>Respond to Question</h3>
+              <button class="editor-close" id="editor-close">&#x2715;</button>
+            </div>
+            <div class="editor-question" id="editor-question-text"></div>
+            <div class="editor-user-info" id="editor-user-info"></div>
+            <div class="editor-field">
+              <label>Your raw answer:</label>
+              <textarea id="editor-raw-input" rows="6" placeholder="Type your answer as you naturally would..."></textarea>
+            </div>
+            <button class="admin-btn" id="editor-polish">Polish with AI</button>
+            <div class="editor-field" id="editor-polished-section" style="display:none;">
+              <label>Polished version:</label>
+              <div id="editor-polished-text" class="polished-preview"></div>
+              <div class="editor-actions">
+                <button class="admin-btn admin-btn--primary" id="editor-approve">Approve & Save</button>
+                <button class="admin-btn" id="editor-re-edit">Edit again</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Questions Tab ── -->
+      <section id="tab-questions" class="tab-content">
+        <div class="tab-header">
+          <h2>All Questions</h2>
+          <div class="tab-actions">
+            <select id="q-filter-status">
+              <option value="">All statuses</option>
+              <option value="answered">Answered</option>
+              <option value="needs_elijah">Needs Elijah</option>
+              <option value="elijah_responded">Elijah Responded</option>
+              <option value="human_verified">Verified</option>
+            </select>
+            <button class="admin-btn" id="export-questions">Export .xlsx</button>
+          </div>
+        </div>
+        <div id="questions-table"></div>
+      </section>
+
+      <!-- ── Users Tab ── -->
+      <section id="tab-users" class="tab-content">
+        <div class="tab-header">
+          <h2>Users</h2>
+          <div class="tab-actions">
+            <button class="admin-btn" id="export-users">Export .xlsx</button>
+          </div>
+        </div>
+        <div id="users-table"></div>
+
+        <!-- User detail drawer -->
+        <div id="user-detail" class="detail-drawer">
+          <div class="detail-header">
+            <button class="detail-back" id="user-detail-back">&larr; Back</button>
+            <h3 id="user-detail-name"></h3>
+          </div>
+          <div class="detail-meta" id="user-detail-meta"></div>
+          <h4>Questions</h4>
+          <div id="user-detail-questions"></div>
+        </div>
+      </section>
+
+      <!-- ── Upload Tab ── -->
+      <section id="tab-upload" class="tab-content">
+        <div class="tab-header">
+          <h2>Upload Content</h2>
+          <p class="tab-desc">Upload files to add to the knowledge base. Supports PDF, MP4, audio, and text files.</p>
+        </div>
+        <div id="upload-zone">
+          <div id="drop-area">
+            <p class="drop-text">Drop files here or click to browse</p>
+            <p class="drop-hint">PDF, MP4, MP3, M4A, TXT, MD</p>
+            <input type="file" id="file-input" multiple accept=".pdf,.mp4,.mp3,.m4a,.wav,.txt,.md,.webm" />
+          </div>
+          <div id="upload-queue"></div>
+        </div>
+      </section>
+
+      <!-- ── Ingestion Tab (Knowledge Base) ── -->
+      <section id="tab-ingestion" class="tab-content">
+        <div class="tab-header">
+          <h2>Knowledge Base</h2>
+          <div class="tab-actions">
+            <select id="kb-filter-type">
+              <option value="">All sources</option>
+              <option value="youtube">YouTube</option>
+              <option value="youtube-comments">YouTube Comments</option>
+              <option value="upload">Uploads</option>
+              <option value="instagram">Instagram</option>
+              <option value="twitter">Twitter</option>
+            </select>
+            <select id="kb-filter-status">
+              <option value="">All statuses</option>
+              <option value="processing">Processing</option>
+              <option value="done">Done</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+        </div>
+        <p class="tab-desc">Everything in the knowledge base — YouTube videos, social posts, and manual uploads. See what's been ingested and what's still processing.</p>
+
+        <!-- Stats row -->
+        <div class="kb-stats-row">
+          <div class="kb-stat">
+            <span class="kb-stat-num" id="kb-total">—</span>
+            <span class="kb-stat-label">Total Items</span>
+          </div>
+          <div class="kb-stat">
+            <span class="kb-stat-num" id="kb-processing">—</span>
+            <span class="kb-stat-label">Processing</span>
+          </div>
+          <div class="kb-stat">
+            <span class="kb-stat-num" id="kb-chunks-total">—</span>
+            <span class="kb-stat-label">Total Chunks</span>
+          </div>
+        </div>
+
+        <!-- Manual triggers -->
+        <div class="ingestion-controls">
+          <button class="admin-btn" id="trigger-youtube">Run YouTube Ingestion Now</button>
+          <button class="admin-btn" id="trigger-social">Run Social Ingestion Now</button>
+        </div>
+
+        <!-- Knowledge base items list -->
+        <div id="ingestion-log"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
