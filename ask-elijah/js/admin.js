@@ -413,7 +413,169 @@
   });
 
   // ══════════════════════════════════
-  // UPLOAD
+  // ADD KNOWLEDGE
+  // ══════════════════════════════════
+
+  // KB tab switching
+  document.querySelectorAll('.kb-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.kb-tab').forEach(function (t) { t.classList.remove('active'); });
+      document.querySelectorAll('.kb-tab-content').forEach(function (c) { c.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById('kbtab-' + tab.getAttribute('data-kbtab')).classList.add('active');
+    });
+  });
+
+  // KB modal
+  var kbModal = document.getElementById('kb-modal');
+  var kbModalTitle = document.getElementById('kb-modal-title');
+  var kbModalBody = document.getElementById('kb-modal-body');
+  var kbModalSubmit = document.getElementById('kb-modal-submit');
+  var kbModalType = '';
+
+  document.getElementById('kb-modal-close').addEventListener('click', function () {
+    kbModal.classList.remove('visible');
+  });
+
+  // YouTube Video card
+  document.getElementById('kb-youtube-video').addEventListener('click', function () {
+    kbModalType = 'youtube-video';
+    kbModalTitle.innerHTML = '<span class="breadcrumb-dim">Add Knowledge</span> &rsaquo; YouTube Video';
+    kbModalBody.innerHTML = '<label>YouTube Video URL</label>'
+      + '<input type="text" id="kb-input-url" placeholder="https://www.youtube.com/watch?v=..." />'
+      + '<p class="kb-modal-hint">Want to add all videos from a channel? Go to Accounts tab.</p>';
+    kbModal.classList.add('visible');
+  });
+
+  // Quick Note card
+  document.getElementById('kb-quick-note').addEventListener('click', function () {
+    kbModalType = 'quick-note';
+    kbModalTitle.innerHTML = '<span class="breadcrumb-dim">Add Knowledge</span> &rsaquo; Quick Note';
+    kbModalBody.innerHTML = '<input type="text" id="kb-input-title" placeholder="Title (optional)" />'
+      + '<textarea id="kb-input-content" rows="8" placeholder="What\'s something Ask Elijah should know?"></textarea>';
+    kbModal.classList.add('visible');
+  });
+
+  // Q&A card
+  document.getElementById('kb-qa').addEventListener('click', function () {
+    kbModalType = 'qa';
+    kbModalTitle.innerHTML = '<span class="breadcrumb-dim">Add Knowledge</span> &rsaquo; Q&amp;A';
+    kbModalBody.innerHTML = '<textarea id="kb-input-question" rows="3" placeholder="Question"></textarea>'
+      + '<textarea id="kb-input-answer" rows="6" placeholder="Answer"></textarea>';
+    kbModal.classList.add('visible');
+  });
+
+  // URL card
+  document.getElementById('kb-url').addEventListener('click', function () {
+    kbModalType = 'url';
+    kbModalTitle.innerHTML = '<span class="breadcrumb-dim">Add Knowledge</span> &rsaquo; URL';
+    kbModalBody.innerHTML = '<label>Web Page URL</label>'
+      + '<input type="text" id="kb-input-url" placeholder="https://..." />';
+    kbModal.classList.add('visible');
+  });
+
+  // Podcast card
+  document.getElementById('kb-podcast').addEventListener('click', function () {
+    kbModalType = 'podcast';
+    kbModalTitle.innerHTML = '<span class="breadcrumb-dim">Add Knowledge</span> &rsaquo; Podcast Episode';
+    kbModalBody.innerHTML = '<label>Search Podcast Episodes</label>'
+      + '<input type="text" id="kb-input-url" placeholder="Search for episodes..." />'
+      + '<p class="kb-modal-hint">Want to add all episodes from a podcast series? <a href="#" style="color:rgba(255,255,255,0.6)">Click here</a></p>'
+      + '<input type="file" id="kb-podcast-file" accept=".mp3,.m4a,.wav,.mp4,.webm" style="margin-top:12px" />';
+    kbModal.classList.add('visible');
+  });
+
+  // File card — just open file picker
+  document.getElementById('kb-file').addEventListener('click', function () {
+    document.getElementById('file-input').click();
+  });
+
+  // Submit knowledge modal
+  kbModalSubmit.addEventListener('click', function () {
+    var btn = kbModalSubmit;
+    btn.textContent = 'Processing...';
+    btn.disabled = true;
+
+    if (kbModalType === 'youtube-video') {
+      var url = document.getElementById('kb-input-url').value.trim();
+      if (!url) { btn.textContent = 'Add to Knowledge Base'; btn.disabled = false; return; }
+      // Extract video ID
+      var match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      var videoId = match ? match[1] : url;
+      // Send to ingest endpoint
+      fetch('/.netlify/functions/ingest-youtube', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoId: videoId })
+      })
+      .then(function () { onKbSuccess(btn); })
+      .catch(function () { onKbError(btn); });
+
+    } else if (kbModalType === 'quick-note') {
+      var title = document.getElementById('kb-input-title').value.trim() || 'Quick Note';
+      var content = document.getElementById('kb-input-content').value.trim();
+      if (!content) { btn.textContent = 'Add to Knowledge Base'; btn.disabled = false; return; }
+      uploadText(title, content, btn);
+
+    } else if (kbModalType === 'qa') {
+      var q = document.getElementById('kb-input-question').value.trim();
+      var a = document.getElementById('kb-input-answer').value.trim();
+      if (!q || !a) { btn.textContent = 'Add to Knowledge Base'; btn.disabled = false; return; }
+      uploadText('Q&A: ' + q, 'Q: ' + q + '\n\nA: ' + a, btn);
+
+    } else if (kbModalType === 'url') {
+      var pageUrl = document.getElementById('kb-input-url').value.trim();
+      if (!pageUrl) { btn.textContent = 'Add to Knowledge Base'; btn.disabled = false; return; }
+      // For now, send URL as text — future: scrape
+      uploadText('URL: ' + pageUrl, 'Content from: ' + pageUrl, btn);
+
+    } else if (kbModalType === 'podcast') {
+      var podFile = document.getElementById('kb-podcast-file');
+      if (podFile && podFile.files.length > 0) {
+        uploadFile(podFile.files[0]);
+        onKbSuccess(btn);
+      } else {
+        btn.textContent = 'Add to Knowledge Base';
+        btn.disabled = false;
+      }
+    }
+  });
+
+  function uploadText(title, content, btn) {
+    fetch('/.netlify/functions/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + adminPassword
+      },
+      body: JSON.stringify({
+        file: btoa(unescape(encodeURIComponent(content))),
+        filename: title + '.txt',
+        type: 'text',
+        title: title
+      })
+    })
+    .then(function () { onKbSuccess(btn); })
+    .catch(function () { onKbError(btn); });
+  }
+
+  function onKbSuccess(btn) {
+    btn.textContent = 'Added!';
+    btn.disabled = false;
+    setTimeout(function () {
+      kbModal.classList.remove('visible');
+      btn.textContent = 'Add to Knowledge Base';
+    }, 1500);
+  }
+
+  function onKbError(btn) {
+    btn.textContent = 'Failed — try again';
+    btn.disabled = false;
+    setTimeout(function () { btn.textContent = 'Add to Knowledge Base'; }, 2000);
+  }
+
+  // ══════════════════════════════════
+  // FILE UPLOAD (drag & drop)
   // ══════════════════════════════════
   var dropArea = document.getElementById('drop-area');
   var fileInput = document.getElementById('file-input');

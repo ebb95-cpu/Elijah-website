@@ -150,20 +150,122 @@
         </div>
       </section>
 
-      <!-- ── Upload Tab ── -->
+      <!-- ── Upload Tab (Add Knowledge) ── -->
       <section id="tab-upload" class="tab-content">
         <div class="tab-header">
-          <h2>Upload Content</h2>
-          <p class="tab-desc">Upload files to add to the knowledge base. Supports PDF, MP4, audio, and text files.</p>
+          <h2>Add Knowledge</h2>
         </div>
-        <div id="upload-zone">
+
+        <!-- Category tabs -->
+        <div class="kb-tabs">
+          <button class="kb-tab active" data-kbtab="suggested">Suggested</button>
+          <button class="kb-tab" data-kbtab="accounts">Accounts</button>
+          <button class="kb-tab" data-kbtab="files">Files &amp; Notes</button>
+        </div>
+
+        <!-- Suggested tab -->
+        <div id="kbtab-suggested" class="kb-tab-content active">
+          <div class="kb-grid">
+            <div class="kb-card kb-card--highlight" id="kb-youtube-video">
+              <div class="kb-card-icon">&#9654;</div>
+              <div class="kb-card-info">
+                <div class="kb-card-title">YouTube Video</div>
+                <div class="kb-card-desc">Paste a video URL to ingest transcript</div>
+              </div>
+            </div>
+            <div class="kb-card" id="kb-file">
+              <div class="kb-card-icon">&#128196;</div>
+              <div class="kb-card-info">
+                <div class="kb-card-title">File</div>
+                <div class="kb-card-desc">PDF, MP4, audio, text</div>
+              </div>
+            </div>
+            <div class="kb-card" id="kb-quick-note">
+              <div class="kb-card-icon">&#128221;</div>
+              <div class="kb-card-info">
+                <div class="kb-card-title">Quick Note</div>
+                <div class="kb-card-desc">Type knowledge directly</div>
+              </div>
+            </div>
+            <div class="kb-card" id="kb-qa">
+              <div class="kb-card-icon">&#128172;</div>
+              <div class="kb-card-info">
+                <div class="kb-card-title">Q&amp;A</div>
+                <div class="kb-card-desc">Add a question and your answer</div>
+              </div>
+            </div>
+            <div class="kb-card" id="kb-url">
+              <div class="kb-card-icon">&#128279;</div>
+              <div class="kb-card-info">
+                <div class="kb-card-title">URL</div>
+                <div class="kb-card-desc">Scrape a web page for content</div>
+              </div>
+            </div>
+            <div class="kb-card" id="kb-podcast">
+              <div class="kb-card-icon">&#127897;</div>
+              <div class="kb-card-info">
+                <div class="kb-card-title">Podcast Episode</div>
+                <div class="kb-card-desc">Audio URL or upload</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accounts tab -->
+        <div id="kbtab-accounts" class="kb-tab-content">
+          <div class="kb-grid">
+            <div class="kb-card" id="kb-youtube-channel">
+              <div class="kb-card-icon">&#9654;</div>
+              <div class="kb-card-info">
+                <div class="kb-card-title">YouTube Channel</div>
+                <div class="kb-card-desc">Auto-ingest all videos + new uploads</div>
+              </div>
+              <span class="kb-card-status connected">Connected</span>
+            </div>
+            <div class="kb-card" id="kb-instagram">
+              <div class="kb-card-icon">&#128247;</div>
+              <div class="kb-card-info">
+                <div class="kb-card-title">Instagram</div>
+                <div class="kb-card-desc">Auto-ingest posts and captions</div>
+              </div>
+              <span class="kb-card-status">Connect</span>
+            </div>
+            <div class="kb-card" id="kb-twitter">
+              <div class="kb-card-icon">&#120143;</div>
+              <div class="kb-card-info">
+                <div class="kb-card-title">Twitter / X</div>
+                <div class="kb-card-desc">Auto-ingest tweets</div>
+              </div>
+              <span class="kb-card-status">Connect</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Files & Notes tab -->
+        <div id="kbtab-files" class="kb-tab-content">
           <div id="drop-area">
-            <p class="drop-text">Drop files here or click to browse</p>
-            <p class="drop-hint">PDF, MP4, MP3, M4A, TXT, MD</p>
+            <p class="drop-text">Drag and drop anything</p>
+            <p class="drop-hint">PDF, MP4, MP3, M4A, TXT, MD, WEBM</p>
             <input type="file" id="file-input" multiple accept=".pdf,.mp4,.mp3,.m4a,.wav,.txt,.md,.webm" />
           </div>
-          <div id="upload-queue"></div>
         </div>
+
+        <!-- Upload modals -->
+        <div id="kb-modal" class="kb-modal">
+          <div class="kb-modal-card">
+            <div class="kb-modal-header">
+              <h3 id="kb-modal-title">Add Knowledge</h3>
+              <button class="editor-close" id="kb-modal-close">&#x2715;</button>
+            </div>
+            <div id="kb-modal-body"></div>
+            <div class="kb-modal-actions">
+              <button class="admin-btn admin-btn--primary" id="kb-modal-submit">Add to Knowledge Base</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload queue / processing status -->
+        <div id="upload-queue"></div>
       </section>
 
       <!-- ── Ingestion Tab (Knowledge Base) ── -->

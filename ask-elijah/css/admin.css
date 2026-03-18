@@ -473,6 +473,192 @@ html, body {
   margin-top: 12px;
 }
 
+/* ══════════════════════════════════
+   ADD KNOWLEDGE
+   ══════════════════════════════════ */
+.kb-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.kb-tab {
+  padding: 8px 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.kb-tab:hover {
+  border-color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.6);
+}
+.kb-tab.active {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.kb-tab-content { display: none; }
+.kb-tab-content.active { display: block; }
+
+.kb-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.kb-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: #0a0a0a;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.kb-card:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.03);
+}
+.kb-card--highlight {
+  border-color: rgba(80,140,220,0.3);
+  background: rgba(80,140,220,0.06);
+}
+.kb-card--highlight:hover {
+  border-color: rgba(80,140,220,0.5);
+  background: rgba(80,140,220,0.1);
+}
+
+.kb-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.kb-card--highlight .kb-card-icon {
+  background: rgba(80,140,220,0.2);
+}
+
+.kb-card-info { flex: 1; min-width: 0; }
+.kb-card-title {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.kb-card-desc {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+}
+
+.kb-card-status {
+  font-size: 0.68rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4);
+  white-space: nowrap;
+}
+.kb-card-status.connected {
+  border-color: rgba(120,180,100,0.3);
+  color: rgba(120,180,100,0.8);
+  background: rgba(120,180,100,0.08);
+}
+
+/* ── Knowledge Modal ── */
+.kb-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.kb-modal.visible { display: flex; }
+.kb-modal-card {
+  width: min(520px, 92vw);
+  padding: 2rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #0a0a0a;
+  border-radius: 12px;
+}
+.kb-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.kb-modal-header h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 1.3rem;
+}
+.kb-modal-body input,
+.kb-modal-body textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: transparent;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  outline: none;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+.kb-modal-body input:focus,
+.kb-modal-body textarea:focus {
+  border-color: rgba(255,255,255,0.3);
+}
+.kb-modal-body textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+.kb-modal-body label {
+  display: block;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.kb-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.kb-modal-actions .admin-btn--primary {
+  flex: 1;
+  min-height: 48px;
+  border-radius: 24px;
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.15);
+  font-size: 0.85rem;
+}
+.kb-modal-actions .admin-btn--primary:hover {
+  background: rgba(255,255,255,0.22);
+}
+.breadcrumb-dim {
+  color: rgba(255,255,255,0.35);
+  font-weight: 300;
+}
+.kb-modal-hint {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.3);
+  margin-top: 4px;
+}
+
 /* ── Upload Zone ── */
 #drop-area {
   border: 2px dashed rgba(255,255,255,0.1);

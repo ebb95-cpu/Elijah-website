@@ -11,10 +11,10 @@
     "@anthropic-ai/sdk": "^0.39.0",
     "@pinecone-database/pinecone": "^4.0.0",
     "@supabase/supabase-js": "^2.49.0",
-    "voyageai": "^0.0.4",
-    "youtube-transcript": "^1.2.1",
-    "pdf-parse": "^1.1.1",
+    "exceljs": "^4.4.0",
     "openai": "^4.78.0",
-    "exceljs": "^4.4.0"
+    "pdf-parse": "^1.1.1",
+    "voyageai": "^0.0.4",
+    "youtube-transcript": "^1.2.1"
   }
 }

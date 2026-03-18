@@ -132,25 +132,88 @@ async function embedBatch(chunks) {
   return all;
 }
 
+// ── Whisper fallback: download audio and transcribe ──
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const OpenAI = require('openai');
+
+async function transcribeWithWhisper(videoId) {
+  const tmpDir = path.join(require('os').tmpdir(), 'ask-elijah-audio');
+  if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+
+  const audioPath = path.join(tmpDir, videoId + '.m4a');
+
+  // Download audio only via yt-dlp
+  console.log('  Downloading audio via yt-dlp...');
+  try {
+    execSync(
+      `yt-dlp -f "bestaudio[ext=m4a]/bestaudio" -o "${audioPath}" --no-playlist "https://www.youtube.com/watch?v=${videoId}"`,
+      { stdio: 'pipe', timeout: 120000 }
+    );
+  } catch (e) {
+    console.log('  yt-dlp failed:', e.message.slice(0, 100));
+    return null;
+  }
+
+  if (!fs.existsSync(audioPath)) {
+    console.log('  Audio file not found after download');
+    return null;
+  }
+
+  const fileSizeMB = fs.statSync(audioPath).size / (1024 * 1024);
+  console.log('  Audio downloaded:', fileSizeMB.toFixed(1), 'MB');
+
+  // Whisper has a 25MB limit — if larger, we'd need to split, but most videos are fine
+  if (fileSizeMB > 25) {
+    console.log('  Audio too large for Whisper (>25MB), skipping');
+    fs.unlinkSync(audioPath);
+    return null;
+  }
+
+  // Transcribe with OpenAI Whisper
+  console.log('  Transcribing with Whisper...');
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  try {
+    const transcription = await openai.audio.transcriptions.create({
+      file: fs.createReadStream(audioPath),
+      model: 'whisper-1',
+      response_format: 'text'
+    });
+    fs.unlinkSync(audioPath); // cleanup
+    return transcription;
+  } catch (e) {
+    console.log('  Whisper error:', e.message.slice(0, 100));
+    if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath);
+    return null;
+  }
+}
+
 // ── Process one video ──
 async function processVideo(videoId, title) {
   const url = 'https://www.youtube.com/watch?v=' + videoId;
   console.log('\n📹 Processing:', title || videoId);
 
-  // 1. Fetch transcript
-  let transcript;
+  // 1. Try YouTube transcript first
+  let transcript = '';
   try {
     const items = await YoutubeTranscript.fetchTranscript(videoId);
     transcript = items.map(t => t.text).join(' ');
-    console.log('  Transcript:', transcript.length, 'chars');
+    console.log('  YouTube transcript:', transcript.length, 'chars');
   } catch (e) {
-    console.log('  No transcript available:', e.message);
-    return { chunks: 0 };
+    console.log('  No YouTube transcript, trying Whisper...');
   }
 
+  // 2. Fallback to Whisper if no transcript
   if (transcript.length < 50) {
-    console.log('  Transcript too short, skipping');
-    return { chunks: 0 };
+    const whisperText = await transcribeWithWhisper(videoId);
+    if (whisperText && whisperText.length > 50) {
+      transcript = whisperText;
+      console.log('  Whisper transcript:', transcript.length, 'chars');
+    } else {
+      console.log('  Could not get transcript from any source, skipping');
+      return { chunks: 0 };
+    }
   }
 
   // 2. Chunk
