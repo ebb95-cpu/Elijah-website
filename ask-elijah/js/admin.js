@@ -651,7 +651,7 @@
   }
 
   // ══════════════════════════════════
-  // KNOWLEDGE BASE (Ingestion)
+  // KNOWLEDGE BASE (Mind View)
   // ══════════════════════════════════
   function loadIngestion(typeFilter, statusFilter) {
     if (!supabase) return;
@@ -667,74 +667,117 @@
     query.then(function (r) {
       var items = r.data || [];
 
-      // Update KB stats
-      var totalItems = items.length;
-      var processingCount = items.filter(function (i) { return i.status === 'processing' || i.status === 'pending'; }).length;
+      // Update word count estimate (chunks * ~500 words avg)
       var totalChunks = items.reduce(function (sum, i) { return sum + (i.chunks_created || 0); }, 0);
+      var estWords = totalChunks * 500;
+      var wordLabel = estWords >= 1000 ? (estWords / 1000).toFixed(1) + 'K' : estWords;
+      setText('mind-word-count', wordLabel + ' words');
 
-      setText('kb-total', totalItems);
-      setText('kb-processing', processingCount);
-      setText('kb-chunks-total', totalChunks);
-
-      // Build table
-      var container = document.getElementById('ingestion-log');
-      var html = '<table class="data-table"><thead><tr>'
-        + '<th>Source</th><th>Content</th><th>Status</th><th>Chunks</th><th>Date</th>'
-        + '</tr></thead><tbody>';
-
-      items.forEach(function (log) {
-        var sourceLabel = formatSourceType(log.source_type);
-        var contentLabel = log.source_url || log.source_type;
-        // Make YouTube URLs clickable
-        var contentHtml = log.source_url && log.source_url.startsWith('http')
-          ? '<a href="' + esc(log.source_url) + '" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5);text-decoration:none;">' + esc(truncateUrl(log.source_url)) + '</a>'
-          : esc(contentLabel);
-
-        html += '<tr>'
-          + '<td><span class="source-icon ' + log.source_type + '"></span>' + esc(sourceLabel) + '</td>'
-          + '<td class="truncate">' + contentHtml + '</td>'
-          + '<td><span class="status-badge ' + log.status + '">' + log.status + '</span></td>'
-          + '<td>' + (log.chunks_created || 0) + '</td>'
-          + '<td>' + formatDate(log.created_at) + '</td>'
-          + '</tr>';
-      });
-
-      html += '</tbody></table>';
+      // Build grid cards
+      var grid = document.getElementById('mind-content-grid');
+      grid.innerHTML = '';
 
       if (items.length === 0) {
-        html = '<p style="color:rgba(255,255,255,0.3);font-size:0.85rem;padding:20px 0;">No items in the knowledge base yet. Upload files or run ingestion to get started.</p>';
+        grid.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-size:0.85rem;padding:40px 0;text-align:center;grid-column:1/-1;">No content in the knowledge base yet. Add knowledge or sync YouTube to get started.</p>';
+        return;
       }
 
-      container.innerHTML = html;
+      items.forEach(function (item) {
+        var card = document.createElement('div');
+        card.className = 'mind-card';
+
+        var title = extractTitle(item);
+        var typeLabel = formatSourceType(item.source_type);
+        var typeIcon = getTypeIcon(item.source_type);
+        var thumbUrl = getYouTubeThumbnail(item.source_url);
+
+        card.innerHTML =
+          '<div class="mind-card-thumb">'
+            + (thumbUrl ? '<img src="' + thumbUrl + '" alt="" />' : typeIcon)
+            + '<div class="mind-card-status ' + item.status + '"></div>'
+            + '<button class="mind-card-delete" data-id="' + item.id + '">&#x2715;</button>'
+          + '</div>'
+          + '<div class="mind-card-body">'
+            + '<div class="mind-card-title">' + esc(title) + '</div>'
+            + '<div class="mind-card-type">' + esc(typeLabel) + '</div>'
+            + '<div class="mind-card-chunks">' + (item.chunks_created || 0) + ' chunks · ' + formatDate(item.created_at) + '</div>'
+          + '</div>';
+
+        // Delete handler
+        var delBtn = card.querySelector('.mind-card-delete');
+        delBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (confirm('Remove "' + title + '" from the knowledge base?')) {
+            deleteKnowledgeItem(item.id);
+          }
+        });
+
+        grid.appendChild(card);
+      });
     });
 
-    // Also load unfiltered totals for stats if filters are active
+    // Load totals for word count (unfiltered)
     if (typeFilter || statusFilter) {
-      supabase.from('ingestion_log').select('status, chunks_created').then(function (r) {
+      supabase.from('ingestion_log').select('chunks_created').then(function (r) {
         var all = r.data || [];
-        setText('kb-total', all.length);
-        setText('kb-processing', all.filter(function (i) { return i.status === 'processing' || i.status === 'pending'; }).length);
-        setText('kb-chunks-total', all.reduce(function (sum, i) { return sum + (i.chunks_created || 0); }, 0));
+        var total = all.reduce(function (sum, i) { return sum + (i.chunks_created || 0); }, 0);
+        var est = total * 500;
+        var label = est >= 1000 ? (est / 1000).toFixed(1) + 'K' : est;
+        setText('mind-word-count', label + ' words');
       });
     }
+  }
+
+  function extractTitle(item) {
+    var url = item.source_url || '';
+    if (url.includes('youtube.com/watch')) {
+      // Try to extract video ID for display
+      var match = url.match(/v=([a-zA-Z0-9_-]+)/);
+      return match ? 'YouTube Video (' + match[1].slice(0, 6) + '...)' : 'YouTube Video';
+    }
+    if (url && !url.startsWith('http')) return url; // filename
+    if (item.source_type === 'youtube-comments') return 'YouTube Comments';
+    return item.source_url || item.source_type;
   }
 
   function formatSourceType(type) {
     var labels = {
       'youtube': 'YouTube',
-      'youtube-comments': 'YT Comments',
-      'upload': 'Upload',
+      'youtube-comments': 'YouTube Comments',
+      'upload': 'File',
       'instagram': 'Instagram',
-      'twitter': 'Twitter'
+      'twitter': 'Twitter',
+      'qa': 'Q&A',
+      'podcast': 'Podcast'
     };
     return labels[type] || type;
   }
 
-  function truncateUrl(url) {
-    // Show video title from YouTube URL or just the filename
-    if (url.includes('youtube.com/watch')) return 'youtube.com/...' + url.slice(-11);
-    if (url.length > 50) return url.slice(0, 47) + '...';
-    return url;
+  function getTypeIcon(type) {
+    var icons = {
+      'youtube': '&#9654;',
+      'youtube-comments': '&#128172;',
+      'upload': '&#128196;',
+      'instagram': '&#128247;',
+      'twitter': '&#120143;',
+      'qa': '&#128172;',
+      'podcast': '&#127897;'
+    };
+    return icons[type] || '&#128196;';
+  }
+
+  function getYouTubeThumbnail(url) {
+    if (!url || !url.includes('youtube.com/watch')) return null;
+    var match = url.match(/v=([a-zA-Z0-9_-]+)/);
+    if (match) return 'https://img.youtube.com/vi/' + match[1] + '/mqdefault.jpg';
+    return null;
+  }
+
+  function deleteKnowledgeItem(itemId) {
+    if (!supabase) return;
+    supabase.from('ingestion_log').delete().eq('id', itemId)
+      .then(function () { loadIngestion(); });
+    // TODO: Also delete vectors from Pinecone by source_id
   }
 
   // Filter listeners
@@ -745,6 +788,11 @@
   document.getElementById('kb-filter-status').addEventListener('change', function () {
     var typeVal = document.getElementById('kb-filter-type').value;
     loadIngestion(typeVal || undefined, this.value || undefined);
+  });
+  document.getElementById('mind-clear-filters').addEventListener('click', function () {
+    document.getElementById('kb-filter-type').value = '';
+    document.getElementById('kb-filter-status').value = '';
+    loadIngestion();
   });
 
   // Trigger manual ingestion

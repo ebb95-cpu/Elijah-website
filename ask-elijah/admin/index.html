@@ -268,53 +268,52 @@
         <div id="upload-queue"></div>
       </section>
 
-      <!-- ── Ingestion Tab (Knowledge Base) ── -->
+      <!-- ── Knowledge Base (Mind) Tab ── -->
       <section id="tab-ingestion" class="tab-content">
-        <div class="tab-header">
-          <h2>Knowledge Base</h2>
-          <div class="tab-actions">
-            <select id="kb-filter-type">
-              <option value="">All sources</option>
-              <option value="youtube">YouTube</option>
-              <option value="youtube-comments">YouTube Comments</option>
-              <option value="upload">Uploads</option>
-              <option value="instagram">Instagram</option>
-              <option value="twitter">Twitter</option>
-            </select>
+        <!-- Word count header -->
+        <div class="mind-header">
+          <div class="mind-word-count" id="mind-word-count">— words</div>
+          <div class="mind-view-toggle">
+            <button class="mind-view-btn active" id="mind-grid-view">&#9638;&#9638;</button>
+            <button class="mind-view-btn" id="mind-list-view">&#9776;</button>
+            <span class="mind-separator">|</span>
+            <button class="admin-btn" id="trigger-youtube" style="font-size:0.72rem;min-height:32px;padding:0 10px;">Sync YouTube</button>
+            <button class="admin-btn" id="trigger-social" style="font-size:0.72rem;min-height:32px;padding:0 10px;">Sync Social</button>
+          </div>
+        </div>
+
+        <!-- Filter pills -->
+        <div class="mind-filters">
+          <div class="mind-pill" id="filter-status-pill">
+            <span>Status</span>
             <select id="kb-filter-status">
-              <option value="">All statuses</option>
+              <option value="">All</option>
+              <option value="done">Completed</option>
               <option value="processing">Processing</option>
-              <option value="done">Done</option>
               <option value="failed">Failed</option>
             </select>
           </div>
-        </div>
-        <p class="tab-desc">Everything in the knowledge base — YouTube videos, social posts, and manual uploads. See what's been ingested and what's still processing.</p>
-
-        <!-- Stats row -->
-        <div class="kb-stats-row">
-          <div class="kb-stat">
-            <span class="kb-stat-num" id="kb-total">—</span>
-            <span class="kb-stat-label">Total Items</span>
+          <div class="mind-pill" id="filter-type-pill">
+            <span>Content Type</span>
+            <select id="kb-filter-type">
+              <option value="">All</option>
+              <option value="youtube">YouTube</option>
+              <option value="youtube-comments">YouTube Comments</option>
+              <option value="upload">File</option>
+              <option value="qa">Q&A / Manual</option>
+              <option value="instagram">Instagram</option>
+              <option value="twitter">Twitter</option>
+              <option value="podcast">Podcast</option>
+            </select>
           </div>
-          <div class="kb-stat">
-            <span class="kb-stat-num" id="kb-processing">—</span>
-            <span class="kb-stat-label">Processing</span>
-          </div>
-          <div class="kb-stat">
-            <span class="kb-stat-num" id="kb-chunks-total">—</span>
-            <span class="kb-stat-label">Total Chunks</span>
-          </div>
+          <button class="mind-clear" id="mind-clear-filters">Clear</button>
         </div>
 
-        <!-- Manual triggers -->
-        <div class="ingestion-controls">
-          <button class="admin-btn" id="trigger-youtube">Run YouTube Ingestion Now</button>
-          <button class="admin-btn" id="trigger-social">Run Social Ingestion Now</button>
-        </div>
+        <!-- Content grid (Delphi-style cards) -->
+        <div id="mind-content-grid" class="mind-grid"></div>
 
-        <!-- Knowledge base items list -->
-        <div id="ingestion-log"></div>
+        <!-- Fallback list view -->
+        <div id="ingestion-log" style="display:none;"></div>
       </section>
     </main>
   </div>
