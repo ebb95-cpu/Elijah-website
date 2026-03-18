@@ -126,6 +126,8 @@
   backToAuth.addEventListener('click', function () { showScreen(authScreen); });
 
   // ── Init ──
+  // Start with auth screen visible
+  authScreen.classList.add('visible');
   checkSession();
 
   // Expose for other modules
