@@ -1,324 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ask Elijah — Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@300;400;500&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/admin.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knowledge — Elijah Bryant Admin</title>
+  <link rel="stylesheet" href="/ask-elijah/admin/css/admin.css">
 </head>
 <body>
 
-  <!-- ── LOGIN GATE ── -->
-  <div id="admin-login">
-    <div class="admin-login-card">
-      <div class="dot-row">
-        <span class="dot-icon">&#9679;</span>
-        <span class="dot-dash">&#x2015;&#x2015;</span>
-        <span class="dot-title">Admin</span>
-      </div>
-      <form id="admin-login-form">
-        <input type="password" id="admin-password" placeholder="Password" autocomplete="current-password" />
-        <button type="submit" class="admin-btn">Enter</button>
-      </form>
-      <button class="admin-forgot-link" id="forgot-password">Forgot password?</button>
-      <p id="forgot-msg" class="forgot-msg"></p>
-    </div>
-  </div>
+  <!-- Loading / Auth gate -->
+  <div id="loading-screen">Verifying access…</div>
 
-  <!-- ── DASHBOARD ── -->
-  <div id="admin-dashboard">
-    <!-- Sidebar -->
-    <nav id="admin-nav">
-      <div class="admin-logo">
-        <span class="dot-icon">&#9679;</span>
-        <span>Ask Elijah</span>
-      </div>
-      <div class="nav-links">
-        <button class="nav-link active" data-tab="overview">Overview</button>
-        <button class="nav-link" data-tab="escalated">
-          Escalated <span id="escalated-badge" class="nav-badge">0</span>
-        </button>
-        <button class="nav-link" data-tab="questions">Questions</button>
-        <button class="nav-link" data-tab="users">Users</button>
-        <button class="nav-link" data-tab="upload">Upload</button>
-        <button class="nav-link" data-tab="ingestion">Knowledge Base</button>
+  <!-- App shell -->
+  <div class="app-shell" id="app-shell" style="display:none">
+
+    <!-- ========== SIDEBAR ========== -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">EB</div>
+
+      <!-- Compass / Discover -->
+      <button class="sidebar-icon" title="Discover">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+      </button>
+
+      <!-- Chat -->
+      <button class="sidebar-icon" title="Chat">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </button>
+
+      <!-- + (accent) -->
+      <button class="sidebar-icon accent" title="Create">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </button>
+
+      <!-- Person -->
+      <button class="sidebar-icon active" title="Profile">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+
+      <div class="sidebar-spacer"></div>
+
+      <!-- More ··· -->
+      <button class="sidebar-icon" id="btn-more" title="More">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+
+      <!-- More dropdown -->
+      <div class="sidebar-dropdown" id="sidebar-dropdown">
+        <button class="sidebar-dropdown-item active">Knowledge</button>
+        <button class="sidebar-dropdown-item">Voice</button>
+        <button class="sidebar-dropdown-item">Audience</button>
+        <button class="sidebar-dropdown-item">Insights</button>
+        <button class="sidebar-dropdown-item">Settings</button>
+        <button class="sidebar-dropdown-item">Get Help</button>
+        <button class="sidebar-dropdown-item" onclick="adminLogout()">Log Out</button>
       </div>
     </nav>
 
-    <!-- Main content -->
-    <main id="admin-main">
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
 
-      <!-- ── Overview Tab ── -->
-      <section id="tab-overview" class="tab-content active">
-        <h2>Overview</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-num" id="stat-users">—</div>
-            <div class="stat-label">Total Users</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" id="stat-questions">—</div>
-            <div class="stat-label">Questions Asked</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" id="stat-escalated">—</div>
-            <div class="stat-label">Needs Your Answer</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" id="stat-chunks">—</div>
-            <div class="stat-label">Knowledge Chunks</div>
+      <!-- Header -->
+      <div class="dash-header">
+        <div class="dash-header-left">
+          <div class="header-avatar">EB</div>
+          <div class="header-info">
+            <span class="header-name">Elijah Bryant</span>
+            <span class="header-title">Knowledge</span>
           </div>
         </div>
-        <div class="recent-section">
-          <h3>Recent Questions</h3>
-          <div id="recent-questions"></div>
+        <div class="word-count-pill" id="word-count">
+          <strong>0</strong> of 1M words
         </div>
-      </section>
+      </div>
 
-      <!-- ── Escalated Tab ── -->
-      <section id="tab-escalated" class="tab-content">
-        <div class="tab-header">
-          <h2>Escalated Questions</h2>
-          <p class="tab-desc">Questions the AI couldn't confidently answer. Your response will be polished and added to the knowledge base.</p>
+      <!-- Tabs + Toolbar -->
+      <div class="tabs-toolbar">
+        <div class="tabs">
+          <button class="tab active" data-tab="content">Content</button>
+          <button class="tab" data-tab="feeds">Feeds</button>
         </div>
-        <div id="escalated-list"></div>
+        <div class="toolbar">
+          <!-- List -->
+          <button class="toolbar-btn active" id="btn-list" title="List view">
+            <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+          </button>
+          <!-- Grid -->
+          <button class="toolbar-btn" id="btn-grid" title="Grid view">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </button>
 
-        <!-- Answer editor modal -->
-        <div id="answer-editor" class="editor-overlay">
-          <div class="editor-card">
-            <div class="editor-header">
-              <h3>Respond to Question</h3>
-              <button class="editor-close" id="editor-close">&#x2715;</button>
-            </div>
-            <div class="editor-question" id="editor-question-text"></div>
-            <div class="editor-user-info" id="editor-user-info"></div>
-            <div class="editor-field">
-              <label>Your raw answer:</label>
-              <textarea id="editor-raw-input" rows="6" placeholder="Type your answer as you naturally would..."></textarea>
-            </div>
-            <button class="admin-btn" id="editor-polish">Polish with AI</button>
-            <div class="editor-field" id="editor-polished-section" style="display:none;">
-              <label>Polished version:</label>
-              <div id="editor-polished-text" class="polished-preview"></div>
-              <div class="editor-actions">
-                <button class="admin-btn admin-btn--primary" id="editor-approve">Approve & Save</button>
-                <button class="admin-btn" id="editor-re-edit">Edit again</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+          <div class="toolbar-divider"></div>
 
-      <!-- ── Questions Tab ── -->
-      <section id="tab-questions" class="tab-content">
-        <div class="tab-header">
-          <h2>All Questions</h2>
-          <div class="tab-actions">
-            <select id="q-filter-status">
-              <option value="">All statuses</option>
-              <option value="answered">Answered</option>
-              <option value="needs_elijah">Needs Elijah</option>
-              <option value="elijah_responded">Elijah Responded</option>
-              <option value="human_verified">Verified</option>
-            </select>
-            <button class="admin-btn" id="export-questions">Export .xlsx</button>
-          </div>
-        </div>
-        <div id="questions-table"></div>
-      </section>
+          <!-- Settings -->
+          <button class="toolbar-btn" title="Settings">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+          <!-- Filter -->
+          <button class="toolbar-btn" title="Filter">
+            <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+          </button>
+          <!-- Search -->
+          <button class="toolbar-btn" id="btn-search" title="Search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
 
-      <!-- ── Users Tab ── -->
-      <section id="tab-users" class="tab-content">
-        <div class="tab-header">
-          <h2>Users</h2>
-          <div class="tab-actions">
-            <button class="admin-btn" id="export-users">Export .xlsx</button>
-          </div>
-        </div>
-        <div id="users-table"></div>
-
-        <!-- User detail drawer -->
-        <div id="user-detail" class="detail-drawer">
-          <div class="detail-header">
-            <button class="detail-back" id="user-detail-back">&larr; Back</button>
-            <h3 id="user-detail-name"></h3>
-          </div>
-          <div class="detail-meta" id="user-detail-meta"></div>
-          <h4>Questions</h4>
-          <div id="user-detail-questions"></div>
-        </div>
-      </section>
-
-      <!-- ── Upload Tab (Add Knowledge) ── -->
-      <section id="tab-upload" class="tab-content">
-        <div class="tab-header">
-          <h2>Add Knowledge</h2>
-        </div>
-
-        <!-- Category tabs -->
-        <div class="kb-tabs">
-          <button class="kb-tab active" data-kbtab="suggested">Suggested</button>
-          <button class="kb-tab" data-kbtab="accounts">Accounts</button>
-          <button class="kb-tab" data-kbtab="files">Files &amp; Notes</button>
-        </div>
-
-        <!-- Suggested tab -->
-        <div id="kbtab-suggested" class="kb-tab-content active">
-          <div class="kb-grid">
-            <div class="kb-card kb-card--highlight" id="kb-youtube-video">
-              <div class="kb-card-icon">&#9654;</div>
-              <div class="kb-card-info">
-                <div class="kb-card-title">YouTube Video</div>
-                <div class="kb-card-desc">Paste a video URL to ingest transcript</div>
-              </div>
-            </div>
-            <div class="kb-card" id="kb-file">
-              <div class="kb-card-icon">&#128196;</div>
-              <div class="kb-card-info">
-                <div class="kb-card-title">File</div>
-                <div class="kb-card-desc">PDF, MP4, audio, text</div>
-              </div>
-            </div>
-            <div class="kb-card" id="kb-quick-note">
-              <div class="kb-card-icon">&#128221;</div>
-              <div class="kb-card-info">
-                <div class="kb-card-title">Quick Note</div>
-                <div class="kb-card-desc">Type knowledge directly</div>
-              </div>
-            </div>
-            <div class="kb-card" id="kb-qa">
-              <div class="kb-card-icon">&#128172;</div>
-              <div class="kb-card-info">
-                <div class="kb-card-title">Q&amp;A</div>
-                <div class="kb-card-desc">Add a question and your answer</div>
-              </div>
-            </div>
-            <div class="kb-card" id="kb-url">
-              <div class="kb-card-icon">&#128279;</div>
-              <div class="kb-card-info">
-                <div class="kb-card-title">URL</div>
-                <div class="kb-card-desc">Scrape a web page for content</div>
-              </div>
-            </div>
-            <div class="kb-card" id="kb-podcast">
-              <div class="kb-card-icon">&#127897;</div>
-              <div class="kb-card-info">
-                <div class="kb-card-title">Podcast Episode</div>
-                <div class="kb-card-desc">Audio URL or upload</div>
-              </div>
+          <!-- + Add -->
+          <div style="position:relative">
+            <button class="toolbar-add-btn" id="btn-add" title="Add">+</button>
+            <div class="add-dropdown" id="add-dropdown">
+              <button class="add-dropdown-item" id="add-item">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add
+              </button>
+              <button class="add-dropdown-item" id="add-folder">
+                <svg viewBox="0 0 24 24" stroke="#3b82f6"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Folder
+              </button>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Accounts tab -->
-        <div id="kbtab-accounts" class="kb-tab-content">
-          <div class="kb-grid">
-            <div class="kb-card" id="kb-youtube-channel">
-              <div class="kb-card-icon">&#9654;</div>
-              <div class="kb-card-info">
-                <div class="kb-card-title">YouTube Channel</div>
-                <div class="kb-card-desc">Auto-ingest all videos + new uploads</div>
-              </div>
-              <span class="kb-card-status connected">Connected</span>
-            </div>
-            <div class="kb-card" id="kb-instagram">
-              <div class="kb-card-icon">&#128247;</div>
-              <div class="kb-card-info">
-                <div class="kb-card-title">Instagram</div>
-                <div class="kb-card-desc">Auto-ingest posts and captions</div>
-              </div>
-              <span class="kb-card-status">Connect</span>
-            </div>
-            <div class="kb-card" id="kb-twitter">
-              <div class="kb-card-icon">&#120143;</div>
-              <div class="kb-card-info">
-                <div class="kb-card-title">Twitter / X</div>
-                <div class="kb-card-desc">Auto-ingest tweets</div>
-              </div>
-              <span class="kb-card-status">Connect</span>
-            </div>
-          </div>
+      <!-- Search bar (hidden by default) -->
+      <div class="search-bar" id="search-bar">
+        <input type="text" id="search-input" placeholder="Search knowledge items…">
+      </div>
+
+      <!-- Filter chips -->
+      <div class="filter-bar">
+        <div style="position:relative">
+          <button class="filter-chip" id="filter-status">
+            <span class="filter-dot green"></span>Status · Completed
+          </button>
+          <div class="filter-dropdown" id="status-dropdown"></div>
         </div>
 
-        <!-- Files & Notes tab -->
-        <div id="kbtab-files" class="kb-tab-content">
-          <div id="drop-area">
-            <p class="drop-text">Drag and drop anything</p>
-            <p class="drop-hint">PDF, MP4, MP3, M4A, TXT, MD, WEBM</p>
-            <input type="file" id="file-input" multiple accept=".pdf,.mp4,.mp3,.m4a,.wav,.txt,.md,.webm" />
-          </div>
+        <div style="position:relative">
+          <button class="filter-chip" id="filter-type">Content Type</button>
+          <div class="filter-dropdown" id="type-dropdown"></div>
         </div>
 
-        <!-- Upload modals -->
-        <div id="kb-modal" class="kb-modal">
-          <div class="kb-modal-card">
-            <div class="kb-modal-header">
-              <h3 id="kb-modal-title">Add Knowledge</h3>
-              <button class="editor-close" id="kb-modal-close">&#x2715;</button>
-            </div>
-            <div id="kb-modal-body"></div>
-            <div class="kb-modal-actions">
-              <button class="admin-btn admin-btn--primary" id="kb-modal-submit">Add to Knowledge Base</button>
-            </div>
-          </div>
-        </div>
+        <span class="filter-clear" id="filter-clear">Clear</span>
+      </div>
 
-        <!-- Upload queue / processing status -->
-        <div id="upload-queue"></div>
-      </section>
+      <!-- Content area (list or grid rendered here) -->
+      <div id="content-area"></div>
 
-      <!-- ── Knowledge Base (Mind) Tab ── -->
-      <section id="tab-ingestion" class="tab-content">
-        <!-- Word count header -->
-        <div class="mind-header">
-          <div class="mind-word-count" id="mind-word-count">— words</div>
-          <div class="mind-view-toggle">
-            <button class="mind-view-btn active" id="mind-grid-view">&#9638;&#9638;</button>
-            <button class="mind-view-btn" id="mind-list-view">&#9776;</button>
-            <span class="mind-separator">|</span>
-            <button class="admin-btn" id="trigger-youtube" style="font-size:0.72rem;min-height:32px;padding:0 10px;">Sync YouTube</button>
-            <button class="admin-btn" id="trigger-social" style="font-size:0.72rem;min-height:32px;padding:0 10px;">Sync Social</button>
-          </div>
-        </div>
-
-        <!-- Filter pills -->
-        <div class="mind-filters">
-          <div class="mind-pill" id="filter-status-pill">
-            <span>Status</span>
-            <select id="kb-filter-status">
-              <option value="">All</option>
-              <option value="done">Completed</option>
-              <option value="processing">Processing</option>
-              <option value="failed">Failed</option>
-            </select>
-          </div>
-          <div class="mind-pill" id="filter-type-pill">
-            <span>Content Type</span>
-            <select id="kb-filter-type">
-              <option value="">All</option>
-              <option value="youtube">YouTube</option>
-              <option value="youtube-comments">YouTube Comments</option>
-              <option value="upload">File</option>
-              <option value="qa">Q&A / Manual</option>
-              <option value="instagram">Instagram</option>
-              <option value="twitter">Twitter</option>
-              <option value="podcast">Podcast</option>
-            </select>
-          </div>
-          <button class="mind-clear" id="mind-clear-filters">Clear</button>
-        </div>
-
-        <!-- Content grid (Delphi-style cards) -->
-        <div id="mind-content-grid" class="mind-grid"></div>
-
-        <!-- Fallback list view -->
-        <div id="ingestion-log" style="display:none;"></div>
-      </section>
     </main>
+
+    <!-- ========== DETAIL SIDE PANEL ========== -->
+    <aside class="detail-panel" id="detail-panel">
+      <div class="detail-panel-header">
+        <button class="detail-close-btn" id="detail-close">&times;</button>
+        <div class="detail-panel-actions">
+          <button class="detail-action-btn" id="detail-retry" style="display:none">Retry</button>
+          <button class="detail-action-btn" id="detail-edit">Edit</button>
+        </div>
+      </div>
+      <div class="detail-panel-body" id="detail-body"></div>
+    </aside>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="../js/admin.js"></script>
+  <!-- ========== ADD/EDIT MODAL ========== -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-title" id="modal-title">Add Content</div>
+      <div class="modal-type-tabs" id="modal-type-tabs"></div>
+      <div id="modal-fields"></div>
+      <div class="modal-actions">
+        <button class="btn-save" id="modal-save">Save</button>
+        <button class="btn-cancel" id="modal-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase CDN (single load, shared with main app) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/ask-elijah/admin/js/knowledge.js"></script>
 </body>
 </html>
