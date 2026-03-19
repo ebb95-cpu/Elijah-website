@@ -120,13 +120,23 @@
     if (sources && sources.length > 0) {
       var sourcesEl = document.createElement('div');
       sourcesEl.className = 'msg-sources';
+      var sourcesLabel = document.createElement('span');
+      sourcesLabel.className = 'msg-sources-label';
+      sourcesLabel.textContent = 'Sources';
+      sourcesEl.appendChild(sourcesLabel);
       sources.forEach(function (src) {
         var a = document.createElement('a');
         a.className = 'msg-source-link';
         a.href = src.url || '#';
         a.target = '_blank';
         a.rel = 'noopener';
-        a.textContent = src.title || 'Source';
+        // Pick icon based on source_type
+        var type = (src.source_type || src.type || '').toLowerCase();
+        var icon = '\uD83D\uDCDD'; // default: memo (text)
+        if (type === 'youtube' || type === 'video') icon = '\uD83C\uDFAC';
+        else if (type === 'pdf') icon = '\uD83D\uDCC4';
+        else if (type === 'audio' || type === 'podcast') icon = '\uD83C\uDF99\uFE0F';
+        a.textContent = icon + ' ' + (src.title || 'Source');
         sourcesEl.appendChild(a);
       });
       div.appendChild(sourcesEl);

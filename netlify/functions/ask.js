@@ -242,17 +242,28 @@ exports.handler = async function (event) {
     // 7. Determine if escalation needed
     const escalated = confidence < 0.5;
 
-    // 8. Extract sources for citations
-    const sources = matches
-      .filter(function (m) { return m.score > 0.7; })
-      .slice(0, 3)
-      .map(function (m) {
-        return {
-          title: m.metadata.title || 'Source',
-          url: m.metadata.url || '',
-          type: m.metadata.source_type || ''
-        };
+    // 8. Extract sources for citations (deduplicated by URL)
+    const sourcesMap = {};
+    matches
+      .filter(function (m) { return m.score > 0.7 && m.metadata; })
+      .forEach(function (m) {
+        const meta = m.metadata;
+        // Build URL: prefer source_url, fall back to url, construct YouTube URL from video_id
+        let url = meta.source_url || meta.url || '';
+        if (!url && meta.video_id) {
+          url = 'https://youtube.com/watch?v=' + meta.video_id;
+        }
+        if (!url) return; // skip sources with no URL
+        // Deduplicate by URL
+        if (!sourcesMap[url]) {
+          sourcesMap[url] = {
+            title: meta.title || 'Source',
+            url: url,
+            source_type: meta.source_type || ''
+          };
+        }
       });
+    const sources = Object.values(sourcesMap).slice(0, 5);
 
     // 9. Log to Supabase (non-blocking — don't let DB errors break the chat)
     let questionId = null;
