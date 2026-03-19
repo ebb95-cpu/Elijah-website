@@ -171,8 +171,36 @@ html, body {
   font-size: 0.8rem;
 }
 
+.auth-btn--signup {
+  background: #fff;
+  color: #000;
+  font-weight: 500;
+  border-color: #fff;
+  display: none;
+}
+.auth-btn--signup:hover {
+  background: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.9);
+}
+
+.auth-toggle {
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.03em;
+}
+.auth-toggle span {
+  color: #fff;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.auth-toggle span:hover {
+  color: rgba(255,255,255,0.8);
+}
+
 .auth-footer {
-  margin-top: 2rem;
+  margin-top: 1rem;
   font-size: 0.65rem;
   color: rgba(255,255,255,0.2);
   letter-spacing: 0.05em;

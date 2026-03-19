@@ -329,6 +329,43 @@
       });
   }
 
+  // ── Sign-in / Sign-up toggle ──
+  var authSubmitBtn  = document.getElementById('auth-submit-btn');
+  var authSignupBtn  = document.getElementById('auth-signup-btn');
+  var authToggle     = document.getElementById('auth-toggle');
+  var authToggleLink = document.getElementById('auth-toggle-link');
+  var isSignUpMode = false;
+
+  function setAuthMode(signUp) {
+    isSignUpMode = signUp;
+    if (signUp) {
+      authSubmitBtn.textContent = 'Create Account';
+      authSignupBtn.style.display = 'none';
+      authToggleLink.textContent = 'Sign in';
+      authToggle.childNodes[0].textContent = 'Already have an account? ';
+      authEmailInput.placeholder = 'Enter your email to sign up';
+    } else {
+      authSubmitBtn.textContent = 'Continue with Email';
+      authSignupBtn.style.display = '';
+      authToggleLink.textContent = 'Sign up';
+      authToggle.childNodes[0].textContent = "Don't have an account? ";
+      authEmailInput.placeholder = 'Enter your email';
+    }
+  }
+
+  if (authToggleLink) {
+    authToggleLink.addEventListener('click', function () {
+      setAuthMode(!isSignUpMode);
+    });
+  }
+
+  if (authSignupBtn) {
+    authSignupBtn.addEventListener('click', function () {
+      setAuthMode(true);
+      authEmailInput.focus();
+    });
+  }
+
   // ── Event listeners ──
   authApple.addEventListener('click', function () { signInWithProvider('apple'); });
   authGoogle.addEventListener('click', function () { signInWithProvider('google'); });
@@ -343,6 +380,7 @@
 
   // ── Init ──
   authScreen.classList.add('visible');
+  setAuthMode(false);
   checkSession();
 
   // Expose for other modules
