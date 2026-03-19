@@ -145,16 +145,44 @@ async function resolveChannelId(input) {
   m = input.match(/youtube\.com\/@([a-zA-Z0-9_.-]+)/);
   if (m) handle = m[1];
   else if (input.startsWith('@')) handle = input.slice(1);
+
+  // Method 1: YouTube Data API (most reliable)
+  if (handle && process.env.YOUTUBE_API_KEY) {
+    try {
+      var apiUrl = 'https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=' + encodeURIComponent(handle) + '&key=' + process.env.YOUTUBE_API_KEY;
+      var res = await fetch(apiUrl);
+      var data = await res.json();
+      if (data.items && data.items.length > 0) return data.items[0].id;
+      apiUrl = 'https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=' + encodeURIComponent(handle) + '&key=' + process.env.YOUTUBE_API_KEY;
+      res = await fetch(apiUrl);
+      data = await res.json();
+      if (data.items && data.items.length > 0) return data.items[0].id;
+    } catch (e) {
+      console.error('YouTube API resolve failed for @' + handle, e.message);
+    }
+  }
+
+  // Method 2: Scrape YouTube page (fallback)
   if (handle) {
     try {
-      var res = await fetch('https://www.youtube.com/@' + handle);
+      var res = await fetch('https://www.youtube.com/@' + handle, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9'
+        }
+      });
       var html = await res.text();
       var cidMatch = html.match(/"channelId":"(UC[a-zA-Z0-9_-]{22})"/);
       if (cidMatch) return cidMatch[1];
+      cidMatch = html.match(/"externalId":"(UC[a-zA-Z0-9_-]{22})"/);
+      if (cidMatch) return cidMatch[1];
     } catch (e) {}
   }
+
   try {
-    var res = await fetch(input);
+    var res = await fetch(input, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+    });
     var html = await res.text();
     var cidMatch = html.match(/"channelId":"(UC[a-zA-Z0-9_-]{22})"/);
     if (cidMatch) return cidMatch[1];

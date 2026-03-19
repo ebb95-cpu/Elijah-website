@@ -682,6 +682,10 @@ async function saveModal() {
       var result = await adminAPI('add-source', { source_type: 'youtube-channel', url: source_url });
       $modalSaveBtn.textContent = 'Save';
       $modalSaveBtn.disabled = false;
+      if (result.error) {
+        alert('Error: ' + result.error + '\n\nTip: Try pasting the channel ID directly (starts with UC...). You can find it in your YouTube channel URL.');
+        return;
+      }
       alert('YouTube channel added! ' + (result.processed || 0) + ' videos ingested, ' + (result.skipped || 0) + ' already existed. New uploads will be auto-detected daily.');
     } else if (type === 'YouTube Video') {
       $modalSaveBtn.textContent = 'Ingesting...';
