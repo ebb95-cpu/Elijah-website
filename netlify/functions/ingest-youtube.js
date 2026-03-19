@@ -135,13 +135,66 @@ async function isAlreadyIngested(videoId) {
   return data && data.length > 0;
 }
 
+// ── Resolve channel ID from URL or handle ──
+async function resolveChannelId(input) {
+  input = input.trim();
+  if (/^UC[a-zA-Z0-9_-]{22}$/.test(input)) return input;
+  var m = input.match(/youtube\.com\/channel\/(UC[a-zA-Z0-9_-]{22})/);
+  if (m) return m[1];
+  var handle = null;
+  m = input.match(/youtube\.com\/@([a-zA-Z0-9_.-]+)/);
+  if (m) handle = m[1];
+  else if (input.startsWith('@')) handle = input.slice(1);
+  if (handle) {
+    try {
+      var res = await fetch('https://www.youtube.com/@' + handle);
+      var html = await res.text();
+      var cidMatch = html.match(/"channelId":"(UC[a-zA-Z0-9_-]{22})"/);
+      if (cidMatch) return cidMatch[1];
+    } catch (e) {}
+  }
+  try {
+    var res = await fetch(input);
+    var html = await res.text();
+    var cidMatch = html.match(/"channelId":"(UC[a-zA-Z0-9_-]{22})"/);
+    if (cidMatch) return cidMatch[1];
+  } catch (e) {}
+  return null;
+}
+
+// ── Load channel IDs from env vars + database ──
+async function getChannelIds() {
+  var ids = [process.env.YOUTUBE_CHANNEL_ID, process.env.YOUTUBE_CHANNEL_ID_2].filter(Boolean);
+
+  // Also load channels added via the admin dashboard
+  try {
+    var { data } = await supabase
+      .from('knowledge_items')
+      .select('source_url')
+      .eq('type', 'YouTube Channel');
+
+    if (data && data.length > 0) {
+      for (var item of data) {
+        var resolved = await resolveChannelId(item.source_url);
+        if (resolved && ids.indexOf(resolved) === -1) {
+          ids.push(resolved);
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load channels from DB:', e.message);
+  }
+
+  return ids;
+}
+
 // ── Main handler ──
 exports.handler = async function (event) {
   initClients();
 
-  var channelIds = [process.env.YOUTUBE_CHANNEL_ID, process.env.YOUTUBE_CHANNEL_ID_2].filter(Boolean);
+  var channelIds = await getChannelIds();
   if (channelIds.length === 0) {
-    console.log('No YOUTUBE_CHANNEL_ID set');
+    console.log('No YouTube channels configured');
     return { statusCode: 200, body: 'No channel configured' };
   }
 
