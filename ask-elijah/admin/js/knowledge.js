@@ -550,7 +550,7 @@ function toggleRowDropdown(e, btn) {
 // ============================================================
 // Modal — Add / Edit
 // ============================================================
-var MODAL_TYPES = ['Q&A', 'Manual', 'YouTube', 'TikTok', 'File'];
+var MODAL_TYPES = ['YouTube Channel', 'YouTube Video', 'Twitter', 'File', 'Q&A', 'Manual'];
 
 function openModal(item) {
   state.editingItem = item || null;
@@ -575,18 +575,27 @@ function renderModalFields(type) {
   var item = state.editingItem;
   var html = '';
 
-  if (type === 'Q&A') {
+  if (type === 'YouTube Channel') {
+    html += '<div class="modal-hint">Add a YouTube channel to auto-ingest all videos. The daily cron will pull transcripts, chunk them, and store in Pinecone.</div>';
+    html += field('Channel URL or ID', 'input', 'modal-url', item ? item.source_url : '', '', 'text');
+    html += '<div class="modal-hint" style="margin-top:8px;color:#555">e.g. https://youtube.com/@elijahbryant or UCxxxxxx channel ID</div>';
+  } else if (type === 'YouTube Video') {
+    html += '<div class="modal-hint">Add a single YouTube video. Transcript will be extracted and stored in Pinecone.</div>';
+    html += field('YouTube Video URL', 'input', 'modal-url', item ? item.source_url : '', '', 'url');
+  } else if (type === 'Twitter') {
+    html += '<div class="modal-hint">Add a Twitter/X account to ingest tweets. Requires TWITTER_BEARER_TOKEN and TWITTER_USER_ID in Netlify env vars.</div>';
+    html += field('Twitter Username', 'input', 'modal-url', item ? item.source_url : '', '', 'text');
+    html += '<div class="modal-hint" style="margin-top:8px;color:#555">e.g. @elijahbryant</div>';
+  } else if (type === 'File') {
+    html += '<div class="modal-hint">Upload a PDF, audio, or text file. It will be processed (Whisper for audio, pdf-parse for PDFs) and stored in Pinecone.</div>';
+    html += '<div class="modal-field"><label>Upload File</label><input type="file" id="modal-file" accept=".pdf,.txt,.docx,.mp3,.mp4,.m4a,.wav,.webm"></div>';
+    html += field('Title', 'input', 'modal-title-input', item ? item.title : '');
+  } else if (type === 'Q&A') {
+    html += '<div class="modal-hint">Add a question and answer pair to the knowledge base.</div>';
     html += field('Question', 'input', 'modal-question', item ? item.title : '');
     html += field('Answer', 'textarea', 'modal-content', item ? item.content : '', 'tall');
   } else if (type === 'Manual') {
-    html += field('Title', 'input', 'modal-title-input', item ? item.title : '');
-    html += field('Content', 'textarea', 'modal-content', item ? item.content : '', 'tall');
-  } else if (type === 'YouTube') {
-    html += field('YouTube URL', 'input', 'modal-url', item ? item.source_url : '', '', 'url');
-  } else if (type === 'TikTok') {
-    html += field('TikTok URL', 'input', 'modal-url', item ? item.source_url : '', '', 'url');
-  } else if (type === 'File') {
-    html += '<div class="modal-field"><label>Upload File</label><input type="file" id="modal-file" accept=".pdf,.txt,.docx"></div>';
+    html += '<div class="modal-hint">Add any text content — blog posts, notes, transcripts, etc.</div>';
     html += field('Title', 'input', 'modal-title-input', item ? item.title : '');
     html += field('Content', 'textarea', 'modal-content', item ? item.content : '', 'tall');
   }
@@ -651,40 +660,51 @@ async function saveModal() {
   } else if (type === 'Manual') {
     title = val('modal-title-input');
     content = val('modal-content');
-  } else if (type === 'YouTube' || type === 'TikTok') {
+  } else if (type === 'YouTube Channel' || type === 'YouTube Video' || type === 'Twitter') {
     source_url = val('modal-url');
     title = source_url;
   } else if (type === 'File') {
-    title = val('modal-title-input');
-    content = val('modal-content');
+    title = val('modal-title-input') || (pendingFile ? pendingFile.name : 'Upload');
   }
 
-  if (!title && !source_url) return alert('Please fill in the required fields.');
+  if (!title && !source_url && !pendingFile) return alert('Please fill in the required fields.');
 
-  var word_count = content ? content.trim().split(/\s+/).filter(Boolean).length : 0;
-  var status = (type === 'YouTube' || type === 'TikTok') ? 'processing' : 'completed';
+  // Route to appropriate backend based on type
+  try {
+    if (type === 'YouTube Channel') {
+      // Save as a knowledge source — the daily cron picks this up
+      await adminAPI('add-source', { source_type: 'youtube-channel', url: source_url });
+      alert('YouTube channel added! The daily ingestion cron will process all videos. You can also trigger it manually from Netlify.');
+    } else if (type === 'YouTube Video') {
+      // Trigger single video ingestion via admin API
+      await adminAPI('ingest-video', { url: source_url });
+    } else if (type === 'Twitter') {
+      await adminAPI('add-source', { source_type: 'twitter', url: source_url });
+      alert('Twitter account added! The daily ingestion cron will pull tweets.');
+    } else if (type === 'File' && pendingFile) {
+      await uploadFileToPipeline(pendingFile, title);
+      pendingFile = null;
+    } else if (type === 'Q&A' || type === 'Manual') {
+      var word_count = content ? content.trim().split(/\s+/).filter(Boolean).length : 0;
+      var row = {
+        title: title,
+        type: type,
+        content: content || null,
+        source_url: null,
+        status: 'completed',
+        word_count: word_count,
+        updated_at: new Date().toISOString(),
+      };
 
-  var row = {
-    title: title,
-    type: type,
-    content: content || null,
-    source_url: source_url || null,
-    status: status,
-    word_count: word_count,
-    updated_at: new Date().toISOString(),
-  };
-
-  // Route to appropriate backend
-  if (type === 'File' && pendingFile && !state.editingItem) {
-    // Use existing upload.js Netlify function → processes and stores in Pinecone
-    await uploadFileToPipeline(pendingFile, title);
-    pendingFile = null;
-  } else if (state.editingItem && state.editingItem.source === 'knowledge_items') {
-    // Update existing knowledge_items entry
-    await sb.from('knowledge_items').update(row).eq('id', state.editingItem.id);
-  } else {
-    // Insert Q&A / Manual / YouTube / TikTok into knowledge_items
-    await sb.from('knowledge_items').insert([row]);
+      if (state.editingItem && state.editingItem.source === 'knowledge_items') {
+        await sb.from('knowledge_items').update(row).eq('id', state.editingItem.id);
+      } else {
+        await sb.from('knowledge_items').insert([row]);
+      }
+    }
+  } catch (e) {
+    console.error('Save failed:', e);
+    alert('Save failed: ' + e.message);
   }
 
   closeModal();
