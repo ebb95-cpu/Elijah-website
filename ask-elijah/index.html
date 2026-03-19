@@ -50,6 +50,87 @@
     </div>
   </div>
 
+  <!-- ── ONBOARDING SCREEN ── -->
+  <div id="onboarding-screen">
+    <div id="onboarding-card">
+      <div class="onboarding-progress">Step <span id="ob-step-num">1</span> of 5</div>
+
+      <!-- Step 1: Name -->
+      <div class="ob-step" id="ob-step-1">
+        <h2 class="ob-question">What's your name?</h2>
+        <input type="text" id="ob-name" class="ob-input" placeholder="Your name" autocomplete="name" />
+        <button class="ob-btn" id="ob-next-1">Continue</button>
+      </div>
+
+      <!-- Step 2: Age -->
+      <div class="ob-step" id="ob-step-2">
+        <h2 class="ob-question">How old are you?</h2>
+        <input type="number" id="ob-age" class="ob-input" placeholder="Age" min="10" max="99" />
+        <button class="ob-btn" id="ob-next-2">Continue</button>
+      </div>
+
+      <!-- Step 3: Sport -->
+      <div class="ob-step" id="ob-step-3">
+        <h2 class="ob-question">What sport do you play?</h2>
+        <select id="ob-sport" class="ob-input">
+          <option value="">Select a sport</option>
+          <option value="Basketball">Basketball</option>
+          <option value="Football">Football</option>
+          <option value="Soccer">Soccer</option>
+          <option value="Baseball">Baseball</option>
+          <option value="Track & Field">Track &amp; Field</option>
+          <option value="Swimming">Swimming</option>
+          <option value="Tennis">Tennis</option>
+          <option value="Golf">Golf</option>
+          <option value="MMA/Boxing">MMA/Boxing</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" id="ob-sport-other" class="ob-input" placeholder="What sport?" style="display:none" />
+        <button class="ob-btn" id="ob-next-3">Continue</button>
+      </div>
+
+      <!-- Step 4: Level -->
+      <div class="ob-step" id="ob-step-4">
+        <h2 class="ob-question">What level are you at?</h2>
+        <div class="ob-level-buttons">
+          <button class="ob-level-btn" data-level="Youth">Youth</button>
+          <button class="ob-level-btn" data-level="High School">High School</button>
+          <button class="ob-level-btn" data-level="College">College</button>
+          <button class="ob-level-btn" data-level="Pro">Pro</button>
+          <button class="ob-level-btn" data-level="Retired">Retired</button>
+          <button class="ob-level-btn" data-level="Fan/Supporter">Fan/Supporter</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Goal -->
+      <div class="ob-step" id="ob-step-5">
+        <h2 class="ob-question">What are you looking to gain from this?</h2>
+        <textarea id="ob-goal" class="ob-input ob-textarea" placeholder="Your goal..."></textarea>
+        <button class="ob-btn" id="ob-next-5">Let's go</button>
+      </div>
+
+      <!-- Bonus: Social handle -->
+      <div class="ob-step" id="ob-step-bonus">
+        <div class="ob-bonus-emoji">&#127881;</div>
+        <h2 class="ob-question">You've earned 6 free questions!</h2>
+        <p class="ob-bonus-sub">Want 1 more? Drop your Instagram handle</p>
+        <input type="text" id="ob-social" class="ob-input" placeholder="@yourhandle" />
+        <button class="ob-btn" id="ob-claim-bonus">Claim bonus</button>
+        <button class="ob-skip-link" id="ob-skip-bonus">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAYWALL OVERLAY ── -->
+  <div id="paywall-overlay">
+    <div id="paywall-card">
+      <h2 class="paywall-title">You've used all your free questions</h2>
+      <p class="paywall-sub">Join the Consistency Club for unlimited access</p>
+      <a href="https://yourplaybook.beehiiv.com" target="_blank" rel="noopener" class="paywall-cta">Join the Consistency Club</a>
+      <p class="paywall-footer">Or check back later for more free questions</p>
+    </div>
+  </div>
+
   <!-- ── CHAT SCREEN ── -->
   <div id="chat-screen">
     <!-- Header -->
@@ -91,6 +172,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
+    <div id="questions-remaining-bar"><span id="questions-remaining-count"></span> questions remaining</div>
   </div>
 
   <!-- ── NOTIFY MODAL ── -->

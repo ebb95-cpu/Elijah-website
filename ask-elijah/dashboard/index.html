@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Ask Elijah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .dash-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .dash-container {
+      display: none;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+    .dash-container.visible {
+      display: block;
+    }
+
+    /* Header */
+    .dash-header {
+      margin-bottom: 2.5rem;
+    }
+    .dash-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .dash-brand-dot {
+      font-size: 8px;
+      color: #fff;
+    }
+    .dash-brand-dash {
+      color: rgba(255,255,255,0.25);
+      letter-spacing: -0.05em;
+      font-size: 0.75rem;
+    }
+    .dash-brand-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 1.2rem;
+      letter-spacing: 0.08em;
+    }
+    .dash-welcome {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+    }
+
+    /* Stats */
+    .dash-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 2rem;
+    }
+    .dash-stat {
+      padding: 1.2rem 1rem;
+      background: #0a0a0a;
+      text-align: center;
+    }
+    .dash-stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+    .dash-stat-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    /* Goal */
+    .dash-section {
+      margin-bottom: 2rem;
+    }
+    .dash-section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.8rem;
+    }
+    .dash-goal {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* Conversation history */
+    .dash-history {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .dash-history-item {
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: border-color 0.3s;
+    }
+    .dash-history-item:hover {
+      border-color: rgba(255,255,255,0.12);
+    }
+    .dash-history-q {
+      font-size: 0.85rem;
+      color: #fff;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    .dash-history-a {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .dash-history-date {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.58rem;
+      color: rgba(255,255,255,0.2);
+      margin-top: 8px;
+      letter-spacing: 0.05em;
+    }
+    .dash-empty {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    /* CTA */
+    .dash-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 52px;
+      margin-top: 2rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .dash-cta:hover {
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 480px) {
+      .dash-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dash-loading" id="dash-loading">Loading...</div>
+
+  <div class="dash-container" id="dash-container">
+    <!-- Brand -->
+    <div class="dash-header">
+      <div class="dash-brand">
+        <span class="dash-brand-dot">&#9679;</span>
+        <span class="dash-brand-dash">&#x2015;&#x2015;</span>
+        <span class="dash-brand-title">Ask Elijah</span>
+      </div>
+      <h1 class="dash-welcome">Welcome back, <span id="dash-name">—</span></h1>
+    </div>
+
+    <!-- Stats -->
+    <div class="dash-stats">
+      <div class="dash-stat">
+        <div class="dash-stat-value" id="dash-asked">0</div>
+        <div class="dash-stat-label">Questions Asked</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-value" id="dash-remaining">0</div>
+        <div class="dash-stat-label">Remaining</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-value" id="dash-since">—</div>
+        <div class="dash-stat-label">Member Since</div>
+      </div>
+    </div>
+
+    <!-- Goal -->
+    <div class="dash-section" id="dash-goal-section" style="display:none">
+      <div class="dash-section-title">Your Goal</div>
+      <div class="dash-goal" id="dash-goal"></div>
+    </div>
+
+    <!-- History -->
+    <div class="dash-section">
+      <div class="dash-section-title">Conversation History</div>
+      <div class="dash-history" id="dash-history"></div>
+    </div>
+
+    <!-- CTA -->
+    <a href="/ask-elijah/" class="dash-cta">Ask another question &rarr;</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    var SUPABASE_URL  = 'https://eqhevpclmudbrmmltyyk.supabase.co';
+    var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxaGV2cGNsbXVkYnJtbWx0eXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjA1NDIsImV4cCI6MjA4OTQzNjU0Mn0.Kbdq1hWUXLgn1VGYCQSsSYrPTMs5gkiPMwsyB-KSg7E';
+
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    var loadingEl = document.getElementById('dash-loading');
+    var containerEl = document.getElementById('dash-container');
+
+    sb.auth.getSession().then(function (result) {
+      var session = result.data.session;
+      if (!session) {
+        window.location.href = '/ask-elijah/';
+        return;
+      }
+      loadDashboard(session.user);
+    });
+
+    function loadDashboard(user) {
+      // Fetch profile
+      sb.from('user_profiles')
+        .select('name, goal, questions_remaining, total_questions_asked, created_at')
+        .eq('user_id', user.id)
+        .maybeSingle()
+        .then(function (result) {
+          var p = result.data;
+          if (!p) {
+            window.location.href = '/ask-elijah/';
+            return;
+          }
+
+          // Populate
+          document.getElementById('dash-name').textContent = p.name || 'there';
+          document.getElementById('dash-asked').textContent = p.total_questions_asked || 0;
+          document.getElementById('dash-remaining').textContent = p.questions_remaining || 0;
+
+          if (p.created_at) {
+            var d = new Date(p.created_at);
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            document.getElementById('dash-since').textContent = months[d.getMonth()] + ' ' + d.getFullYear();
+          }
+
+          if (p.goal) {
+            document.getElementById('dash-goal').textContent = p.goal;
+            document.getElementById('dash-goal-section').style.display = '';
+          }
+
+          // Load history
+          return loadHistory(user.id);
+        })
+        .then(function () {
+          loadingEl.style.display = 'none';
+          containerEl.classList.add('visible');
+        });
+    }
+
+    function loadHistory(userId) {
+      return sb
+        .from('questions')
+        .select('question_text, response_text, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(20)
+        .then(function (result) {
+          var rows = result.data || [];
+          var container = document.getElementById('dash-history');
+
+          if (rows.length === 0) {
+            container.innerHTML = '<div class="dash-empty">No questions yet. Ask your first one!</div>';
+            return;
+          }
+
+          rows.forEach(function (row) {
+            var item = document.createElement('div');
+            item.className = 'dash-history-item';
+
+            var q = document.createElement('div');
+            q.className = 'dash-history-q';
+            q.textContent = row.question_text;
+            item.appendChild(q);
+
+            if (row.response_text) {
+              var a = document.createElement('div');
+              a.className = 'dash-history-a';
+              a.textContent = row.response_text;
+              item.appendChild(a);
+            }
+
+            var date = document.createElement('div');
+            date.className = 'dash-history-date';
+            date.textContent = new Date(row.created_at).toLocaleDateString('en-US', {
+              month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+            });
+            item.appendChild(date);
+
+            container.appendChild(item);
+          });
+        });
+    }
+  })();
+  </script>
+</body>
+</html>

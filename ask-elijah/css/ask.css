@@ -486,6 +486,275 @@ html, body {
 }
 
 /* ══════════════════════════════════
+   ONBOARDING SCREEN
+   ══════════════════════════════════ */
+#onboarding-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  z-index: 25;
+  background: #0a0a0a;
+}
+#onboarding-screen.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#onboarding-card {
+  width: min(500px, 90vw);
+  padding: clamp(2rem, 5vw, 3rem);
+  text-align: center;
+  position: relative;
+}
+
+.onboarding-progress {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* Steps */
+.ob-step {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  animation: obFadeIn 0.5s ease;
+}
+.ob-step.active {
+  display: flex;
+}
+@keyframes obFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ob-question {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  letter-spacing: 0.04em;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.ob-input {
+  width: 100%;
+  max-width: 360px;
+  min-height: 48px;
+  padding: 0 1rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.3s;
+  text-align: center;
+}
+.ob-input::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+.ob-input:focus {
+  border-color: rgba(255,255,255,0.4);
+}
+
+select.ob-input {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.3)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+select.ob-input option {
+  background: #0a0a0a;
+  color: #fff;
+}
+
+.ob-textarea {
+  min-height: 100px;
+  padding: 1rem;
+  resize: none;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.ob-btn {
+  width: 100%;
+  max-width: 360px;
+  min-height: 48px;
+  padding: 0 1.5rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s;
+}
+.ob-btn:hover {
+  border-color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.1);
+}
+
+/* Level buttons */
+.ob-level-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+}
+.ob-level-btn {
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 300;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s, color 0.3s;
+}
+.ob-level-btn:hover {
+  border-color: rgba(255,255,255,0.35);
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+}
+
+/* Bonus step */
+.ob-bonus-emoji {
+  font-size: 2.4rem;
+  margin-bottom: -8px;
+}
+.ob-bonus-sub {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+  margin-top: -8px;
+}
+.ob-skip-link {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s;
+  margin-top: -8px;
+}
+.ob-skip-link:hover {
+  color: rgba(255,255,255,0.6);
+}
+
+/* ══════════════════════════════════
+   PAYWALL OVERLAY
+   ══════════════════════════════════ */
+#paywall-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.88);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 60;
+}
+#paywall-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+#paywall-card {
+  width: min(440px, 90vw);
+  padding: clamp(2rem, 5vw, 3rem);
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #0a0a0a;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.paywall-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  letter-spacing: 0.04em;
+  color: #fff;
+  line-height: 1.3;
+}
+.paywall-sub {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+}
+.paywall-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 320px;
+  min-height: 52px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: border-color 0.3s, background 0.3s;
+}
+.paywall-cta:hover {
+  border-color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.12);
+}
+.paywall-footer {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.25);
+  margin-top: 4px;
+}
+
+/* ══════════════════════════════════
+   QUESTIONS REMAINING BAR
+   ══════════════════════════════════ */
+#questions-remaining-bar {
+  display: none;
+  padding: 6px 16px;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: #050505;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  flex-shrink: 0;
+}
+#questions-remaining-bar.visible {
+  display: block;
+}
+
+/* ══════════════════════════════════
    MOBILE-FIRST RESPONSIVE
    ══════════════════════════════════ */
 @media (max-width: 480px) {
@@ -502,5 +771,15 @@ html, body {
   }
   .suggested-q {
     text-align: left;
+  }
+  #onboarding-card {
+    padding: 2rem 1.5rem;
+  }
+  .ob-level-buttons {
+    grid-template-columns: 1fr;
+  }
+  #paywall-card {
+    border: none;
+    background: #000;
   }
 }

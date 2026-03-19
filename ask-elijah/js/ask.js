@@ -1,4 +1,4 @@
-/* ── Ask Elijah — Chat Logic ── */
+/* ── Ask Elijah — Chat Logic + Question Quota ── */
 (function () {
   'use strict';
 
@@ -11,11 +11,52 @@
   var notifyModal    = document.getElementById('notify-modal');
   var notifyYes      = document.getElementById('notify-yes');
   var notifyNo       = document.getElementById('notify-no');
+  var paywallOverlay = document.getElementById('paywall-overlay');
+  var questionsBar   = document.getElementById('questions-remaining-bar');
+  var questionsCount = document.getElementById('questions-remaining-count');
 
   // ── State ──
   var conversationHistory = [];
   var isWaiting = false;
   var pendingEscalationId = null;
+  var questionsRemaining = null;
+
+  // ── Update questions remaining display ──
+  function updateQuotaDisplay() {
+    if (questionsRemaining === null || questionsRemaining === undefined) {
+      if (questionsBar) questionsBar.classList.remove('visible');
+      return;
+    }
+    if (questionsBar && questionsCount) {
+      questionsCount.textContent = questionsRemaining;
+      questionsBar.classList.add('visible');
+    }
+  }
+
+  // ── Show paywall ──
+  function showPaywall() {
+    if (paywallOverlay) paywallOverlay.classList.add('visible');
+  }
+
+  // ── Fetch current quota from Supabase ──
+  function fetchQuota() {
+    var supabase = window.__askSupabase;
+    var user = window.__askUser;
+    if (!supabase || !user || !user.id) return;
+
+    supabase
+      .from('user_profiles')
+      .select('questions_remaining')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(function (result) {
+        if (result.data) {
+          questionsRemaining = result.data.questions_remaining;
+          window.__askUser.questionsRemaining = questionsRemaining;
+          updateQuotaDisplay();
+        }
+      });
+  }
 
   // ── Auto-resize textarea ──
   chatInput.addEventListener('input', function () {
@@ -44,6 +85,12 @@
   function sendMessage() {
     var text = chatInput.value.trim();
     if (!text || isWaiting) return;
+
+    // Check quota before sending
+    if (questionsRemaining !== null && questionsRemaining <= 0) {
+      showPaywall();
+      return;
+    }
 
     // Hide welcome section on first message
     if (welcomeSection) {
@@ -76,7 +123,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: question,
-        history: conversationHistory.slice(0, -1), // exclude current message (already on server)
+        history: conversationHistory.slice(0, -1),
         userId: user.id || null
       })
     })
@@ -97,6 +144,13 @@
 
       appendMessage('ai', data.response, sources, escalated, questionId);
       conversationHistory.push({ role: 'assistant', content: data.response });
+
+      // Decrement local quota and update display
+      if (questionsRemaining !== null) {
+        questionsRemaining--;
+        if (questionsRemaining < 0) questionsRemaining = 0;
+        updateQuotaDisplay();
+      }
     })
     .catch(function () {
       typingIndicator.classList.remove('visible');
@@ -130,9 +184,8 @@
         a.href = src.url || '#';
         a.target = '_blank';
         a.rel = 'noopener';
-        // Pick icon based on source_type
         var type = (src.source_type || src.type || '').toLowerCase();
-        var icon = '\uD83D\uDCDD'; // default: memo (text)
+        var icon = '\uD83D\uDCDD';
         if (type === 'youtube' || type === 'video') icon = '\uD83C\uDFAC';
         else if (type === 'pdf') icon = '\uD83D\uDCC4';
         else if (type === 'audio' || type === 'podcast') icon = '\uD83C\uDF99\uFE0F';
@@ -171,11 +224,13 @@
       })
     })
     .then(function () {
-      btnEl.textContent = 'You\'ll be notified';
-      btnEl.classList.add('opted-in');
+      if (btnEl) {
+        btnEl.textContent = 'You\'ll be notified';
+        btnEl.classList.add('opted-in');
+      }
     })
     .catch(function () {
-      btnEl.textContent = 'Failed — try again';
+      if (btnEl) btnEl.textContent = 'Failed — try again';
     });
   }
 
@@ -188,6 +243,15 @@
 
   // ── Load chat history on auth ready ──
   window.addEventListener('ask-auth-ready', function () {
+    // Set initial quota from auth data
+    var user = window.__askUser;
+    if (user && user.questionsRemaining !== undefined) {
+      questionsRemaining = user.questionsRemaining;
+      updateQuotaDisplay();
+    } else {
+      fetchQuota();
+    }
+
     loadChatHistory();
   });
 
