@@ -82,8 +82,14 @@ exports.handler = async function (event) {
       return await handleIngestVideo(body);
     } else if (action === 'list-sources') {
       return await handleListSources();
+    } else if (action === 'save-item') {
+      var body = JSON.parse(event.body || '{}');
+      return await handleSaveItem(body);
+    } else if (action === 'delete-item') {
+      var body = JSON.parse(event.body || '{}');
+      return await handleDeleteItem(body);
     } else {
-      return respond(400, { error: 'Unknown action. Use: list, stats, search, questions, add-source, ingest-video, list-sources' });
+      return respond(400, { error: 'Unknown action. Use: list, stats, search, questions, add-source, ingest-video, list-sources, save-item, delete-item' });
     }
   } catch (err) {
     console.error('Admin knowledge error:', err);
@@ -190,6 +196,48 @@ async function handleQuestions() {
 
   if (error) return respond(500, { error: error.message });
   return respond(200, { questions: data || [] });
+}
+
+// ── Save a knowledge item (Q&A, Manual) — uses service key to bypass RLS ──
+async function handleSaveItem(body) {
+  var title = body.title;
+  if (!title) return respond(400, { error: 'title is required' });
+
+  var row = {
+    title: title,
+    type: body.type || 'Manual',
+    content: body.content || null,
+    source_url: body.source_url || null,
+    status: body.status || 'completed',
+    word_count: body.word_count || 0,
+    updated_at: new Date().toISOString()
+  };
+
+  if (body.id) {
+    // Update existing
+    var { data, error } = await supabase.from('knowledge_items')
+      .update(row).eq('id', body.id).select('id').single();
+    if (error) return respond(500, { error: error.message });
+    return respond(200, { success: true, id: data ? data.id : body.id });
+  } else {
+    // Insert new
+    var { data, error } = await supabase.from('knowledge_items')
+      .insert(row).select('id').single();
+    if (error) return respond(500, { error: error.message });
+    return respond(200, { success: true, id: data ? data.id : null });
+  }
+}
+
+// ── Delete a knowledge item ──
+async function handleDeleteItem(body) {
+  var id = body.id;
+  var source = body.source || 'knowledge_items';
+  if (!id) return respond(400, { error: 'id is required' });
+
+  var table = source === 'ingestion_log' ? 'ingestion_log' : 'knowledge_items';
+  var { error } = await supabase.from(table).delete().eq('id', id);
+  if (error) return respond(500, { error: error.message });
+  return respond(200, { success: true });
 }
 
 // ── Add a knowledge source (YouTube channel, Twitter, etc.) ──

@@ -693,14 +693,12 @@ async function saveModal() {
         source_url: null,
         status: 'completed',
         word_count: word_count,
-        updated_at: new Date().toISOString(),
       };
 
       if (state.editingItem && state.editingItem.source === 'knowledge_items') {
-        await sb.from('knowledge_items').update(row).eq('id', state.editingItem.id);
-      } else {
-        await sb.from('knowledge_items').insert([row]);
+        row.id = state.editingItem.id;
       }
+      await adminAPI('save-item', row);
     }
   } catch (e) {
     console.error('Save failed:', e);
@@ -767,11 +765,7 @@ window.deleteItem = async function (id) {
   if (!item) return;
   if (!window.confirm('Delete this item?')) return;
 
-  if (item.source === 'knowledge_items') {
-    await sb.from('knowledge_items').delete().eq('id', id);
-  } else if (item.source === 'ingestion_log') {
-    await sb.from('ingestion_log').delete().eq('id', id);
-  }
+  await adminAPI('delete-item', { id: id, source: item.source });
   closeDetailPanel();
   await loadData();
   render();
