@@ -13,4 +13,7 @@
   schedule = "0 6 * * *"
 
 [functions."ingest-social"]
-  schedule = "0 7 * * *"
+  schedule = "0 7 * * *"    # Daily at 7 AM UTC — Instagram, Twitter, LinkedIn, TikTok
+
+[functions."ingest-newsletter"]
+  schedule = "0 8 * * *"    # Daily at 8 AM UTC — Beehiiv, Substack newsletters
