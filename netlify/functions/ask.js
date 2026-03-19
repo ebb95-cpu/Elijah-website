@@ -3,16 +3,29 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { Pinecone } = require('@pinecone-database/pinecone');
 const { createClient } = require('@supabase/supabase-js');
 
+// ── CORS headers for all responses ──
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS'
+};
+
 // ── Clients (lazy init) ──
 let anthropic, pinecone, pineconeIndex, supabase;
+
+const PINECONE_HOST = 'https://askelijah-5jj8obh.svc.aped-4627-b74a.pinecone.io';
 
 function initClients() {
   if (!anthropic) {
     anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   }
-  if (!pinecone) {
+  if (!pineconeIndex) {
     pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
-    pineconeIndex = pinecone.index(process.env.PINECONE_INDEX || 'askelijah');
+    // Pass the host explicitly so the SDK does not need a describe-index call
+    pineconeIndex = pinecone.index(
+      process.env.PINECONE_INDEX || 'askelijah',
+      PINECONE_HOST
+    );
   }
   if (!supabase) {
     supabase = createClient(
@@ -93,7 +106,18 @@ async function embedQuery(text) {
       model: 'voyage-3-lite'
     })
   });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => 'unknown');
+    throw new Error(`Voyage API error ${res.status}: ${errText}`);
+  }
+
   const data = await res.json();
+
+  if (!data.data || !data.data[0] || !data.data[0].embedding) {
+    throw new Error('Voyage API returned no embedding data');
+  }
+
   return data.data[0].embedding;
 }
 
@@ -107,15 +131,34 @@ async function searchKnowledge(queryEmbedding, topK = 6) {
   return results.matches || [];
 }
 
+// ── Helper: build a JSON response with CORS ──
+function respond(statusCode, body) {
+  return {
+    statusCode,
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+    body: JSON.stringify(body)
+  };
+}
+
 // ── Main handler ──
 exports.handler = async function (event) {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: CORS_HEADERS, body: '' };
+  }
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return respond(405, { error: 'Method not allowed' });
   }
 
   initClients();
 
-  const body = JSON.parse(event.body || '{}');
+  let body;
+  try {
+    body = JSON.parse(event.body || '{}');
+  } catch (parseErr) {
+    return respond(400, { error: 'Invalid JSON body' });
+  }
 
   // Handle notify opt-in
   if (body.action === 'notify-opt-in') {
@@ -125,15 +168,12 @@ exports.handler = async function (event) {
   const { message, history, userId } = body;
 
   if (!message) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Message is required' }) };
+    return respond(400, { error: 'Message is required' });
   }
 
   // Rate limit check
   if (!checkRateLimit(userId)) {
-    return {
-      statusCode: 429,
-      body: JSON.stringify({ error: 'You\'ve asked a lot of questions! Take a breather and come back in a bit.' })
-    };
+    return respond(429, { error: "You've asked a lot of questions! Take a breather and come back in a bit." });
   }
 
   try {
@@ -186,7 +226,7 @@ exports.handler = async function (event) {
 
     // 5. Call Claude
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6-20250514',
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       messages: messages
@@ -236,23 +276,16 @@ exports.handler = async function (event) {
       console.error('Supabase log error:', dbErr);
     }
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        response: cleanResponse,
-        sources: sources,
-        escalated: escalated,
-        questionId: questionId
-      })
-    };
+    return respond(200, {
+      response: cleanResponse,
+      sources: sources,
+      escalated: escalated,
+      questionId: questionId
+    });
 
   } catch (err) {
     console.error('Ask API error:', err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Something went wrong. Please try again.' })
-    };
+    return respond(500, { error: 'Something went wrong. Please try again.' });
   }
 };
 
@@ -260,7 +293,7 @@ exports.handler = async function (event) {
 async function handleNotifyOptIn(body) {
   const { questionId, userId } = body;
   if (!questionId || !userId) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Missing data' }) };
+    return respond(400, { error: 'Missing data' });
   }
 
   try {
@@ -268,14 +301,8 @@ async function handleNotifyOptIn(body) {
       notify_user: true
     }).eq('id', questionId).eq('user_id', userId);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true })
-    };
+    return respond(200, { success: true });
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to opt in' })
-    };
+    return respond(500, { error: 'Failed to opt in' });
   }
 }
