@@ -742,23 +742,16 @@ async function uploadFileToPipeline(file, title) {
   if (file.name.match(/\.pdf$/i)) fileType = 'pdf';
   else if (file.name.match(/\.(mp4|mp3|m4a|wav|webm)$/i)) fileType = 'audio';
 
-  var res = await fetch('/.netlify/functions/upload', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + (window.__ENV_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || '')
-    },
-    body: JSON.stringify({
-      file: base64,
-      filename: file.name,
-      type: fileType,
-      title: title
-    })
+  // Route through admin API (uses service key, no ADMIN_PASSWORD needed)
+  var result = await adminAPI('upload-file', {
+    file: base64,
+    filename: file.name,
+    type: fileType,
+    title: title
   });
 
-  var data = await res.json();
-  if (!res.ok) {
-    alert('Upload failed: ' + (data.error || 'Unknown error'));
+  if (result.error) {
+    alert('Upload failed: ' + result.error);
   }
 }
 
