@@ -88,8 +88,11 @@ exports.handler = async function (event) {
     } else if (action === 'delete-item') {
       var body = JSON.parse(event.body || '{}');
       return await handleDeleteItem(body);
+    } else if (action === 'upload-file') {
+      var body = JSON.parse(event.body || '{}');
+      return await handleUploadFile(body);
     } else {
-      return respond(400, { error: 'Unknown action. Use: list, stats, search, questions, add-source, ingest-video, list-sources, save-item, delete-item' });
+      return respond(400, { error: 'Unknown action' });
     }
   } catch (err) {
     console.error('Admin knowledge error:', err);
@@ -198,34 +201,160 @@ async function handleQuestions() {
   return respond(200, { questions: data || [] });
 }
 
-// ── Save a knowledge item (Q&A, Manual) — uses service key to bypass RLS ──
+// ── Save a knowledge item (Q&A, Manual) — saves to DB AND embeds into Pinecone ──
 async function handleSaveItem(body) {
   var title = body.title;
   if (!title) return respond(400, { error: 'title is required' });
 
+  var content = body.content || '';
   var row = {
     title: title,
     type: body.type || 'Manual',
-    content: body.content || null,
+    content: content || null,
     source_url: body.source_url || null,
-    status: body.status || 'completed',
+    status: 'processing',
     word_count: body.word_count || 0,
     updated_at: new Date().toISOString()
   };
 
+  var itemId;
   if (body.id) {
-    // Update existing
     var { data, error } = await supabase.from('knowledge_items')
       .update(row).eq('id', body.id).select('id').single();
     if (error) return respond(500, { error: error.message });
-    return respond(200, { success: true, id: data ? data.id : body.id });
+    itemId = data ? data.id : body.id;
   } else {
-    // Insert new
     var { data, error } = await supabase.from('knowledge_items')
       .insert(row).select('id').single();
     if (error) return respond(500, { error: error.message });
-    return respond(200, { success: true, id: data ? data.id : null });
+    itemId = data ? data.id : null;
   }
+
+  // Embed content into Pinecone so the chatbot can find it
+  var chunksCreated = 0;
+  if (content && content.trim().length > 10) {
+    try {
+      // For Q&A, combine question + answer for better semantic search
+      var textToEmbed = content;
+      if (body.type === 'Q&A') {
+        textToEmbed = 'Question: ' + title + '\n\nAnswer: ' + content;
+      }
+
+      var chunks = chunkText(textToEmbed);
+      var embeddings = await embedChunks(chunks);
+
+      var sourceId = 'ki-' + itemId;
+      var vectors = chunks.map(function (chunk, i) {
+        return {
+          id: sourceId + '-chunk-' + i,
+          values: embeddings[i],
+          metadata: {
+            text: chunk,
+            title: title,
+            url: '',
+            source_type: body.type === 'Q&A' ? 'qa' : 'manual',
+            source_id: sourceId,
+            chunk_index: i
+          }
+        };
+      });
+
+      for (var i = 0; i < vectors.length; i += 100) {
+        await pineconeIndex.upsert(vectors.slice(i, i + 100));
+      }
+
+      chunksCreated = chunks.length;
+    } catch (embErr) {
+      console.error('Embedding failed for item:', itemId, embErr.message);
+      // Still save the item, just mark as attention
+      await supabase.from('knowledge_items')
+        .update({ status: 'attention', updated_at: new Date().toISOString() })
+        .eq('id', itemId);
+      return respond(200, { success: true, id: itemId, warning: 'Saved but embedding failed: ' + embErr.message });
+    }
+  }
+
+  // Mark as completed
+  await supabase.from('knowledge_items')
+    .update({ status: 'completed', updated_at: new Date().toISOString() })
+    .eq('id', itemId);
+
+  return respond(200, { success: true, id: itemId, chunks_created: chunksCreated });
+}
+
+// ── Upload and process a file (PDF, audio, text) ──
+async function handleUploadFile(body) {
+  var fileData = body.file; // base64 string
+  var fileName = body.filename || 'upload';
+  var fileType = body.type || '';
+  var title = body.title || fileName;
+
+  if (!fileData) return respond(400, { error: 'file (base64) is required' });
+
+  var buffer = Buffer.from(fileData, 'base64');
+  var text = '';
+  var sourceId = 'upload-' + Date.now();
+
+  // Route to appropriate extractor
+  if (fileType === 'pdf' || fileName.endsWith('.pdf')) {
+    var pdfParse = require('pdf-parse');
+    var pdfData = await pdfParse(buffer);
+    text = pdfData.text;
+  } else if (fileType === 'audio' || fileName.match(/\.(mp4|mp3|m4a|wav|webm)$/i)) {
+    // Transcribe via OpenAI Whisper
+    var OpenAI = require('openai');
+    var openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    var file = new File([buffer], fileName, { type: 'audio/mpeg' });
+    text = await openai.audio.transcriptions.create({
+      file: file,
+      model: 'whisper-1',
+      response_format: 'text'
+    });
+  } else {
+    // Treat as plain text
+    text = buffer.toString('utf-8');
+  }
+
+  if (!text || text.trim().length < 10) {
+    return respond(400, { error: 'Could not extract text from file' });
+  }
+
+  // Chunk, embed, store in Pinecone
+  var chunks = chunkText(text);
+  var embeddings = await embedChunks(chunks);
+
+  var vectors = chunks.map(function (chunk, i) {
+    return {
+      id: sourceId + '-chunk-' + i,
+      values: embeddings[i],
+      metadata: {
+        text: chunk,
+        title: title,
+        url: '',
+        source_type: 'upload',
+        source_id: sourceId,
+        chunk_index: i
+      }
+    };
+  });
+
+  for (var i = 0; i < vectors.length; i += 100) {
+    await pineconeIndex.upsert(vectors.slice(i, i + 100));
+  }
+
+  // Log ingestion
+  await supabase.from('ingestion_log').insert({
+    source_type: 'upload',
+    source_url: fileName,
+    status: 'done',
+    chunks_created: chunks.length
+  });
+
+  return respond(200, {
+    success: true,
+    chunks_created: chunks.length,
+    source_id: sourceId
+  });
 }
 
 // ── Delete a knowledge item ──
