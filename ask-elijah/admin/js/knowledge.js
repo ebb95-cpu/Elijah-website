@@ -86,20 +86,120 @@ function cacheDOM() {
 }
 
 // ============================================================
-// Data
+// Data — pulls from admin-knowledge Netlify function
 // ============================================================
+var authToken = '';
+
+async function getAuthToken() {
+  if (authToken) return authToken;
+  var { data } = await sb.auth.getSession();
+  authToken = data && data.session ? data.session.access_token : '';
+  return authToken;
+}
+
+async function adminAPI(action, body) {
+  var token = await getAuthToken();
+  var opts = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    }
+  };
+  if (body) {
+    opts.method = 'POST';
+    opts.body = JSON.stringify(body);
+  }
+  var res = await fetch('/.netlify/functions/admin-knowledge?action=' + action, opts);
+  return res.json();
+}
+
 async function loadData() {
-  var [itemsRes, foldersRes] = await Promise.all([
-    sb.from('knowledge_items').select('*').order('updated_at', { ascending: false }),
-    sb.from('knowledge_folders').select('*').order('created_at', { ascending: false }),
-  ]);
-  state.items = (itemsRes.data || []);
-  state.folders = (foldersRes.data || []);
-  calcWords();
+  try {
+    var [listData, statsData] = await Promise.all([
+      adminAPI('list'),
+      adminAPI('stats')
+    ]);
+
+    // Merge ingestion_log entries and knowledge_items into unified list
+    var items = [];
+
+    // Ingestion log entries (YouTube, social, uploads processed via pipeline)
+    (listData.ingestion_log || []).forEach(function (entry) {
+      items.push({
+        id: entry.id,
+        title: entry.source_url || 'Unknown',
+        type: mapSourceType(entry.source_type),
+        content: null, // Content is in Pinecone, not stored here
+        source_url: entry.source_url,
+        status: entry.status === 'done' ? 'completed' : entry.status === 'failed' ? 'failed' : 'processing',
+        word_count: 0,
+        chunks_created: entry.chunks_created || 0,
+        created_at: entry.created_at,
+        updated_at: entry.created_at,
+        source: 'ingestion_log'
+      });
+    });
+
+    // Manual knowledge_items (Q&A, manual entries)
+    (listData.knowledge_items || []).forEach(function (item) {
+      items.push({
+        id: item.id,
+        title: item.title,
+        type: item.type,
+        content: item.content,
+        source_url: item.source_url,
+        status: item.status || 'completed',
+        word_count: item.word_count || 0,
+        chunks_created: 0,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        source: 'knowledge_items'
+      });
+    });
+
+    state.items = items;
+    state.pineconeStats = statsData.pinecone || {};
+    state.ingestionStats = statsData.ingestion || {};
+
+    // Also still load folders from Supabase directly
+    var foldersRes = await sb.from('knowledge_folders').select('*').order('created_at', { ascending: false });
+    state.folders = (foldersRes.data || []);
+
+    calcWords();
+  } catch (e) {
+    console.error('Failed to load data:', e);
+    // Fallback: try direct Supabase queries
+    var [itemsRes, foldersRes] = await Promise.all([
+      sb.from('knowledge_items').select('*').order('updated_at', { ascending: false }),
+      sb.from('knowledge_folders').select('*').order('created_at', { ascending: false }),
+    ]);
+    state.items = (itemsRes.data || []).map(function (item) {
+      item.source = 'knowledge_items';
+      return item;
+    });
+    state.folders = (foldersRes.data || []);
+    calcWords();
+  }
+}
+
+function mapSourceType(sourceType) {
+  var map = {
+    'youtube': 'YouTube',
+    'youtube-comments': 'YouTube',
+    'instagram': 'Instagram',
+    'twitter': 'Twitter',
+    'upload': 'File',
+    'manual': 'Manual'
+  };
+  return map[sourceType] || sourceType || 'Unknown';
 }
 
 function calcWords() {
   state.totalWords = state.items.reduce(function (sum, i) { return sum + (i.word_count || 0); }, 0);
+  // Also show vector count if available
+  if (state.pineconeStats && state.pineconeStats.totalVectors) {
+    state.totalVectors = state.pineconeStats.totalVectors;
+  }
 }
 
 function formatWordCount(n) {
@@ -117,7 +217,12 @@ function render() {
 }
 
 function renderWordCount() {
-  $wordCount.innerHTML = '<strong>' + formatWordCount(state.totalWords) + '</strong> of 1M words';
+  var parts = [];
+  if (state.totalVectors) {
+    parts.push('<strong>' + formatWordCount(state.totalVectors) + '</strong> vectors');
+  }
+  parts.push('<strong>' + formatWordCount(state.totalWords) + '</strong> words');
+  $wordCount.innerHTML = parts.join(' · ');
 }
 
 function renderContent() {
@@ -508,18 +613,25 @@ function field(label, tag, id, value, cls, type) {
   return '<div class="modal-field"><label>' + label + '</label>' + inner + '</div>';
 }
 
+// Store pending file for upload
+var pendingFile = null;
+
 function handleFileUpload(e) {
   var file = e.target.files[0];
   if (!file) return;
+  pendingFile = file;
   var titleInput = document.getElementById('modal-title-input');
   if (titleInput && !titleInput.value) titleInput.value = file.name;
 
-  var reader = new FileReader();
-  reader.onload = function (ev) {
-    var contentArea = document.getElementById('modal-content');
-    if (contentArea) contentArea.value = ev.target.result;
-  };
-  reader.readAsText(file);
+  // Also show text preview for text files
+  if (file.name.match(/\.(txt|md|csv)$/i)) {
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      var contentArea = document.getElementById('modal-content');
+      if (contentArea) contentArea.value = ev.target.result;
+    };
+    reader.readAsText(file);
+  }
 }
 
 function closeModal() {
@@ -562,20 +674,56 @@ async function saveModal() {
     updated_at: new Date().toISOString(),
   };
 
-  if (state.editingItem) {
+  // Route to appropriate backend
+  if (type === 'File' && pendingFile && !state.editingItem) {
+    // Use existing upload.js Netlify function → processes and stores in Pinecone
+    await uploadFileToPipeline(pendingFile, title);
+    pendingFile = null;
+  } else if (state.editingItem && state.editingItem.source === 'knowledge_items') {
+    // Update existing knowledge_items entry
     await sb.from('knowledge_items').update(row).eq('id', state.editingItem.id);
   } else {
-    var { data: inserted } = await sb.from('knowledge_items').insert([row]).select('id');
-
-    // Fire-and-forget: trigger transcript extraction for YouTube/TikTok
-    if ((type === 'YouTube' || type === 'TikTok') && inserted && inserted[0]) {
-      triggerExtraction(inserted[0].id, source_url, type);
-    }
+    // Insert Q&A / Manual / YouTube / TikTok into knowledge_items
+    await sb.from('knowledge_items').insert([row]);
   }
 
   closeModal();
   await loadData();
   render();
+}
+
+async function uploadFileToPipeline(file, title) {
+  // Read file as base64
+  var base64 = await new Promise(function (resolve) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      resolve(reader.result.split(',')[1]); // strip data:...;base64, prefix
+    };
+    reader.readAsDataURL(file);
+  });
+
+  var fileType = 'text';
+  if (file.name.match(/\.pdf$/i)) fileType = 'pdf';
+  else if (file.name.match(/\.(mp4|mp3|m4a|wav|webm)$/i)) fileType = 'audio';
+
+  var res = await fetch('/.netlify/functions/upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + (window.__ENV_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || '')
+    },
+    body: JSON.stringify({
+      file: base64,
+      filename: file.name,
+      type: fileType,
+      title: title
+    })
+  });
+
+  var data = await res.json();
+  if (!res.ok) {
+    alert('Upload failed: ' + (data.error || 'Unknown error'));
+  }
 }
 
 function val(id) {
@@ -595,8 +743,16 @@ window.editItem = async function (id) {
 
 window.deleteItem = async function (id) {
   closeAllDropdowns();
+  var item = state.items.find(function (i) { return i.id === id; });
+  if (!item) return;
   if (!window.confirm('Delete this item?')) return;
-  await sb.from('knowledge_items').delete().eq('id', id);
+
+  if (item.source === 'knowledge_items') {
+    await sb.from('knowledge_items').delete().eq('id', id);
+  } else if (item.source === 'ingestion_log') {
+    await sb.from('ingestion_log').delete().eq('id', id);
+  }
+  closeDetailPanel();
   await loadData();
   render();
 };
@@ -680,9 +836,16 @@ function openDetailPanel(item) {
 
   // Stats
   html += '<div class="detail-stats">';
-  html += '<div class="detail-stat"><strong>' + (item.word_count || 0) + '</strong> words</div>';
+  if (item.chunks_created) {
+    html += '<div class="detail-stat"><strong>' + item.chunks_created + '</strong> chunks in Pinecone</div>';
+  }
+  if (item.word_count) {
+    html += '<div class="detail-stat"><strong>' + item.word_count + '</strong> words</div>';
+  }
   html += '<div class="detail-stat">Created ' + formatDate(item.created_at) + '</div>';
-  html += '<div class="detail-stat">Updated ' + formatDate(item.updated_at) + '</div>';
+  if (item.source) {
+    html += '<div class="detail-stat">Source: ' + item.source + '</div>';
+  }
   html += '</div>';
 
   // Content
@@ -695,6 +858,10 @@ function openDetailPanel(item) {
   if (item.content) {
     html += '<div class="detail-content-label">Content</div>';
     html += '<div class="detail-content-text">' + esc(item.content) + '</div>';
+  } else if (item.source === 'ingestion_log' && item.status === 'completed') {
+    html += '<div class="detail-content-label">Content stored in Pinecone</div>';
+    html += '<div style="margin-bottom:12px"><button class="detail-action-btn" onclick="searchPineconeForItem(\'' + escAttr(item.title) + '\')">Preview stored chunks</button></div>';
+    html += '<div id="pinecone-preview"></div>';
   } else if (item.status !== 'processing') {
     html += '<div class="detail-content-label">Content</div>';
     html += '<div class="detail-content-text" style="color:#555;font-style:italic">No content stored yet.</div>';
@@ -730,6 +897,41 @@ function statusDotColor(status) {
   var info = getStatusInfo(status);
   return info.dot;
 }
+
+// ============================================================
+// Pinecone Preview (search stored chunks)
+// ============================================================
+window.searchPineconeForItem = async function (query) {
+  var preview = document.getElementById('pinecone-preview');
+  if (!preview) return;
+  preview.innerHTML = '<div class="detail-processing"><div class="spinner"></div>Searching Pinecone...</div>';
+
+  try {
+    var data = await adminAPI('search', { query: query });
+    var matches = data.matches || [];
+
+    if (matches.length === 0) {
+      preview.innerHTML = '<div class="detail-content-text" style="color:#555">No matching chunks found.</div>';
+      return;
+    }
+
+    var html = '';
+    matches.forEach(function (m, i) {
+      html += '<div style="margin-bottom:12px;padding:10px;background:#0a0a0a;border-radius:6px;border:1px solid #1a1a1a">';
+      html += '<div style="font-size:11px;color:#555;margin-bottom:4px">';
+      html += 'Chunk ' + (i + 1) + ' · score: ' + (m.score ? m.score.toFixed(3) : '?');
+      if (m.source_type) html += ' · ' + m.source_type;
+      html += '</div>';
+      html += '<div style="font-size:12px;color:#ccc;line-height:1.6;white-space:pre-wrap">' + esc(m.text || '') + '</div>';
+      if (m.url) html += '<a href="' + escAttr(m.url) + '" target="_blank" style="font-size:11px;color:#4a9eff;margin-top:4px;display:block">' + esc(m.url) + '</a>';
+      html += '</div>';
+    });
+
+    preview.innerHTML = html;
+  } catch (e) {
+    preview.innerHTML = '<div style="color:#ef4444;font-size:12px">Search failed: ' + esc(e.message) + '</div>';
+  }
+};
 
 // ============================================================
 // Transcript Extraction (Edge Function)
