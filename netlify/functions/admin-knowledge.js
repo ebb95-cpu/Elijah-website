@@ -240,7 +240,7 @@ async function handleDeleteItem(body) {
   return respond(200, { success: true });
 }
 
-// ── Add a knowledge source (YouTube channel, Twitter, etc.) ──
+// ── Add a knowledge source and immediately start ingestion ──
 async function handleAddSource(body) {
   var sourceType = body.source_type;
   var url = body.url;
@@ -248,26 +248,391 @@ async function handleAddSource(body) {
     return respond(400, { error: 'source_type and url are required' });
   }
 
-  // Store in knowledge_items as a source entry
-  var title = url;
   if (sourceType === 'youtube-channel') {
-    title = 'YouTube Channel: ' + url;
+    return await ingestYouTubeChannel(url);
+  } else if (sourceType === 'newsletter') {
+    return await ingestNewsletter(url);
   } else if (sourceType === 'twitter') {
-    title = 'Twitter: ' + url;
+    // Save as source — the daily cron handles Twitter
+    var { data, error } = await supabase.from('knowledge_items').insert({
+      title: 'Twitter: ' + url,
+      type: 'Twitter',
+      content: null,
+      source_url: url,
+      status: 'completed',
+      word_count: 0,
+      updated_at: new Date().toISOString()
+    }).select('id').single();
+    if (error) return respond(500, { error: error.message });
+    return respond(200, { success: true, id: data ? data.id : null });
   }
 
-  var { data, error } = await supabase.from('knowledge_items').insert({
-    title: title,
-    type: sourceType === 'youtube-channel' ? 'YouTube' : sourceType === 'twitter' ? 'Twitter' : sourceType,
+  return respond(400, { error: 'Unknown source_type: ' + sourceType });
+}
+
+// ── Ingest entire YouTube channel ──
+async function ingestYouTubeChannel(url) {
+  // Extract channel ID from various URL formats
+  var channelId = await resolveChannelId(url);
+  if (!channelId) {
+    return respond(400, { error: 'Could not resolve YouTube channel ID from: ' + url });
+  }
+
+  // Save the channel as a source in knowledge_items
+  await supabase.from('knowledge_items').upsert({
+    title: 'YouTube Channel: ' + url,
+    type: 'YouTube Channel',
     content: null,
     source_url: url,
-    status: 'completed',
+    status: 'processing',
     word_count: 0,
     updated_at: new Date().toISOString()
-  }).select('id').single();
+  }, { onConflict: 'source_url' });
 
-  if (error) return respond(500, { error: error.message });
-  return respond(200, { success: true, id: data ? data.id : null });
+  // Fetch all videos from channel RSS
+  var videos = await fetchChannelVideos(channelId);
+  var processed = 0;
+  var skipped = 0;
+  var errors = 0;
+
+  for (var v of videos) {
+    // Skip already ingested
+    var { data: existing } = await supabase
+      .from('ingestion_log')
+      .select('id')
+      .eq('source_url', v.url)
+      .eq('status', 'done')
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      skipped++;
+      continue;
+    }
+
+    try {
+      await ingestSingleVideo(v.videoId, v.title, v.url);
+      processed++;
+    } catch (err) {
+      console.error('Failed to ingest video:', v.videoId, err.message);
+      errors++;
+      await supabase.from('ingestion_log').insert({
+        source_type: 'youtube',
+        source_url: v.url,
+        status: 'failed',
+        chunks_created: 0
+      });
+    }
+  }
+
+  // Update channel source status
+  await supabase.from('knowledge_items')
+    .update({ status: 'completed', updated_at: new Date().toISOString() })
+    .eq('source_url', url);
+
+  return respond(200, {
+    success: true,
+    channelId: channelId,
+    totalVideos: videos.length,
+    processed: processed,
+    skipped: skipped,
+    errors: errors
+  });
+}
+
+// ── Ingest Beehiiv newsletter ──
+async function ingestNewsletter(url) {
+  // Normalize URL and find RSS feed
+  var feedUrl = resolveNewsletterFeed(url);
+
+  // Save the newsletter as a source
+  await supabase.from('knowledge_items').upsert({
+    title: 'Newsletter: ' + url,
+    type: 'Newsletter',
+    content: null,
+    source_url: url,
+    status: 'processing',
+    word_count: 0,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'source_url' });
+
+  // Fetch RSS
+  var res = await fetch(feedUrl);
+  if (!res.ok) {
+    await supabase.from('knowledge_items')
+      .update({ status: 'failed', updated_at: new Date().toISOString() })
+      .eq('source_url', url);
+    return respond(400, { error: 'Could not fetch newsletter RSS at: ' + feedUrl });
+  }
+
+  var xml = await res.text();
+  var posts = parseNewsletterRSS(xml);
+
+  var processed = 0;
+  var skipped = 0;
+  var errors = 0;
+
+  for (var post of posts) {
+    // Skip already ingested
+    var { data: existing } = await supabase
+      .from('ingestion_log')
+      .select('id')
+      .eq('source_url', post.url)
+      .eq('status', 'done')
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      skipped++;
+      continue;
+    }
+
+    try {
+      // Strip HTML tags from content
+      var text = post.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      if (text.length < 50) continue;
+
+      var chunks = chunkText(text);
+      var embeddings = await embedChunks(chunks);
+
+      var vectors = chunks.map(function (chunk, i) {
+        return {
+          id: 'newsletter-' + hashString(post.url) + '-chunk-' + i,
+          values: embeddings[i],
+          metadata: {
+            text: chunk,
+            title: post.title,
+            url: post.url,
+            source_type: 'newsletter',
+            published: post.published,
+            chunk_index: i
+          }
+        };
+      });
+
+      for (var i = 0; i < vectors.length; i += 100) {
+        await pineconeIndex.upsert(vectors.slice(i, i + 100));
+      }
+
+      await supabase.from('ingestion_log').insert({
+        source_type: 'newsletter',
+        source_url: post.url,
+        status: 'done',
+        chunks_created: chunks.length
+      });
+
+      processed++;
+    } catch (err) {
+      console.error('Failed to ingest newsletter post:', post.url, err.message);
+      errors++;
+      await supabase.from('ingestion_log').insert({
+        source_type: 'newsletter',
+        source_url: post.url,
+        status: 'failed',
+        chunks_created: 0
+      });
+    }
+  }
+
+  // Update source status
+  await supabase.from('knowledge_items')
+    .update({ status: 'completed', updated_at: new Date().toISOString() })
+    .eq('source_url', url);
+
+  return respond(200, {
+    success: true,
+    totalPosts: posts.length,
+    processed: processed,
+    skipped: skipped,
+    errors: errors
+  });
+}
+
+// ── Helper: resolve YouTube channel ID from URL, handle, or raw ID ──
+async function resolveChannelId(input) {
+  input = input.trim();
+  // Already a channel ID (UC...)
+  if (/^UC[a-zA-Z0-9_-]{22}$/.test(input)) return input;
+
+  // Extract from youtube.com/channel/UCxxxxxx
+  var m = input.match(/youtube\.com\/channel\/(UC[a-zA-Z0-9_-]{22})/);
+  if (m) return m[1];
+
+  // Handle @username or youtube.com/@username — scrape the page to find channel ID
+  var handle = null;
+  m = input.match(/youtube\.com\/@([a-zA-Z0-9_.-]+)/);
+  if (m) handle = m[1];
+  else if (input.startsWith('@')) handle = input.slice(1);
+
+  if (handle) {
+    try {
+      var res = await fetch('https://www.youtube.com/@' + handle);
+      var html = await res.text();
+      var cidMatch = html.match(/\"channelId\":\"(UC[a-zA-Z0-9_-]{22})\"/);
+      if (cidMatch) return cidMatch[1];
+    } catch (e) {
+      console.error('Failed to resolve @' + handle, e.message);
+    }
+  }
+
+  // Try treating the whole input as a channel URL
+  try {
+    var res = await fetch(input);
+    var html = await res.text();
+    var cidMatch = html.match(/\"channelId\":\"(UC[a-zA-Z0-9_-]{22})\"/);
+    if (cidMatch) return cidMatch[1];
+  } catch (e) {}
+
+  return null;
+}
+
+// ── Helper: fetch all videos from a YouTube channel RSS ──
+async function fetchChannelVideos(channelId) {
+  var rssUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channelId;
+  var res = await fetch(rssUrl);
+  var xml = await res.text();
+
+  var entries = [];
+  var entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+  var match;
+  while ((match = entryRegex.exec(xml)) !== null) {
+    var entry = match[1];
+    var videoId = (entry.match(/<yt:videoId>(.*?)<\/yt:videoId>/) || [])[1];
+    var title = (entry.match(/<title>(.*?)<\/title>/) || [])[1];
+    var published = (entry.match(/<published>(.*?)<\/published>/) || [])[1];
+
+    if (videoId && title) {
+      entries.push({
+        videoId: videoId,
+        title: title,
+        published: published,
+        url: 'https://www.youtube.com/watch?v=' + videoId
+      });
+    }
+  }
+
+  return entries;
+}
+
+// ── Helper: ingest a single video (transcript → chunk → embed → Pinecone) ──
+async function ingestSingleVideo(videoId, title, videoUrl) {
+  await supabase.from('ingestion_log').insert({
+    source_type: 'youtube',
+    source_url: videoUrl,
+    status: 'processing',
+    chunks_created: 0
+  });
+
+  var transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+  var fullTranscript = transcriptItems.map(function (t) { return t.text; }).join(' ');
+
+  if (fullTranscript.length < 50) {
+    await supabase.from('ingestion_log')
+      .update({ status: 'failed' })
+      .eq('source_url', videoUrl)
+      .eq('status', 'processing');
+    return;
+  }
+
+  var chunks = chunkText(fullTranscript);
+  var embeddings = await embedChunks(chunks);
+
+  var vectors = chunks.map(function (chunk, i) {
+    return {
+      id: 'yt-' + videoId + '-chunk-' + i,
+      values: embeddings[i],
+      metadata: {
+        text: chunk,
+        title: title,
+        url: videoUrl,
+        source_type: 'youtube',
+        source_id: videoId,
+        chunk_index: i
+      }
+    };
+  });
+
+  for (var i = 0; i < vectors.length; i += 100) {
+    await pineconeIndex.upsert(vectors.slice(i, i + 100));
+  }
+
+  await supabase.from('ingestion_log')
+    .update({ status: 'done', chunks_created: chunks.length })
+    .eq('source_url', videoUrl)
+    .eq('status', 'processing');
+}
+
+// ── Helper: resolve newsletter RSS feed URL ──
+function resolveNewsletterFeed(url) {
+  url = url.trim().replace(/\/$/, '');
+  // If it already ends with /feed or /rss, use as-is
+  if (/\/(feed|rss)$/i.test(url)) return url;
+  // Beehiiv pattern
+  if (url.includes('beehiiv.com')) return url + '/feed';
+  // Substack pattern
+  if (url.includes('substack.com')) return url + '/feed';
+  // Generic: try /feed
+  return url + '/feed';
+}
+
+// ── Helper: parse newsletter RSS XML ──
+function parseNewsletterRSS(xml) {
+  var posts = [];
+
+  // Try RSS 2.0 format (<item>)
+  var itemRegex = /<item>([\s\S]*?)<\/item>/g;
+  var match;
+  while ((match = itemRegex.exec(xml)) !== null) {
+    var item = match[1];
+    var title = (item.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/) || [])[1] || '';
+    var link = (item.match(/<link>([\s\S]*?)<\/link>/) || [])[1] || '';
+    var content = (item.match(/<content:encoded>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/content:encoded>/) || [])[1] ||
+                  (item.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/) || [])[1] || '';
+    var pubDate = (item.match(/<pubDate>([\s\S]*?)<\/pubDate>/) || [])[1] || '';
+
+    if (title && (content || link)) {
+      posts.push({
+        title: title.trim(),
+        url: link.trim(),
+        content: content,
+        published: pubDate
+      });
+    }
+  }
+
+  // Try Atom format (<entry>) if no RSS items found
+  if (posts.length === 0) {
+    var entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+    while ((match = entryRegex.exec(xml)) !== null) {
+      var entry = match[1];
+      var title = (entry.match(/<title[^>]*>([\s\S]*?)<\/title>/) || [])[1] || '';
+      var link = (entry.match(/<link[^>]*href="([^"]*)"/) || [])[1] || '';
+      var content = (entry.match(/<content[^>]*>([\s\S]*?)<\/content>/) || [])[1] ||
+                    (entry.match(/<summary[^>]*>([\s\S]*?)<\/summary>/) || [])[1] || '';
+      var published = (entry.match(/<published>([\s\S]*?)<\/published>/) || [])[1] ||
+                      (entry.match(/<updated>([\s\S]*?)<\/updated>/) || [])[1] || '';
+
+      if (title && (content || link)) {
+        posts.push({
+          title: title.trim(),
+          url: link.trim(),
+          content: content,
+          published: published
+        });
+      }
+    }
+  }
+
+  return posts;
+}
+
+// ── Helper: simple string hash for generating IDs ──
+function hashString(str) {
+  var hash = 0;
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + c;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36);
 }
 
 // ── Ingest a single YouTube video ──
@@ -368,7 +733,7 @@ async function handleListSources() {
   var { data, error } = await supabase
     .from('knowledge_items')
     .select('*')
-    .in('type', ['YouTube', 'Twitter', 'Instagram'])
+    .in('type', ['YouTube', 'YouTube Channel', 'Twitter', 'Instagram', 'Newsletter'])
     .order('created_at', { ascending: false })
     .limit(100);
 

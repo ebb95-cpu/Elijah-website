@@ -188,6 +188,7 @@ function mapSourceType(sourceType) {
     'youtube-comments': 'YouTube',
     'instagram': 'Instagram',
     'twitter': 'Twitter',
+    'newsletter': 'Newsletter',
     'upload': 'File',
     'manual': 'Manual'
   };
@@ -477,7 +478,7 @@ var STATUS_OPTIONS = [
   { value: 'deleting', label: 'Deleting', dot: 'red', icon: '\uD83D\uDDD1' },
 ];
 
-var TYPE_OPTIONS = ['Q&A', 'Manual', 'YouTube', 'TikTok', 'File'];
+var TYPE_OPTIONS = ['Q&A', 'Manual', 'YouTube', 'Newsletter', 'Twitter', 'File'];
 
 function updateFilterChips() {
   var $status = document.getElementById('filter-status');
@@ -550,7 +551,7 @@ function toggleRowDropdown(e, btn) {
 // ============================================================
 // Modal — Add / Edit
 // ============================================================
-var MODAL_TYPES = ['YouTube Channel', 'YouTube Video', 'Twitter', 'File', 'Q&A', 'Manual'];
+var MODAL_TYPES = ['YouTube Channel', 'YouTube Video', 'Newsletter', 'Twitter', 'File', 'Q&A', 'Manual'];
 
 function openModal(item) {
   state.editingItem = item || null;
@@ -576,12 +577,16 @@ function renderModalFields(type) {
   var html = '';
 
   if (type === 'YouTube Channel') {
-    html += '<div class="modal-hint">Add a YouTube channel to auto-ingest all videos. The daily cron will pull transcripts, chunk them, and store in Pinecone.</div>';
+    html += '<div class="modal-hint">Add a YouTube channel — all existing videos will be ingested immediately, and new uploads will be auto-detected daily.</div>';
     html += field('Channel URL or ID', 'input', 'modal-url', item ? item.source_url : '', '', 'text');
     html += '<div class="modal-hint" style="margin-top:8px;color:#555">e.g. https://youtube.com/@elijahbryant or UCxxxxxx channel ID</div>';
   } else if (type === 'YouTube Video') {
     html += '<div class="modal-hint">Add a single YouTube video. Transcript will be extracted and stored in Pinecone.</div>';
     html += field('YouTube Video URL', 'input', 'modal-url', item ? item.source_url : '', '', 'url');
+  } else if (type === 'Newsletter') {
+    html += '<div class="modal-hint">Add your Beehiiv, Substack, or any newsletter with an RSS feed. All posts will be ingested immediately, and new posts auto-detected daily.</div>';
+    html += field('Newsletter URL', 'input', 'modal-url', item ? item.source_url : '', '', 'url');
+    html += '<div class="modal-hint" style="margin-top:8px;color:#555">e.g. https://yourname.beehiiv.com or https://yourname.substack.com</div>';
   } else if (type === 'Twitter') {
     html += '<div class="modal-hint">Add a Twitter/X account to ingest tweets. Requires TWITTER_BEARER_TOKEN and TWITTER_USER_ID in Netlify env vars.</div>';
     html += field('Twitter Username', 'input', 'modal-url', item ? item.source_url : '', '', 'text');
@@ -660,7 +665,7 @@ async function saveModal() {
   } else if (type === 'Manual') {
     title = val('modal-title-input');
     content = val('modal-content');
-  } else if (type === 'YouTube Channel' || type === 'YouTube Video' || type === 'Twitter') {
+  } else if (type === 'YouTube Channel' || type === 'YouTube Video' || type === 'Newsletter' || type === 'Twitter') {
     source_url = val('modal-url');
     title = source_url;
   } else if (type === 'File') {
@@ -672,12 +677,25 @@ async function saveModal() {
   // Route to appropriate backend based on type
   try {
     if (type === 'YouTube Channel') {
-      // Save as a knowledge source — the daily cron picks this up
-      await adminAPI('add-source', { source_type: 'youtube-channel', url: source_url });
-      alert('YouTube channel added! The daily ingestion cron will process all videos. You can also trigger it manually from Netlify.');
+      $modalSaveBtn.textContent = 'Ingesting...';
+      $modalSaveBtn.disabled = true;
+      var result = await adminAPI('add-source', { source_type: 'youtube-channel', url: source_url });
+      $modalSaveBtn.textContent = 'Save';
+      $modalSaveBtn.disabled = false;
+      alert('YouTube channel added! ' + (result.processed || 0) + ' videos ingested, ' + (result.skipped || 0) + ' already existed. New uploads will be auto-detected daily.');
     } else if (type === 'YouTube Video') {
-      // Trigger single video ingestion via admin API
+      $modalSaveBtn.textContent = 'Ingesting...';
+      $modalSaveBtn.disabled = true;
       await adminAPI('ingest-video', { url: source_url });
+      $modalSaveBtn.textContent = 'Save';
+      $modalSaveBtn.disabled = false;
+    } else if (type === 'Newsletter') {
+      $modalSaveBtn.textContent = 'Ingesting...';
+      $modalSaveBtn.disabled = true;
+      var result = await adminAPI('add-source', { source_type: 'newsletter', url: source_url });
+      $modalSaveBtn.textContent = 'Save';
+      $modalSaveBtn.disabled = false;
+      alert('Newsletter added! ' + (result.processed || 0) + ' posts ingested, ' + (result.skipped || 0) + ' already existed. New posts will be auto-detected daily.');
     } else if (type === 'Twitter') {
       await adminAPI('add-source', { source_type: 'twitter', url: source_url });
       alert('Twitter account added! The daily ingestion cron will pull tweets.');
