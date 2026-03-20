@@ -397,134 +397,254 @@ function renderGrid(folders, items) {
 }
 
 // ---- Insights view ----
+var insightsData = null;
+var insightsDays = 30;
+
+async function loadInsights(days) {
+  insightsDays = days || insightsDays;
+  try {
+    insightsData = await adminAPI('insights', { days: insightsDays });
+  } catch (e) {
+    console.error('Failed to load insights:', e);
+  }
+}
+
 function renderInsights() {
-  var totalVectors = (state.pineconeStats && state.pineconeStats.totalVectors) || 0;
-  var byType = (state.ingestionStats && state.ingestionStats.byType) || {};
-  var items = state.items;
+  if (!insightsData) {
+    $contentArea.innerHTML = '<div class="insights-panel"><div class="insight-loading"><div class="spinner"></div>Loading insights...</div></div>';
+    loadInsights(insightsDays).then(function () { renderInsights(); });
+    return;
+  }
 
-  // Count items by type
-  var typeCounts = {};
-  items.forEach(function (i) {
-    var t = i.type || 'Unknown';
-    typeCounts[t] = (typeCounts[t] || 0) + 1;
-  });
-
-  // Count by status
-  var statusCounts = { completed: 0, processing: 0, failed: 0 };
-  items.forEach(function (i) {
-    if (statusCounts[i.status] !== undefined) statusCounts[i.status]++;
-  });
-
-  // Knowledge level based on vectors
-  var level = 'Beginner';
-  var levelColor = '#666';
-  var levelPercent = Math.min(100, (totalVectors / 5000) * 100);
-  if (totalVectors >= 5000) { level = 'Expert'; levelColor = '#22c55e'; }
-  else if (totalVectors >= 2000) { level = 'Advanced'; levelColor = '#3b82f6'; }
-  else if (totalVectors >= 500) { level = 'Intermediate'; levelColor = '#a855f7'; }
-  else if (totalVectors >= 100) { level = 'Learning'; levelColor = '#f59e0b'; }
-
-  // Total chunks
-  var totalChunks = items.reduce(function (s, i) { return s + (i.chunks_created || 0); }, 0);
-
-  // Recent activity (last 7 items)
-  var recent = items.slice(0, 7);
-
-  // Build HTML
+  var d = insightsData;
   var html = '<div class="insights-panel">';
 
-  // Hero card — Knowledge Score
-  html += '<div class="insight-hero">';
-  html += '<div class="insight-hero-label">Knowledge Level</div>';
-  html += '<div class="insight-hero-level" style="color:' + levelColor + '">' + level + '</div>';
-  html += '<div class="insight-hero-vectors">' + totalVectors.toLocaleString() + ' vectors in brain</div>';
-  html += '<div class="insight-progress-bar"><div class="insight-progress-fill" style="width:' + levelPercent + '%;background:' + levelColor + '"></div></div>';
-  html += '<div class="insight-progress-labels"><span>Beginner</span><span>Learning</span><span>Intermediate</span><span>Advanced</span><span>Expert</span></div>';
+  // ═══ 1. CONVERSATIONS CHART ═══
+  html += '<div class="insight-section">';
+  html += '<div class="insight-section-header">';
+  html += '<div>';
+  html += '<div class="insight-section-title">Conversations</div>';
+  html += '<div class="insight-big-num">' + (d.conversations.current || 0).toLocaleString() + '</div>';
+  html += renderChange(d.conversations.change);
+  html += '</div>';
+  html += '<div class="insight-filters">';
+  html += '<select class="insight-select" id="insight-range" onchange="changeInsightRange(this.value)">';
+  html += '<option value="7"' + (insightsDays === 7 ? ' selected' : '') + '>Last 7 days</option>';
+  html += '<option value="30"' + (insightsDays === 30 ? ' selected' : '') + '>Last 30 days</option>';
+  html += '<option value="90"' + (insightsDays === 90 ? ' selected' : '') + '>Last 90 days</option>';
+  html += '</select>';
+  html += '</div>';
   html += '</div>';
 
-  // Stats row
-  html += '<div class="insight-stats-row">';
-  html += '<div class="insight-stat-card"><div class="insight-stat-num">' + items.length + '</div><div class="insight-stat-label">Total Sources</div></div>';
-  html += '<div class="insight-stat-card"><div class="insight-stat-num">' + totalVectors.toLocaleString() + '</div><div class="insight-stat-label">Knowledge Vectors</div></div>';
-  html += '<div class="insight-stat-card"><div class="insight-stat-num">' + statusCounts.completed + '</div><div class="insight-stat-label">Completed</div></div>';
-  html += '<div class="insight-stat-card"><div class="insight-stat-num">' + (statusCounts.processing || 0) + '</div><div class="insight-stat-label">Processing</div></div>';
+  // Chart
+  html += renderChart(d.chart || []);
   html += '</div>';
 
-  // Knowledge by source type
-  html += '<div class="insight-section">';
-  html += '<div class="insight-section-title">Knowledge by Source</div>';
-  html += '<div class="insight-bars">';
+  // ═══ 2. MIND SCORE WIDGET ═══
+  var score = d.mindScore || 0;
+  var tier = getMindTier(score);
 
-  var typeColors = {
-    'YouTube': '#ef4444',
-    'Newsletter': '#f59e0b',
-    'Q&A': '#22c55e',
-    'Manual': '#3b82f6',
-    'File': '#a855f7',
-    'Twitter': '#38bdf8',
-    'Instagram': '#e879f9',
-    'LinkedIn': '#60a5fa',
-    'TikTok': '#f472b6',
-    'YouTube Channel': '#ef4444'
-  };
+  html += '<div class="insight-section insight-mind">';
+  html += '<div class="insight-section-title">Mind Score</div>';
+  html += '<div class="insight-mind-row">';
+  html += '<div class="insight-mind-score">' + score.toLocaleString() + '</div>';
+  html += '<div class="insight-mind-tier" style="color:' + tier.color + '">' + tier.name + '</div>';
+  html += '</div>';
+  html += '<div class="insight-mind-progress">';
+  html += '<div class="insight-progress-bar"><div class="insight-progress-fill" style="width:' + tier.progress + '%;background:' + tier.color + '"></div></div>';
+  html += '<div class="insight-mind-next">' + tier.name + ' → ' + tier.next + ' (' + score.toLocaleString() + ' / ' + tier.nextThreshold.toLocaleString() + ')</div>';
+  html += '</div>';
 
-  var maxCount = Math.max.apply(null, Object.values(typeCounts).concat([1]));
-  var sortedTypes = Object.keys(typeCounts).sort(function (a, b) { return typeCounts[b] - typeCounts[a]; });
-
-  sortedTypes.forEach(function (t) {
-    var count = typeCounts[t];
-    var pct = Math.max(5, (count / maxCount) * 100);
-    var color = typeColors[t] || '#666';
-    html += '<div class="insight-bar-row">';
-    html += '<div class="insight-bar-label">' + esc(t) + '</div>';
-    html += '<div class="insight-bar-track"><div class="insight-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
-    html += '<div class="insight-bar-count">' + count + '</div>';
-    html += '</div>';
+  // Tier legend
+  html += '<div class="insight-tier-legend">';
+  var allTiers = [
+    { name: 'Novice', min: 0, color: '#666' },
+    { name: 'Apprentice', min: 1000, color: '#f59e0b' },
+    { name: 'Scholar', min: 5000, color: '#3b82f6' },
+    { name: 'Sage', min: 25000, color: '#a855f7' },
+    { name: 'Legendary', min: 100000, color: '#22c55e' }
+  ];
+  allTiers.forEach(function (t) {
+    var active = score >= t.min;
+    html += '<span class="insight-tier-item' + (active ? ' active' : '') + '" style="' + (active ? 'color:' + t.color : '') + '">' + t.name + '</span>';
   });
+  html += '</div>';
 
-  if (sortedTypes.length === 0) {
-    html += '<div style="color:#555;font-size:13px;padding:12px 0">No content ingested yet. Add sources to make the AI smarter.</div>';
+  // Breakdown
+  html += '<div class="insight-mind-breakdown">';
+  html += '<div class="insight-mind-stat">' + (d.totalVectors || 0).toLocaleString() + ' <span>vectors</span></div>';
+  html += '<div class="insight-mind-stat">' + (d.totalChunks || 0).toLocaleString() + ' <span>chunks</span></div>';
+  html += '<div class="insight-mind-stat">' + (d.totalSources || 0).toLocaleString() + ' <span>sources</span></div>';
+  html += '</div>';
+  html += '</div>';
+
+  // ═══ 3. ANALYTICS PANEL ═══
+  html += '<div class="insight-analytics-row">';
+
+  // Active Visitors
+  html += '<div class="insight-analytics-card">';
+  html += '<div class="insight-analytics-label">Active Visitors</div>';
+  html += '<div class="insight-analytics-num">' + (d.activeVisitors.current || 0).toLocaleString() + '</div>';
+  html += renderChange(d.activeVisitors.change);
+  html += '</div>';
+
+  // Total Messages
+  html += '<div class="insight-analytics-card">';
+  html += '<div class="insight-analytics-label">Total Messages</div>';
+  html += '<div class="insight-analytics-num">' + (d.totalMessages.current || 0).toLocaleString() + '</div>';
+  html += renderChange(d.totalMessages.change);
+  html += '</div>';
+
+  // Avg Session Duration
+  var mins = Math.floor((d.avgDuration.seconds || 0) / 60);
+  var secs = (d.avgDuration.seconds || 0) % 60;
+  var durationStr = mins + 'm ' + secs + 's';
+
+  html += '<div class="insight-analytics-card">';
+  html += '<div class="insight-analytics-label">Avg Session Duration</div>';
+  html += '<div class="insight-analytics-num">' + durationStr + '</div>';
+  html += renderChange(d.avgDuration.change);
+  html += '</div>';
+
+  html += '</div>';
+
+  // ═══ Knowledge by Source ═══
+  var ingestionByType = d.ingestionByType || {};
+  var typeKeys = Object.keys(ingestionByType).sort(function (a, b) { return ingestionByType[b] - ingestionByType[a]; });
+
+  if (typeKeys.length > 0) {
+    html += '<div class="insight-section">';
+    html += '<div class="insight-section-title">Knowledge by Source</div>';
+    html += '<div class="insight-bars">';
+
+    var typeColors = {
+      'youtube': '#ef4444', 'youtube-comments': '#ef4444',
+      'newsletter': '#f59e0b', 'q&a': '#22c55e', 'qa': '#22c55e',
+      'manual': '#3b82f6', 'upload': '#a855f7', 'file': '#a855f7',
+      'twitter': '#38bdf8', 'instagram': '#e879f9',
+      'linkedin': '#60a5fa', 'tiktok': '#f472b6'
+    };
+    var typeLabels = {
+      'youtube': 'YouTube', 'youtube-comments': 'YouTube Comments',
+      'newsletter': 'Newsletter', 'q&a': 'Q&A', 'qa': 'Q&A',
+      'manual': 'Manual', 'upload': 'File Upload', 'file': 'File Upload',
+      'twitter': 'Twitter', 'instagram': 'Instagram',
+      'linkedin': 'LinkedIn', 'tiktok': 'TikTok'
+    };
+
+    var maxCount = Math.max.apply(null, typeKeys.map(function (k) { return ingestionByType[k]; }).concat([1]));
+
+    typeKeys.forEach(function (t) {
+      var count = ingestionByType[t];
+      var pct = Math.max(5, (count / maxCount) * 100);
+      var color = typeColors[t] || '#666';
+      var label = typeLabels[t] || t;
+      html += '<div class="insight-bar-row">';
+      html += '<div class="insight-bar-label">' + esc(label) + '</div>';
+      html += '<div class="insight-bar-track"><div class="insight-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
+      html += '<div class="insight-bar-count">' + count + '</div>';
+      html += '</div>';
+    });
+
+    html += '</div></div>';
   }
-
-  html += '</div></div>';
-
-  // Recent activity
-  html += '<div class="insight-section">';
-  html += '<div class="insight-section-title">Recent Activity</div>';
-  html += '<div class="insight-activity">';
-
-  recent.forEach(function (item) {
-    var ytMeta = ytMetaCache[item.source_url];
-    var displayTitle = (ytMeta && ytMeta.title) ? ytMeta.title : item.title;
-    var statusInfo = getStatusInfo(item.status);
-    html += '<div class="insight-activity-item">';
-    html += '<span class="filter-dot ' + statusInfo.dot + '" style="flex-shrink:0"></span>';
-    html += '<span class="insight-activity-title">' + esc(displayTitle) + '</span>';
-    html += '<span class="type-badge" style="flex-shrink:0">' + esc(item.type) + '</span>';
-    html += '<span class="insight-activity-date">' + formatDate(item.created_at) + '</span>';
-    html += '</div>';
-  });
-
-  if (recent.length === 0) {
-    html += '<div style="color:#555;font-size:13px;padding:12px 0">No activity yet.</div>';
-  }
-
-  html += '</div></div>';
-
-  // Tips
-  html += '<div class="insight-section">';
-  html += '<div class="insight-section-title">How to Make the AI Smarter</div>';
-  html += '<div class="insight-tips">';
-  html += '<div class="insight-tip">Add your YouTube channels — every video transcript gets ingested</div>';
-  html += '<div class="insight-tip">Link your Beehiiv newsletter — all posts become searchable knowledge</div>';
-  html += '<div class="insight-tip">Add Q&A pairs for questions you get asked frequently</div>';
-  html += '<div class="insight-tip">Upload PDFs, audio files, or paste text for instant ingestion</div>';
-  html += '<div class="insight-tip">New content is auto-detected daily from connected sources</div>';
-  html += '</div></div>';
 
   html += '</div>';
   $contentArea.innerHTML = html;
 }
+
+function renderChange(pct) {
+  if (pct === 0) return '<div class="insight-change neutral">0% vs prior period</div>';
+  var cls = pct > 0 ? 'positive' : 'negative';
+  var arrow = pct > 0 ? '&#9650;' : '&#9660;';
+  return '<div class="insight-change ' + cls + '">' + arrow + ' ' + Math.abs(pct) + '% vs prior period</div>';
+}
+
+function renderChart(data) {
+  if (!data || data.length === 0) return '<div style="color:#555;padding:20px;text-align:center">No conversation data yet</div>';
+
+  var maxVal = Math.max.apply(null, data.map(function (d) { return d.count; }).concat([1]));
+  var chartH = 140;
+  var html = '<div class="insight-chart">';
+  html += '<svg class="insight-chart-svg" viewBox="0 0 ' + (data.length * 20) + ' ' + (chartH + 30) + '" preserveAspectRatio="none">';
+
+  // Grid lines
+  for (var g = 0; g <= 4; g++) {
+    var gy = chartH - (g / 4) * chartH;
+    html += '<line x1="0" y1="' + gy + '" x2="' + (data.length * 20) + '" y2="' + gy + '" stroke="#1a1a1a" stroke-width="1"/>';
+  }
+
+  // Line path
+  var points = data.map(function (d, i) {
+    var x = i * 20 + 10;
+    var y = chartH - (d.count / maxVal) * (chartH - 10);
+    return x + ',' + y;
+  });
+  html += '<polyline points="' + points.join(' ') + '" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+
+  // Area fill
+  var areaPoints = '10,' + chartH + ' ' + points.join(' ') + ' ' + ((data.length - 1) * 20 + 10) + ',' + chartH;
+  html += '<polygon points="' + areaPoints + '" fill="url(#chartGrad)" opacity="0.3"/>';
+  html += '<defs><linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></linearGradient></defs>';
+
+  // Dots
+  data.forEach(function (d, i) {
+    var x = i * 20 + 10;
+    var y = chartH - (d.count / maxVal) * (chartH - 10);
+    if (d.count > 0) {
+      html += '<circle cx="' + x + '" cy="' + y + '" r="3" fill="#3b82f6" stroke="#0a0a0a" stroke-width="1.5"/>';
+    }
+  });
+
+  html += '</svg>';
+
+  // X-axis labels (show ~6 evenly spaced)
+  html += '<div class="insight-chart-labels">';
+  var step = Math.max(1, Math.floor(data.length / 6));
+  data.forEach(function (d, i) {
+    if (i % step === 0 || i === data.length - 1) {
+      var parts = d.date.split('-');
+      html += '<span>' + parts[1] + '/' + parts[2] + '</span>';
+    }
+  });
+  html += '</div>';
+
+  html += '</div>';
+  return html;
+}
+
+function getMindTier(score) {
+  var tiers = [
+    { name: 'Novice', min: 0, next: 'Apprentice', nextThreshold: 1000, color: '#666' },
+    { name: 'Apprentice', min: 1000, next: 'Scholar', nextThreshold: 5000, color: '#f59e0b' },
+    { name: 'Scholar', min: 5000, next: 'Sage', nextThreshold: 25000, color: '#3b82f6' },
+    { name: 'Sage', min: 25000, next: 'Legendary', nextThreshold: 100000, color: '#a855f7' },
+    { name: 'Legendary', min: 100000, next: 'Legendary', nextThreshold: 100000, color: '#22c55e' }
+  ];
+
+  var current = tiers[0];
+  for (var i = tiers.length - 1; i >= 0; i--) {
+    if (score >= tiers[i].min) { current = tiers[i]; break; }
+  }
+
+  var progress = current.nextThreshold > current.min
+    ? Math.min(100, ((score - current.min) / (current.nextThreshold - current.min)) * 100)
+    : 100;
+
+  return {
+    name: current.name,
+    next: current.next,
+    nextThreshold: current.nextThreshold,
+    color: current.color,
+    progress: progress
+  };
+}
+
+window.changeInsightRange = function (days) {
+  insightsData = null;
+  insightsDays = parseInt(days, 10);
+  renderInsights();
+};
 
 // ============================================================
 // Events

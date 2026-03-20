@@ -91,6 +91,9 @@ exports.handler = async function (event) {
     } else if (action === 'upload-file') {
       var body = JSON.parse(event.body || '{}');
       return await handleUploadFile(body);
+    } else if (action === 'insights') {
+      var body = JSON.parse(event.body || '{}');
+      return await handleInsights(body);
     } else {
       return respond(400, { error: 'Unknown action' });
     }
@@ -367,6 +370,167 @@ async function handleDeleteItem(body) {
   var { error } = await supabase.from(table).delete().eq('id', id);
   if (error) return respond(500, { error: error.message });
   return respond(200, { success: true });
+}
+
+// ── Insights data for the dashboard ──
+async function handleInsights(body) {
+  var days = body.days || 30;
+  var now = new Date();
+  var startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
+  var priorStart = new Date(now.getTime() - days * 2 * 24 * 60 * 60 * 1000).toISOString();
+
+  // Fetch current period questions
+  var { data: currentQuestions } = await supabase
+    .from('questions')
+    .select('id, user_id, created_at')
+    .gte('created_at', startDate)
+    .order('created_at', { ascending: true });
+  currentQuestions = currentQuestions || [];
+
+  // Fetch prior period questions for comparison
+  var { data: priorQuestions } = await supabase
+    .from('questions')
+    .select('id, user_id, created_at')
+    .gte('created_at', priorStart)
+    .lt('created_at', startDate);
+  priorQuestions = priorQuestions || [];
+
+  // Group current questions by date for chart
+  var dailyCounts = {};
+  currentQuestions.forEach(function (q) {
+    var date = q.created_at.substring(0, 10);
+    dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+  });
+
+  // Fill in missing dates with 0
+  var chartData = [];
+  for (var d = 0; d < days; d++) {
+    var date = new Date(now.getTime() - (days - 1 - d) * 24 * 60 * 60 * 1000);
+    var dateStr = date.toISOString().substring(0, 10);
+    chartData.push({ date: dateStr, count: dailyCounts[dateStr] || 0 });
+  }
+
+  // Active visitors (unique user_ids)
+  var currentVisitors = new Set(currentQuestions.map(function (q) { return q.user_id; })).size;
+  var priorVisitors = new Set(priorQuestions.map(function (q) { return q.user_id; })).size;
+
+  // Total messages
+  var currentMessages = currentQuestions.length;
+  var priorMessages = priorQuestions.length;
+
+  // Percentage change helper
+  function pctChange(current, prior) {
+    if (prior === 0) return current > 0 ? 100 : 0;
+    return Math.round(((current - prior) / prior) * 100);
+  }
+
+  // Avg session duration estimate (time between first and last question per user per day)
+  var sessionDurations = [];
+  var userDayMap = {};
+  currentQuestions.forEach(function (q) {
+    var key = q.user_id + '-' + q.created_at.substring(0, 10);
+    if (!userDayMap[key]) userDayMap[key] = [];
+    userDayMap[key].push(new Date(q.created_at).getTime());
+  });
+  Object.values(userDayMap).forEach(function (times) {
+    if (times.length >= 2) {
+      var sorted = times.sort();
+      sessionDurations.push(sorted[sorted.length - 1] - sorted[0]);
+    }
+  });
+  var avgDurationMs = sessionDurations.length > 0
+    ? sessionDurations.reduce(function (a, b) { return a + b; }, 0) / sessionDurations.length
+    : 0;
+  var avgDurationSec = Math.round(avgDurationMs / 1000);
+
+  // Prior period avg duration
+  var priorUserDayMap = {};
+  priorQuestions.forEach(function (q) {
+    var key = q.user_id + '-' + q.created_at.substring(0, 10);
+    if (!priorUserDayMap[key]) priorUserDayMap[key] = [];
+    priorUserDayMap[key].push(new Date(q.created_at).getTime());
+  });
+  var priorDurations = [];
+  Object.values(priorUserDayMap).forEach(function (times) {
+    if (times.length >= 2) {
+      var sorted = times.sort();
+      priorDurations.push(sorted[sorted.length - 1] - sorted[0]);
+    }
+  });
+  var priorAvgSec = priorDurations.length > 0
+    ? Math.round(priorDurations.reduce(function (a, b) { return a + b; }, 0) / priorDurations.length / 1000)
+    : 0;
+
+  // Mind score — cumulative knowledge score
+  var stats = await pineconeIndex.describeIndexStats();
+  var totalVectors = stats.totalRecordCount || 0;
+
+  // Count total ingested sources
+  var { data: ingestedSources } = await supabase
+    .from('ingestion_log')
+    .select('source_type, chunks_created')
+    .eq('status', 'done');
+  ingestedSources = ingestedSources || [];
+
+  var totalChunks = ingestedSources.reduce(function (s, r) { return s + (r.chunks_created || 0); }, 0);
+
+  // Knowledge score: vectors * 10 + chunks * 5 + sources * 100
+  var mindScore = totalVectors * 10 + totalChunks * 5 + ingestedSources.length * 100;
+
+  // Ingestion by type
+  var ingestionByType = {};
+  ingestedSources.forEach(function (r) {
+    ingestionByType[r.source_type] = (ingestionByType[r.source_type] || 0) + 1;
+  });
+
+  // Also count knowledge_items
+  var { data: knowledgeItems } = await supabase
+    .from('knowledge_items')
+    .select('type')
+    .in('status', ['completed']);
+  (knowledgeItems || []).forEach(function (ki) {
+    var t = (ki.type || 'manual').toLowerCase();
+    ingestionByType[t] = (ingestionByType[t] || 0) + 1;
+  });
+
+  // All-time total questions
+  var { data: allTimeQuestions } = await supabase
+    .from('questions')
+    .select('id', { count: 'exact', head: true });
+
+  // All-time total users
+  var { data: allTimeUsers } = await supabase
+    .from('user_profiles')
+    .select('user_id', { count: 'exact', head: true });
+
+  return respond(200, {
+    chart: chartData,
+    conversations: {
+      current: currentMessages,
+      prior: priorMessages,
+      change: pctChange(currentMessages, priorMessages)
+    },
+    activeVisitors: {
+      current: currentVisitors,
+      prior: priorVisitors,
+      change: pctChange(currentVisitors, priorVisitors)
+    },
+    totalMessages: {
+      current: currentMessages,
+      prior: priorMessages,
+      change: pctChange(currentMessages, priorMessages)
+    },
+    avgDuration: {
+      seconds: avgDurationSec,
+      change: pctChange(avgDurationSec, priorAvgSec)
+    },
+    mindScore: mindScore,
+    totalVectors: totalVectors,
+    totalChunks: totalChunks,
+    totalSources: ingestedSources.length,
+    ingestionByType: ingestionByType,
+    days: days
+  });
 }
 
 // ── Add a knowledge source and immediately start ingestion ──
