@@ -166,6 +166,11 @@ async function loadData() {
     state.folders = (foldersRes.data || []);
 
     calcWords();
+
+    // Fetch YouTube metadata in background, re-render when ready
+    fetchYouTubeMeta(items).then(function () {
+      render();
+    });
   } catch (e) {
     console.error('Failed to load data:', e);
     // Fallback: try direct Supabase queries
@@ -193,6 +198,41 @@ function mapSourceType(sourceType) {
     'manual': 'Manual'
   };
   return map[sourceType] || sourceType || 'Unknown';
+}
+
+// ── YouTube metadata cache (oEmbed) ──
+var ytMetaCache = {};
+
+function extractVideoId(url) {
+  if (!url) return null;
+  var m = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/) || url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+async function fetchYouTubeMeta(items) {
+  var ytItems = items.filter(function (i) {
+    return i.type === 'YouTube' && extractVideoId(i.source_url) && !ytMetaCache[i.source_url];
+  });
+  if (ytItems.length === 0) return;
+
+  // Fetch in parallel batches of 10
+  for (var b = 0; b < ytItems.length; b += 10) {
+    var batch = ytItems.slice(b, b + 10);
+    await Promise.all(batch.map(function (item) {
+      return fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(item.source_url) + '&format=json')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (data) {
+            ytMetaCache[item.source_url] = {
+              title: data.title || '',
+              channel: data.author_name || '',
+              thumbnail: 'https://img.youtube.com/vi/' + extractVideoId(item.source_url) + '/mqdefault.jpg'
+            };
+          }
+        })
+        .catch(function () {});
+    }));
+  }
 }
 
 function calcWords() {
@@ -263,6 +303,7 @@ function renderList(folders, items) {
   html += '<span></span>';
   html += '<span>Name</span>';
   html += '<span>Type</span>';
+  html += '<span>Source</span>';
   html += '<span class="col-date">Updated</span>';
   html += '<span></span>';
   html += '</div>';
@@ -275,6 +316,7 @@ function renderList(folders, items) {
     html += '<div class="list-row folder-row" data-folder-id="' + f.id + '">';
     html += '<div class="row-checkbox"></div>';
     html += '<div class="row-name"><span class="row-icon folder-icon">\uD83D\uDCC1</span><span class="row-name-text">' + esc(f.name) + '</span></div>';
+    html += '<div></div>';
     html += '<div></div>';
     html += '<div class="row-date col-date"></div>';
     html += '<div class="row-actions"><button class="row-actions-btn" onclick="toggleRowDropdown(event, this)">···</button>';
@@ -291,14 +333,24 @@ function renderList(folders, items) {
   }
 
   items.forEach(function (item) {
+    var ytMeta = ytMetaCache[item.source_url];
+    var displayTitle = (ytMeta && ytMeta.title) ? ytMeta.title : item.title;
+    var channelName = (ytMeta && ytMeta.channel) ? ytMeta.channel : '';
+    var thumbUrl = (ytMeta && ytMeta.thumbnail) ? ytMeta.thumbnail : null;
+
     html += '<div class="list-row" data-item-id="' + item.id + '">';
     html += '<div class="row-checkbox"><input type="checkbox"></div>';
     html += '<div class="row-name">';
-    html += '<span class="row-icon doc-icon">' + docIconSVG() + '</span>';
+    if (thumbUrl) {
+      html += '<img class="row-thumb" src="' + escAttr(thumbUrl) + '" alt="">';
+    } else {
+      html += '<span class="row-icon doc-icon">' + docIconSVG() + '</span>';
+    }
     html += '<span class="row-status-dot ' + statusDotColor(item.status) + '"></span>';
-    html += '<span class="row-name-text">' + esc(item.title) + '</span>';
+    html += '<span class="row-name-text">' + esc(displayTitle) + '</span>';
     html += '</div>';
     html += '<div><span class="type-badge">' + esc(item.type) + '</span></div>';
+    html += '<div class="row-source">' + esc(channelName) + '</div>';
     html += '<div class="row-date col-date">' + formatDate(item.updated_at) + '</div>';
     html += '<div class="row-actions"><button class="row-actions-btn" onclick="toggleRowDropdown(event, this)">···</button>';
     html += '<div class="row-dropdown">';
