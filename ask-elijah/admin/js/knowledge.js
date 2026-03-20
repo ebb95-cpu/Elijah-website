@@ -16,7 +16,7 @@ var state = {
   items: [],
   folders: [],
   viewMode: 'list',          // 'list' | 'grid'
-  activeTab: 'content',      // 'content' | 'feeds'
+  activeTab: 'content',      // 'content' | 'feeds' | 'insights'
   filterStatus: null,        // null = all, or 'completed','learning','attention','failed','deleting'
   filterType: null,           // null = all, or 'Q&A','Manual','YouTube','TikTok','File'
   searchQuery: '',
@@ -267,6 +267,11 @@ function renderWordCount() {
 }
 
 function renderContent() {
+  if (state.activeTab === 'insights') {
+    renderInsights();
+    return;
+  }
+
   var items = getFilteredItems();
   var folders = state.folders;
 
@@ -391,6 +396,136 @@ function renderGrid(folders, items) {
   $contentArea.innerHTML = html;
 }
 
+// ---- Insights view ----
+function renderInsights() {
+  var totalVectors = (state.pineconeStats && state.pineconeStats.totalVectors) || 0;
+  var byType = (state.ingestionStats && state.ingestionStats.byType) || {};
+  var items = state.items;
+
+  // Count items by type
+  var typeCounts = {};
+  items.forEach(function (i) {
+    var t = i.type || 'Unknown';
+    typeCounts[t] = (typeCounts[t] || 0) + 1;
+  });
+
+  // Count by status
+  var statusCounts = { completed: 0, processing: 0, failed: 0 };
+  items.forEach(function (i) {
+    if (statusCounts[i.status] !== undefined) statusCounts[i.status]++;
+  });
+
+  // Knowledge level based on vectors
+  var level = 'Beginner';
+  var levelColor = '#666';
+  var levelPercent = Math.min(100, (totalVectors / 5000) * 100);
+  if (totalVectors >= 5000) { level = 'Expert'; levelColor = '#22c55e'; }
+  else if (totalVectors >= 2000) { level = 'Advanced'; levelColor = '#3b82f6'; }
+  else if (totalVectors >= 500) { level = 'Intermediate'; levelColor = '#a855f7'; }
+  else if (totalVectors >= 100) { level = 'Learning'; levelColor = '#f59e0b'; }
+
+  // Total chunks
+  var totalChunks = items.reduce(function (s, i) { return s + (i.chunks_created || 0); }, 0);
+
+  // Recent activity (last 7 items)
+  var recent = items.slice(0, 7);
+
+  // Build HTML
+  var html = '<div class="insights-panel">';
+
+  // Hero card — Knowledge Score
+  html += '<div class="insight-hero">';
+  html += '<div class="insight-hero-label">Knowledge Level</div>';
+  html += '<div class="insight-hero-level" style="color:' + levelColor + '">' + level + '</div>';
+  html += '<div class="insight-hero-vectors">' + totalVectors.toLocaleString() + ' vectors in brain</div>';
+  html += '<div class="insight-progress-bar"><div class="insight-progress-fill" style="width:' + levelPercent + '%;background:' + levelColor + '"></div></div>';
+  html += '<div class="insight-progress-labels"><span>Beginner</span><span>Learning</span><span>Intermediate</span><span>Advanced</span><span>Expert</span></div>';
+  html += '</div>';
+
+  // Stats row
+  html += '<div class="insight-stats-row">';
+  html += '<div class="insight-stat-card"><div class="insight-stat-num">' + items.length + '</div><div class="insight-stat-label">Total Sources</div></div>';
+  html += '<div class="insight-stat-card"><div class="insight-stat-num">' + totalVectors.toLocaleString() + '</div><div class="insight-stat-label">Knowledge Vectors</div></div>';
+  html += '<div class="insight-stat-card"><div class="insight-stat-num">' + statusCounts.completed + '</div><div class="insight-stat-label">Completed</div></div>';
+  html += '<div class="insight-stat-card"><div class="insight-stat-num">' + (statusCounts.processing || 0) + '</div><div class="insight-stat-label">Processing</div></div>';
+  html += '</div>';
+
+  // Knowledge by source type
+  html += '<div class="insight-section">';
+  html += '<div class="insight-section-title">Knowledge by Source</div>';
+  html += '<div class="insight-bars">';
+
+  var typeColors = {
+    'YouTube': '#ef4444',
+    'Newsletter': '#f59e0b',
+    'Q&A': '#22c55e',
+    'Manual': '#3b82f6',
+    'File': '#a855f7',
+    'Twitter': '#38bdf8',
+    'Instagram': '#e879f9',
+    'LinkedIn': '#60a5fa',
+    'TikTok': '#f472b6',
+    'YouTube Channel': '#ef4444'
+  };
+
+  var maxCount = Math.max.apply(null, Object.values(typeCounts).concat([1]));
+  var sortedTypes = Object.keys(typeCounts).sort(function (a, b) { return typeCounts[b] - typeCounts[a]; });
+
+  sortedTypes.forEach(function (t) {
+    var count = typeCounts[t];
+    var pct = Math.max(5, (count / maxCount) * 100);
+    var color = typeColors[t] || '#666';
+    html += '<div class="insight-bar-row">';
+    html += '<div class="insight-bar-label">' + esc(t) + '</div>';
+    html += '<div class="insight-bar-track"><div class="insight-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
+    html += '<div class="insight-bar-count">' + count + '</div>';
+    html += '</div>';
+  });
+
+  if (sortedTypes.length === 0) {
+    html += '<div style="color:#555;font-size:13px;padding:12px 0">No content ingested yet. Add sources to make the AI smarter.</div>';
+  }
+
+  html += '</div></div>';
+
+  // Recent activity
+  html += '<div class="insight-section">';
+  html += '<div class="insight-section-title">Recent Activity</div>';
+  html += '<div class="insight-activity">';
+
+  recent.forEach(function (item) {
+    var ytMeta = ytMetaCache[item.source_url];
+    var displayTitle = (ytMeta && ytMeta.title) ? ytMeta.title : item.title;
+    var statusInfo = getStatusInfo(item.status);
+    html += '<div class="insight-activity-item">';
+    html += '<span class="filter-dot ' + statusInfo.dot + '" style="flex-shrink:0"></span>';
+    html += '<span class="insight-activity-title">' + esc(displayTitle) + '</span>';
+    html += '<span class="type-badge" style="flex-shrink:0">' + esc(item.type) + '</span>';
+    html += '<span class="insight-activity-date">' + formatDate(item.created_at) + '</span>';
+    html += '</div>';
+  });
+
+  if (recent.length === 0) {
+    html += '<div style="color:#555;font-size:13px;padding:12px 0">No activity yet.</div>';
+  }
+
+  html += '</div></div>';
+
+  // Tips
+  html += '<div class="insight-section">';
+  html += '<div class="insight-section-title">How to Make the AI Smarter</div>';
+  html += '<div class="insight-tips">';
+  html += '<div class="insight-tip">Add your YouTube channels — every video transcript gets ingested</div>';
+  html += '<div class="insight-tip">Link your Beehiiv newsletter — all posts become searchable knowledge</div>';
+  html += '<div class="insight-tip">Add Q&A pairs for questions you get asked frequently</div>';
+  html += '<div class="insight-tip">Upload PDFs, audio files, or paste text for instant ingestion</div>';
+  html += '<div class="insight-tip">New content is auto-detected daily from connected sources</div>';
+  html += '</div></div>';
+
+  html += '</div>';
+  $contentArea.innerHTML = html;
+}
+
 // ============================================================
 // Events
 // ============================================================
@@ -400,6 +535,7 @@ function bindEvents() {
     btn.addEventListener('click', function () {
       state.activeTab = btn.dataset.tab;
       document.querySelectorAll('[data-tab]').forEach(function (b) { b.classList.toggle('active', b.dataset.tab === state.activeTab); });
+      renderContent();
     });
   });
 
