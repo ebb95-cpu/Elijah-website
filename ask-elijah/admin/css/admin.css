@@ -1534,6 +1534,133 @@ a {
 }
 
 /* ============================================================
+   Web Sources Review
+   ============================================================ */
+.web-sources-panel {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 8px 0;
+}
+
+.web-sources-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.web-sources-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.web-sources-desc {
+  font-size: 13px;
+  color: #666;
+  max-width: 500px;
+}
+
+.web-scan-btn {
+  background: #e8573a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.web-scan-btn:hover { background: #d04a30; }
+.web-scan-btn:disabled { opacity: 0.5; cursor: default; }
+
+.web-sources-count {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.web-empty {
+  text-align: center;
+  color: #555;
+  padding: 40px 0;
+  font-size: 14px;
+}
+
+.web-source-card {
+  background: #111;
+  border: 1px solid #1e1e1e;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  transition: opacity .3s;
+}
+
+.web-source-domain {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.web-source-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.web-source-desc {
+  font-size: 13px;
+  color: #999;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.web-source-url {
+  margin-bottom: 10px;
+}
+.web-source-url a {
+  font-size: 11px;
+  color: #555;
+  text-decoration: none;
+  word-break: break-all;
+}
+.web-source-url a:hover { color: #888; }
+
+.web-source-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.web-approve-btn {
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.web-approve-btn:hover { background: #1daa52; }
+
+.web-reject-btn {
+  background: transparent;
+  color: #888;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.web-reject-btn:hover { color: #ef4444; border-color: #ef4444; }
+
+/* ============================================================
    Responsive — sidebar collapses to bottom bar on mobile
    ============================================================ */
 @media (max-width: 768px) {

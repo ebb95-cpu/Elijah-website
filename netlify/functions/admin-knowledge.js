@@ -96,6 +96,16 @@ exports.handler = async function (event) {
       return await handleInsights(body);
     } else if (action === 'cleanup-dupes') {
       return await handleCleanupDupes();
+    } else if (action === 'web-pending') {
+      return await handleWebPending();
+    } else if (action === 'web-approve') {
+      var body = JSON.parse(event.body || '{}');
+      return await handleWebApprove(body);
+    } else if (action === 'web-reject') {
+      var body = JSON.parse(event.body || '{}');
+      return await handleWebReject(body);
+    } else if (action === 'web-run') {
+      return await handleWebRunNow();
     } else {
       return respond(400, { error: 'Unknown action' });
     }
@@ -1195,4 +1205,136 @@ async function embedChunks(chunks) {
     allEmbeddings = allEmbeddings.concat(data.data.map(function (d) { return d.embedding; }));
   }
   return allEmbeddings;
+}
+
+// ── Web Sources: List pending review items ──
+async function handleWebPending() {
+  var { data } = await supabase
+    .from('ingestion_log')
+    .select('*')
+    .eq('source_type', 'web-article')
+    .eq('status', 'pending-review')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  return respond(200, { items: data || [] });
+}
+
+// ── Web Sources: Approve — fetch, embed, and ingest ──
+async function handleWebApprove(body) {
+  var id = body.id;
+  if (!id) return respond(400, { error: 'Missing id' });
+
+  // Get the pending item
+  var { data: item } = await supabase
+    .from('ingestion_log')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (!item) return respond(404, { error: 'Item not found' });
+
+  // Update status to processing
+  await supabase.from('ingestion_log').update({ status: 'processing' }).eq('id', id);
+
+  try {
+    // Fetch article text
+    var articleText = '';
+    try {
+      var res = await fetch(item.source_url, {
+        headers: { 'User-Agent': 'AskElijah-Bot/1.0' },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (res.ok) {
+        var html = await res.text();
+        articleText = html
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+          .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
+          .replace(/<header[^>]*>[\s\S]*?<\/header>/gi, '')
+          .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .substring(0, 5000);
+      }
+    } catch (e) {
+      console.error('Failed to fetch article:', e.message);
+    }
+
+    // Fallback to title + description from metadata
+    if (!articleText || articleText.length < 100) {
+      var meta = {};
+      try { meta = JSON.parse(item.metadata || '{}'); } catch (e) {}
+      articleText = (item.title || '') + '. ' + (meta.description || '');
+    }
+
+    // Chunk and embed
+    var chunks = chunkText(articleText, 500);
+    if (chunks.length === 0) {
+      await supabase.from('ingestion_log').update({ status: 'failed', metadata: JSON.stringify({ error: 'No usable text' }) }).eq('id', id);
+      return respond(200, { success: false, error: 'No usable text found' });
+    }
+
+    var embeddings = await embedChunks(chunks);
+    var urlHash = Math.abs(item.source_url.split('').reduce(function (a, b) { return ((a << 5) - a) + b.charCodeAt(0); }, 0)).toString(36);
+
+    // Upsert to Pinecone
+    var vectors = [];
+    for (var i = 0; i < chunks.length; i++) {
+      if (!embeddings[i]) continue;
+      vectors.push({
+        id: 'web-' + urlHash + '-' + i,
+        values: embeddings[i],
+        metadata: {
+          text: chunks[i],
+          title: item.title || 'Web Article',
+          source_type: 'web-article',
+          source_url: item.source_url,
+          url: item.source_url
+        }
+      });
+    }
+
+    if (vectors.length > 0) {
+      for (var i = 0; i < vectors.length; i += 100) {
+        await pineconeIndex.upsert(vectors.slice(i, i + 100));
+      }
+    }
+
+    // Update status to done
+    await supabase.from('ingestion_log').update({
+      status: 'done',
+      chunks_created: vectors.length
+    }).eq('id', id);
+
+    return respond(200, { success: true, chunks: vectors.length });
+
+  } catch (err) {
+    await supabase.from('ingestion_log').update({ status: 'failed', metadata: JSON.stringify({ error: err.message }) }).eq('id', id);
+    return respond(500, { error: err.message });
+  }
+}
+
+// ── Web Sources: Reject — mark as rejected ──
+async function handleWebReject(body) {
+  var id = body.id;
+  if (!id) return respond(400, { error: 'Missing id' });
+
+  await supabase.from('ingestion_log').update({ status: 'rejected' }).eq('id', id);
+  return respond(200, { success: true });
+}
+
+// ── Web Sources: Trigger manual run ──
+async function handleWebRunNow() {
+  // Import and run the web ingestion function
+  try {
+    var ingestWeb = require('./ingest-web');
+    var result = await ingestWeb.handler({ httpMethod: 'POST' });
+    return respond(200, JSON.parse(result.body));
+  } catch (err) {
+    return respond(500, { error: 'Failed to run web ingestion: ' + err.message });
+  }
 }

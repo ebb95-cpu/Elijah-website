@@ -17,3 +17,6 @@
 
 [functions."ingest-newsletter"]
   schedule = "0 8 * * *"    # Daily at 8 AM UTC — Beehiiv, Substack newsletters
+
+[functions."ingest-web"]
+  schedule = "0 9 * * *"    # Daily at 9 AM UTC — Web articles, podcasts, interviews

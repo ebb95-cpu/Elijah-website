@@ -278,6 +278,10 @@ function renderContent() {
     renderFeeds();
     return;
   }
+  if (state.activeTab === 'web') {
+    renderWebSources();
+    return;
+  }
 
   var allItems = getFilteredItems();
   var folders = state.folders;
@@ -509,6 +513,117 @@ function renderGrid(folders, items) {
   html += '</div>';
   $contentArea.innerHTML = html;
 }
+
+// ---- Web Sources view ----
+var webSourcesData = null;
+var webSourcesLoading = false;
+
+async function loadWebSources() {
+  webSourcesLoading = true;
+  try {
+    webSourcesData = await adminAPI('web-pending');
+  } catch (e) {
+    console.error('Failed to load web sources:', e);
+    webSourcesData = { items: [] };
+  }
+  webSourcesLoading = false;
+}
+
+function renderWebSources() {
+  if (!webSourcesData && !webSourcesLoading) {
+    $contentArea.innerHTML = '<div class="web-sources-panel"><div class="insight-loading"><div class="spinner"></div>Loading web sources...</div></div>';
+    loadWebSources().then(function () { renderWebSources(); });
+    return;
+  }
+
+  var items = (webSourcesData && webSourcesData.items) || [];
+  var html = '<div class="web-sources-panel">';
+
+  // Header with scan button
+  html += '<div class="web-sources-header">';
+  html += '<div>';
+  html += '<div class="web-sources-title">Web Sources Review</div>';
+  html += '<div class="web-sources-desc">Articles and content discovered about you from the web. Approve to add to your knowledge base, or reject to ignore.</div>';
+  html += '</div>';
+  html += '<button class="web-scan-btn" onclick="runWebScan()">Scan Now</button>';
+  html += '</div>';
+
+  if (items.length === 0) {
+    html += '<div class="web-empty">No pending web sources to review. Sources from untrusted domains will appear here for your approval.</div>';
+  } else {
+    html += '<div class="web-sources-count">' + items.length + ' pending review</div>';
+
+    items.forEach(function (item) {
+      var meta = {};
+      try { meta = JSON.parse(item.metadata || '{}'); } catch (e) {}
+      var domain = meta.domain || '';
+      var description = meta.description || '';
+
+      html += '<div class="web-source-card" id="web-card-' + item.id + '">';
+      html += '<div class="web-source-domain">' + esc(domain) + '</div>';
+      html += '<div class="web-source-title">' + esc(item.title || 'Untitled') + '</div>';
+      if (description) {
+        html += '<div class="web-source-desc">' + esc(description.substring(0, 200)) + '</div>';
+      }
+      html += '<div class="web-source-url"><a href="' + esc(item.source_url) + '" target="_blank" rel="noopener">' + esc(item.source_url) + '</a></div>';
+      html += '<div class="web-source-actions">';
+      html += '<button class="web-approve-btn" onclick="approveWebSource(' + item.id + ')">Approve &amp; Ingest</button>';
+      html += '<button class="web-reject-btn" onclick="rejectWebSource(' + item.id + ')">Reject</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+  }
+
+  html += '</div>';
+  $contentArea.innerHTML = html;
+}
+
+window.approveWebSource = async function (id) {
+  var card = document.getElementById('web-card-' + id);
+  if (card) card.style.opacity = '0.5';
+
+  try {
+    var result = await adminAPI('web-approve', { id: id });
+    if (result.success) {
+      if (card) card.remove();
+    } else {
+      alert('Failed to approve: ' + (result.error || 'Unknown error'));
+      if (card) card.style.opacity = '1';
+    }
+  } catch (e) {
+    alert('Error: ' + e.message);
+    if (card) card.style.opacity = '1';
+  }
+};
+
+window.rejectWebSource = async function (id) {
+  var card = document.getElementById('web-card-' + id);
+  if (card) card.style.opacity = '0.5';
+
+  try {
+    await adminAPI('web-reject', { id: id });
+    if (card) card.remove();
+  } catch (e) {
+    alert('Error: ' + e.message);
+    if (card) card.style.opacity = '1';
+  }
+};
+
+window.runWebScan = async function () {
+  var btn = document.querySelector('.web-scan-btn');
+  if (btn) { btn.textContent = 'Scanning...'; btn.disabled = true; }
+
+  try {
+    var result = await adminAPI('web-run');
+    alert('Scan complete! Found ' + (result.discovered || 0) + ' results. Ingested: ' + (result.ingested || 0) + ', Pending review: ' + (result.pendingReview || 0));
+    webSourcesData = null;
+    renderWebSources();
+  } catch (e) {
+    alert('Scan failed: ' + e.message);
+  }
+
+  if (btn) { btn.textContent = 'Scan Now'; btn.disabled = false; }
+};
 
 // ---- Insights view ----
 // ---- Feeds view ----
