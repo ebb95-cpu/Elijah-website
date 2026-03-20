@@ -11,7 +11,9 @@ var convState = {
   conversations: [],  // grouped by user
   activeTab: 'my-delphi',
   selectedUserId: null,
-  searchQuery: ''
+  searchQuery: '',
+  previewHistory: [],  // chat history for preview mode
+  previewSending: false
 };
 
 // ── Boot ──
@@ -50,8 +52,13 @@ function bindEvents() {
       tab.classList.add('active');
       convState.activeTab = tab.dataset.tab;
       convState.selectedUserId = null;
-      renderConversationList();
-      showEmptyThread();
+
+      if (convState.activeTab === 'preview') {
+        openPreviewChat();
+      } else {
+        renderConversationList();
+        showEmptyThread();
+      }
     });
   });
 
@@ -367,3 +374,192 @@ function adminLogout() {
     window.location.href = '/ask-elijah/';
   });
 }
+
+// ============================================================
+// Preview Chat — test the AI as if you're a user
+// ============================================================
+
+function openPreviewChat() {
+  // Hide conversation list content, show preview state
+  document.getElementById('conv-list').innerHTML =
+    '<div class="conv-list-empty" style="padding:20px;color:#888;font-size:12px">' +
+    'Preview mode — test how your AI responds to questions. ' +
+    'Messages here are not saved.' +
+    '</div>';
+
+  // Show thread panel with preview UI
+  document.getElementById('conv-thread-empty').style.display = 'none';
+  var $thread = document.getElementById('conv-thread');
+  $thread.style.display = 'flex';
+
+  // Header
+  document.getElementById('conv-thread-header').innerHTML =
+    '<div class="conv-thread-header-avatar" style="background:#e8573a;color:#fff">EB</div>' +
+    '<div>' +
+    '<div class="conv-thread-header-name">Ask Elijah — Preview</div>' +
+    '<div class="conv-thread-header-meta">Test your AI · Messages are not saved</div>' +
+    '</div>' +
+    '<button class="conv-msg-action-btn" style="margin-left:auto" onclick="clearPreviewChat()">Clear</button>';
+
+  // Update input placeholder
+  document.getElementById('conv-reply-input').placeholder = 'Ask a question as a user…';
+
+  // Render existing preview messages or welcome
+  if (convState.previewHistory.length === 0) {
+    renderPreviewWelcome();
+  } else {
+    renderPreviewMessages();
+  }
+
+  // Mobile
+  document.getElementById('conv-thread-panel').classList.add('mobile-open');
+}
+
+function renderPreviewWelcome() {
+  var html = '<div class="preview-welcome">';
+  html += '<svg viewBox="0 0 24 24" width="40" height="40" stroke="#e8573a" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+  html += '<div class="preview-welcome-title">Preview your AI</div>';
+  html += '<div class="preview-welcome-desc">Ask questions to see exactly how your AI responds to users. This uses your real knowledge base.</div>';
+  html += '<div class="preview-suggestions">';
+  html += '<button class="preview-suggestion" onclick="askPreviewQuestion(this.textContent)">What does your morning routine look like?</button>';
+  html += '<button class="preview-suggestion" onclick="askPreviewQuestion(this.textContent)">What books changed your perspective?</button>';
+  html += '<button class="preview-suggestion" onclick="askPreviewQuestion(this.textContent)">How do you stay consistent?</button>';
+  html += '<button class="preview-suggestion" onclick="askPreviewQuestion(this.textContent)">What\'s your approach to nutrition?</button>';
+  html += '</div>';
+  html += '</div>';
+  document.getElementById('conv-thread-messages').innerHTML = html;
+}
+
+function renderPreviewMessages() {
+  var $msgs = document.getElementById('conv-thread-messages');
+  var html = '';
+
+  convState.previewHistory.forEach(function (msg) {
+    if (msg.role === 'user') {
+      html += '<div class="conv-msg user">';
+      html += '<div class="conv-msg-bubble">' + esc(msg.text) + '</div>';
+      html += '<div class="conv-msg-meta">' + formatDateTime(msg.time) + '</div>';
+      html += '</div>';
+    } else {
+      html += '<div class="conv-msg ai">';
+      html += '<div class="conv-msg-bubble">' + esc(msg.text) + '</div>';
+      if (msg.sources && msg.sources.length > 0) {
+        html += '<div class="preview-sources">';
+        msg.sources.forEach(function (s) {
+          var label = s.title || s.url || s.source_type || 'Source';
+          html += '<span class="preview-source-pill" title="' + esc(label) + '">' + esc(label) + '</span>';
+        });
+        html += '</div>';
+      }
+      if (msg.confidence) {
+        html += '<div class="conv-msg-meta">' + formatDateTime(msg.time) + ' · ' + Math.round(msg.confidence * 100) + '% confidence</div>';
+      } else {
+        html += '<div class="conv-msg-meta">' + formatDateTime(msg.time) + '</div>';
+      }
+      html += '</div>';
+    }
+  });
+
+  $msgs.innerHTML = html;
+  $msgs.scrollTop = $msgs.scrollHeight;
+}
+
+// Called from suggestion buttons or input
+window.askPreviewQuestion = function (text) {
+  if (!text || convState.previewSending) return;
+  sendPreviewMessage(text);
+};
+
+// Override sendReply for preview mode
+var _originalSendReply = sendReply;
+sendReply = async function () {
+  if (convState.activeTab === 'preview') {
+    var $input = document.getElementById('conv-reply-input');
+    var text = $input.value.trim();
+    if (!text || convState.previewSending) return;
+    $input.value = '';
+    sendPreviewMessage(text);
+  } else {
+    return _originalSendReply();
+  }
+};
+
+async function sendPreviewMessage(text) {
+  convState.previewSending = true;
+
+  // Add user message
+  convState.previewHistory.push({
+    role: 'user',
+    text: text,
+    time: new Date().toISOString()
+  });
+  renderPreviewMessages();
+
+  // Show typing indicator
+  var $msgs = document.getElementById('conv-thread-messages');
+  $msgs.innerHTML += '<div class="conv-msg ai" id="preview-typing"><div class="conv-msg-bubble"><div class="conv-typing"><span class="conv-typing-dot"></span><span class="conv-typing-dot"></span><span class="conv-typing-dot"></span></div></div></div>';
+  $msgs.scrollTop = $msgs.scrollHeight;
+
+  // Build history for API (last 10 messages)
+  var apiHistory = convState.previewHistory
+    .filter(function (m) { return m.role === 'user' || m.role === 'ai'; })
+    .slice(-10)
+    .map(function (m) {
+      return { role: m.role === 'user' ? 'user' : 'assistant', content: m.text };
+    });
+
+  try {
+    var res = await fetch('/.netlify/functions/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        history: apiHistory.slice(0, -1), // exclude current message (it's the message param)
+        userId: 'admin-preview'
+      })
+    });
+
+    var data = await res.json();
+
+    // Remove typing indicator
+    var typing = document.getElementById('preview-typing');
+    if (typing) typing.remove();
+
+    if (data.error) {
+      convState.previewHistory.push({
+        role: 'ai',
+        text: 'Error: ' + data.error,
+        time: new Date().toISOString(),
+        sources: [],
+        confidence: 0
+      });
+    } else {
+      convState.previewHistory.push({
+        role: 'ai',
+        text: data.response || 'No response',
+        time: new Date().toISOString(),
+        sources: data.sources || [],
+        confidence: data.confidence || null
+      });
+    }
+  } catch (err) {
+    var typing = document.getElementById('preview-typing');
+    if (typing) typing.remove();
+
+    convState.previewHistory.push({
+      role: 'ai',
+      text: 'Failed to reach the AI: ' + err.message,
+      time: new Date().toISOString(),
+      sources: [],
+      confidence: 0
+    });
+  }
+
+  convState.previewSending = false;
+  renderPreviewMessages();
+}
+
+window.clearPreviewChat = function () {
+  convState.previewHistory = [];
+  renderPreviewWelcome();
+};
