@@ -124,13 +124,12 @@ async function embedChunks(chunks) {
   return allEmbeddings;
 }
 
-// ── Check if video already ingested ──
+// ── Check if video already ingested (any status — prevents duplicate entries) ──
 async function isAlreadyIngested(videoId) {
   var { data } = await supabase
     .from('ingestion_log')
     .select('id')
     .eq('source_url', 'https://www.youtube.com/watch?v=' + videoId)
-    .eq('status', 'done')
     .limit(1);
   return data && data.length > 0;
 }

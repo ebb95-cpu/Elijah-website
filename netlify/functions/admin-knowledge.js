@@ -94,6 +94,8 @@ exports.handler = async function (event) {
     } else if (action === 'insights') {
       var body = JSON.parse(event.body || '{}');
       return await handleInsights(body);
+    } else if (action === 'cleanup-dupes') {
+      return await handleCleanupDupes();
     } else {
       return respond(400, { error: 'Unknown action' });
     }
@@ -103,15 +105,36 @@ exports.handler = async function (event) {
   }
 };
 
-// ── List all ingestion log entries ──
+// ── List all ingestion log entries (deduplicated by source_url) ──
 async function handleList() {
   var { data: items, error } = await supabase
     .from('ingestion_log')
     .select('*')
     .order('created_at', { ascending: false })
-    .limit(200);
+    .limit(500);
 
   if (error) return respond(500, { error: error.message });
+
+  // Deduplicate: keep the best entry per source_url (prefer 'done' > 'processing' > 'failed')
+  var seen = {};
+  var statusPriority = { done: 3, processing: 2, failed: 1 };
+  var deduped = [];
+  (items || []).forEach(function (item) {
+    var key = item.source_url;
+    if (!seen[key]) {
+      seen[key] = item;
+      deduped.push(item);
+    } else {
+      var existingPriority = statusPriority[seen[key].status] || 0;
+      var newPriority = statusPriority[item.status] || 0;
+      if (newPriority > existingPriority) {
+        // Replace with better status entry
+        var idx = deduped.indexOf(seen[key]);
+        deduped[idx] = item;
+        seen[key] = item;
+      }
+    }
+  });
 
   // Also get knowledge_items if any
   var { data: manualItems } = await supabase
@@ -121,9 +144,9 @@ async function handleList() {
     .limit(200);
 
   return respond(200, {
-    ingestion_log: items || [],
+    ingestion_log: deduped,
     knowledge_items: manualItems || [],
-    total: (items || []).length + (manualItems || []).length
+    total: deduped.length + (manualItems || []).length
   });
 }
 
@@ -533,6 +556,54 @@ async function handleInsights(body) {
   });
 }
 
+// ── Cleanup duplicate ingestion_log entries (keep best per source_url) ──
+async function handleCleanupDupes() {
+  var { data: all, error } = await supabase
+    .from('ingestion_log')
+    .select('id, source_url, status, created_at')
+    .order('created_at', { ascending: false });
+
+  if (error) return respond(500, { error: error.message });
+
+  var statusPriority = { done: 3, processing: 2, failed: 1 };
+  var best = {}; // source_url → best row
+  var toDelete = [];
+
+  (all || []).forEach(function (row) {
+    var key = row.source_url;
+    if (!best[key]) {
+      best[key] = row;
+    } else {
+      var existingP = statusPriority[best[key].status] || 0;
+      var newP = statusPriority[row.status] || 0;
+      if (newP > existingP) {
+        toDelete.push(best[key].id);
+        best[key] = row;
+      } else {
+        toDelete.push(row.id);
+      }
+    }
+  });
+
+  // Delete in batches of 50
+  var deleted = 0;
+  for (var i = 0; i < toDelete.length; i += 50) {
+    var batch = toDelete.slice(i, i + 50);
+    var { error: delErr } = await supabase
+      .from('ingestion_log')
+      .delete()
+      .in('id', batch);
+    if (!delErr) deleted += batch.length;
+  }
+
+  return respond(200, {
+    success: true,
+    totalBefore: (all || []).length,
+    duplicatesRemoved: deleted,
+    uniqueAfter: Object.keys(best).length
+  });
+}
+
 // ── Add a knowledge source and immediately start ingestion ──
 async function handleAddSource(body) {
   var sourceType = body.source_type;
@@ -589,12 +660,11 @@ async function ingestYouTubeChannel(url) {
   var errors = 0;
 
   for (var v of videos) {
-    // Skip already ingested
+    // Skip already ingested (any status — prevents duplicate entries)
     var { data: existing } = await supabase
       .from('ingestion_log')
       .select('id')
       .eq('source_url', v.url)
-      .eq('status', 'done')
       .limit(1);
 
     if (existing && existing.length > 0) {
@@ -665,12 +735,11 @@ async function ingestNewsletter(url) {
   var errors = 0;
 
   for (var post of posts) {
-    // Skip already ingested
+    // Skip already ingested (any status — prevents duplicate entries)
     var { data: existing } = await supabase
       .from('ingestion_log')
       .select('id')
       .eq('source_url', post.url)
-      .eq('status', 'done')
       .limit(1);
 
     if (existing && existing.length > 0) {
@@ -971,12 +1040,11 @@ async function handleIngestVideo(body) {
   var videoId = extractVideoId(url);
   if (!videoId) return respond(400, { error: 'Could not extract video ID from URL' });
 
-  // Check if already ingested
+  // Check if already ingested (any status — prevents duplicate entries)
   var { data: existing } = await supabase
     .from('ingestion_log')
     .select('id')
     .eq('source_url', 'https://www.youtube.com/watch?v=' + videoId)
-    .eq('status', 'done')
     .limit(1);
 
   if (existing && existing.length > 0) {
