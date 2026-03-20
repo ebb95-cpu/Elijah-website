@@ -9,7 +9,7 @@ var ADMIN_EMAIL = 'ebb95@mac.com';
 
 var convState = {
   conversations: [],  // grouped by user
-  activeTab: 'my-delphi',
+  activeTab: 'ask-elijah',
   selectedUserId: null,
   searchQuery: '',
   previewHistory: [],  // chat history for preview mode
