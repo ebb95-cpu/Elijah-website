@@ -1,6 +1,7 @@
-/* ── Brain Dot-Connect Intro Animation ──
-   Dots pre-placed in brain outline, connected one by one.
-   Plays for ~6s then fades out to reveal auth screen.        */
+/* ── Brain Intro — Constellation Trail ──
+   A glowing particle traces the brain outline like a shooting star,
+   leaving dots and faded lines in its wake. Then the three-dot logo
+   fades in below. ~6s total, then fades to auth screen.              */
 (function () {
   'use strict';
 
@@ -12,49 +13,84 @@
   var dpr = window.devicePixelRatio || 1;
   var W, H, cx, cy, scale;
 
-  // ── Brain outline points — SIDE VIEW (lateral profile) ──
-  // Face pointing LEFT. Frontal lobe left, occipital right, cerebellum bottom-right, stem bottom.
+  // ── Brain outline — side view (lateral profile) ──
   var brainRaw = [
-    // Brain stem (bottom, angled back-right)
-    [-0.05, 0.32],                                                    // 0
-    // Underside — frontal to temporal (left to middle)
+    [-0.05, 0.32],                                                    // 0  stem
     [-0.20, 0.26], [-0.32, 0.20], [-0.40, 0.14],                   // 1-3
-    // Front face — frontal lobe (steep curve up)
     [-0.44, 0.06], [-0.46, -0.04], [-0.44, -0.14],                 // 4-6
     [-0.40, -0.24], [-0.34, -0.32],                                  // 7-8
-    // Top of frontal lobe — dome
     [-0.26, -0.38], [-0.16, -0.42],                                  // 9-10
-    // Top — parietal lobe (gently rolling across top)
     [-0.06, -0.44], [0.04, -0.44], [0.14, -0.42],                  // 11-13
     [0.24, -0.40], [0.32, -0.36],                                    // 14-15
-    // Back top — occipital lobe curving down
     [0.38, -0.30], [0.42, -0.22], [0.44, -0.12],                   // 16-18
     [0.42, -0.02],                                                    // 19
-    // Back — occipital to cerebellum gap
     [0.38, 0.06], [0.34, 0.12],                                      // 20-21
-    // Cerebellum (rounded bump at back-bottom)
     [0.30, 0.18], [0.28, 0.24], [0.22, 0.28],                      // 22-24
     [0.14, 0.30], [0.06, 0.30],                                      // 25-26
-    // Back to stem
-    [-0.05, 0.32],                                                    // 27
-    // Brain stem
-    [-0.02, 0.36], [0.00, 0.40],                                     // 28-29
-    [-0.08, 0.36]                                                     // 30
+    [-0.05, 0.32]                                                     // 27 close
   ];
 
-  // Build connections — outline only
-  var connections = [];
+  // Brain stem points (drawn after main outline)
+  var stemRaw = [
+    [-0.05, 0.32], [-0.02, 0.36], [0.00, 0.40]
+  ];
 
-  // Outer outline (sequential 0→27)
-  for (var i = 0; i < 27; i++) {
-    connections.push([i, i + 1]);
+  // ── Pre-compute the full path as a polyline with distances ──
+  var pathPoints = [];  // {x, y} in normalized coords
+  var pathDists = [];   // cumulative distance at each point
+  var totalPathLen = 0;
+
+  function buildPath() {
+    pathPoints = [];
+    pathDists = [];
+    totalPathLen = 0;
+
+    // Main outline
+    for (var i = 0; i < brainRaw.length; i++) {
+      pathPoints.push({ x: brainRaw[i][0], y: brainRaw[i][1] });
+    }
+    // Stem
+    for (var s = 1; s < stemRaw.length; s++) {
+      pathPoints.push({ x: stemRaw[s][0], y: stemRaw[s][1] });
+    }
+
+    // Compute cumulative distances
+    pathDists.push(0);
+    for (var j = 1; j < pathPoints.length; j++) {
+      var dx = pathPoints[j].x - pathPoints[j - 1].x;
+      var dy = pathPoints[j].y - pathPoints[j - 1].y;
+      totalPathLen += Math.sqrt(dx * dx + dy * dy);
+      pathDists.push(totalPathLen);
+    }
   }
 
-  // Brain stem
-  connections.push([28, 29]); connections.push([0, 30]);
+  buildPath();
 
-  var totalConnections = connections.length;
-  var totalDots = brainRaw.length;
+  // ── Interpolate position along the path at distance d ──
+  function posAtDist(d) {
+    if (d <= 0) return pathPoints[0];
+    if (d >= totalPathLen) return pathPoints[pathPoints.length - 1];
+
+    for (var i = 1; i < pathDists.length; i++) {
+      if (pathDists[i] >= d) {
+        var segLen = pathDists[i] - pathDists[i - 1];
+        var t = segLen > 0 ? (d - pathDists[i - 1]) / segLen : 0;
+        return {
+          x: pathPoints[i - 1].x + (pathPoints[i].x - pathPoints[i - 1].x) * t,
+          y: pathPoints[i - 1].y + (pathPoints[i].y - pathPoints[i - 1].y) * t
+        };
+      }
+    }
+    return pathPoints[pathPoints.length - 1];
+  }
+
+  // ── Find which segment index a distance falls on ──
+  function segAtDist(d) {
+    for (var i = 1; i < pathDists.length; i++) {
+      if (pathDists[i] >= d) return i - 1;
+    }
+    return pathPoints.length - 2;
+  }
 
   // ── Sizing ──
   function resize() {
@@ -73,160 +109,194 @@
   resize();
   window.addEventListener('resize', resize);
 
+  // ── Convert normalized to screen ──
+  function toScreen(p) {
+    return { x: cx + p.x * scale, y: cy + p.y * scale };
+  }
+
   // ── Animation state ──
-  var DURATION = 6000; // 6 seconds for the full draw
+  var TRACE_DURATION = 5000;  // 5s to trace the outline
+  var HOLD_DURATION = 1000;   // 1s hold after complete
   var FADE_DURATION = 800;
   var startTime = null;
-  var revealedDots = {};
   var animating = true;
   var fadingOut = false;
   var fadeStart = null;
 
-  // Colors — black & white branding
-  var ACCENT = '#ffffff';
-  var LINE_COLOR = 'rgba(255, 255, 255, 0.30)';
-  var DOT_GLOW = 'rgba(255, 255, 255, 0.10)';
+  // Trail particles (emitted by the leading light)
+  var particles = [];
+  var lastEmitDist = -1;
 
-  function worldPos(idx) {
-    var p = brainRaw[idx];
-    return { x: cx + p[0] * scale, y: cy + p[1] * scale };
-  }
-
+  // ── Draw frame ──
   function draw(now) {
     if (!animating) return;
-
     if (!startTime) startTime = now;
     var elapsed = now - startTime;
 
-    // Clear
     ctx.clearRect(0, 0, W, H);
 
-    // Global alpha for fade-out
+    // Fade-out phase
     var globalAlpha = 1;
     if (fadingOut) {
       if (!fadeStart) fadeStart = now;
-      var fadeElapsed = now - fadeStart;
-      globalAlpha = 1 - Math.min(fadeElapsed / FADE_DURATION, 1);
+      globalAlpha = 1 - Math.min((now - fadeStart) / FADE_DURATION, 1);
       if (globalAlpha <= 0) {
         animating = false;
         overlay.style.display = 'none';
-        // Signal that intro is done — auth.js listens for this
         window.__brainIntroDone = true;
         window.dispatchEvent(new Event('brain-intro-done'));
         return;
       }
     }
-
     ctx.globalAlpha = globalAlpha;
 
-    // How many connections should be drawn by now
-    var progress = Math.min(elapsed / DURATION, 1);
-    // Ease-in-out for natural feel
-    var eased = progress < 0.5
-      ? 2 * progress * progress
-      : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+    // Trace progress (0→1 over TRACE_DURATION)
+    var traceProgress = Math.min(elapsed / TRACE_DURATION, 1);
+    // Smooth ease-out for the tracer (fast start, gentle finish)
+    var eased = 1 - Math.pow(1 - traceProgress, 2.5);
+    var traceDist = eased * totalPathLen;
 
-    var connsToShow = Math.floor(eased * totalConnections);
-    var partialFraction = (eased * totalConnections) - connsToShow;
+    // Current segment the tracer has reached
+    var currentSeg = segAtDist(traceDist);
 
-    // Track which dots are revealed
-    revealedDots = {};
+    // ── Draw completed trail lines ──
+    for (var i = 0; i <= currentSeg && i < pathPoints.length - 1; i++) {
+      var a = toScreen(pathPoints[i]);
+      var b;
+      if (i < currentSeg) {
+        b = toScreen(pathPoints[i + 1]);
+      } else {
+        // Partial segment
+        b = toScreen(posAtDist(traceDist));
+      }
 
-    // Draw completed connections
-    for (var c = 0; c < connsToShow && c < totalConnections; c++) {
-      var conn = connections[c];
-      var from = worldPos(conn[0]);
-      var to = worldPos(conn[1]);
-      revealedDots[conn[0]] = true;
-      revealedDots[conn[1]] = true;
-      drawLine(from, to, 1);
+      // Trail lines fade: older segments are dimmer
+      var age = (currentSeg - i) / (pathPoints.length);
+      var lineAlpha = 0.15 + 0.20 * (1 - age);
+      ctx.save();
+      ctx.globalAlpha = ctx.globalAlpha * lineAlpha;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.restore();
     }
 
-    // Draw partial connection (currently animating)
-    if (connsToShow < totalConnections) {
-      var current = connections[connsToShow];
-      var fromP = worldPos(current[0]);
-      var toP = worldPos(current[1]);
-      revealedDots[current[0]] = true;
+    // ── Draw settled dots at each passed vertex ──
+    for (var v = 0; v <= currentSeg && v < pathPoints.length; v++) {
+      var dp = toScreen(pathPoints[v]);
+      var dotAge = (currentSeg - v) / pathPoints.length;
+      var dotAlpha = 0.4 + 0.6 * (1 - dotAge);
 
-      // Interpolate end point
-      var partialEnd = {
-        x: fromP.x + (toP.x - fromP.x) * partialFraction,
-        y: fromP.y + (toP.y - fromP.y) * partialFraction
-      };
-      drawLine(fromP, partialEnd, partialFraction);
+      // Soft glow
+      ctx.save();
+      ctx.globalAlpha = ctx.globalAlpha * dotAlpha * 0.15;
+      ctx.beginPath();
+      ctx.arc(dp.x, dp.y, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.restore();
 
-      // Leading dot (the one being drawn to)
-      if (partialFraction > 0.3) {
-        drawDot(partialEnd, 3, partialFraction);
+      // Solid dot
+      ctx.save();
+      ctx.globalAlpha = ctx.globalAlpha * dotAlpha;
+      ctx.beginPath();
+      ctx.arc(dp.x, dp.y, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // ── Emit trail particles from the leading light ──
+    if (traceProgress < 1) {
+      var emitInterval = totalPathLen / 200; // ~200 particles over the full path
+      while (lastEmitDist < traceDist) {
+        lastEmitDist += emitInterval;
+        if (lastEmitDist > traceDist) break;
+        var ep = posAtDist(lastEmitDist);
+        particles.push({
+          x: ep.x, y: ep.y,
+          life: 1.0,
+          vx: (Math.random() - 0.5) * 0.002,
+          vy: (Math.random() - 0.5) * 0.002
+        });
       }
     }
 
-    // Draw revealed dots
-    var dotKeys = Object.keys(revealedDots);
-    for (var d = 0; d < dotKeys.length; d++) {
-      var idx = parseInt(dotKeys[d], 10);
-      var pos = worldPos(idx);
-      drawDot(pos, 3, 1);
+    // ── Update & draw trail particles ──
+    for (var p = particles.length - 1; p >= 0; p--) {
+      var pt = particles[p];
+      pt.life -= 0.015;
+      pt.x += pt.vx;
+      pt.y += pt.vy;
+      if (pt.life <= 0) {
+        particles.splice(p, 1);
+        continue;
+      }
+      var sp = toScreen(pt);
+      ctx.save();
+      ctx.globalAlpha = ctx.globalAlpha * pt.life * 0.4;
+      ctx.beginPath();
+      ctx.arc(sp.x, sp.y, 1.5 * pt.life, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.restore();
     }
 
-    // Three-dot logo pulse at center when nearly done
-    if (progress > 0.85) {
-      var logoAlpha = (progress - 0.85) / 0.15;
+    // ── Leading light (the "shooting star") ──
+    if (traceProgress < 1) {
+      var leadPos = toScreen(posAtDist(traceDist));
+
+      // Outer glow
+      var grad = ctx.createRadialGradient(leadPos.x, leadPos.y, 0, leadPos.x, leadPos.y, 24);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+      grad.addColorStop(0.3, 'rgba(255, 255, 255, 0.15)');
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.beginPath();
+      ctx.arc(leadPos.x, leadPos.y, 24, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Bright core
+      ctx.beginPath();
+      ctx.arc(leadPos.x, leadPos.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+    }
+
+    // ── Three-dot logo (fades in near completion) ──
+    var logoStart = 0.80;
+    if (traceProgress > logoStart) {
+      var logoAlpha = (traceProgress - logoStart) / (1 - logoStart);
       drawThreeDotLogo(logoAlpha);
     }
 
-    // Trigger fade-out after full draw
-    if (progress >= 1 && !fadingOut) {
-      setTimeout(function () { fadingOut = true; }, 600);
+    // ── Trigger fade-out after hold ──
+    if (traceProgress >= 1 && !fadingOut) {
+      if (elapsed > TRACE_DURATION + HOLD_DURATION) {
+        fadingOut = true;
+      }
     }
 
     ctx.globalAlpha = 1;
     scheduleFrame();
   }
 
-  function drawLine(from, to, opacity) {
-    ctx.save();
-    ctx.globalAlpha = ctx.globalAlpha * Math.max(0.4, opacity);
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.strokeStyle = LINE_COLOR;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  function drawDot(pos, radius, opacity) {
-    ctx.save();
-    // Glow
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, radius * 3, 0, Math.PI * 2);
-    ctx.fillStyle = DOT_GLOW;
-    ctx.fill();
-
-    // Solid dot
-    ctx.globalAlpha = ctx.globalAlpha * opacity;
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
-    ctx.fillStyle = ACCENT;
-    ctx.fill();
-    ctx.restore();
-  }
-
   function drawThreeDotLogo(alpha) {
-    var savedAlpha = ctx.globalAlpha;
-    ctx.globalAlpha = savedAlpha * alpha;
+    ctx.save();
+    ctx.globalAlpha = ctx.globalAlpha * alpha;
 
     var dotR = 5;
     var gap = 16;
-    var logoY = cy + scale * 0.65;
+    var logoY = cy + scale * 0.60;
 
     // Three dots
     for (var i = -1; i <= 1; i++) {
       ctx.beginPath();
       ctx.arc(cx + i * gap, logoY, dotR, 0, Math.PI * 2);
-      ctx.fillStyle = ACCENT;
+      ctx.fillStyle = '#ffffff';
       ctx.fill();
     }
 
@@ -236,31 +306,29 @@
     ctx.lineTo(cx - dotR, logoY);
     ctx.moveTo(cx + dotR, logoY);
     ctx.lineTo(cx + gap - dotR, logoY);
-    ctx.strokeStyle = ACCENT;
+    ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2;
     ctx.stroke();
 
     // "Ask Elijah" text
     ctx.font = "300 14px 'Cormorant Garamond', serif";
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.fillText('Ask Elijah', cx, logoY + 28);
 
-    ctx.globalAlpha = savedAlpha;
+    ctx.restore();
   }
 
   // ── Kick off ──
-  // Don't show auth until animation finishes
   var authScreen = document.getElementById('auth-screen');
   if (authScreen) authScreen.classList.remove('visible');
 
-  // Use rAF with setTimeout fallback for background tabs
+  // rAF with setTimeout fallback for background tabs
   function scheduleFrame() {
     var scheduled = false;
     requestAnimationFrame(function (ts) {
       if (!scheduled) { scheduled = true; draw(ts); }
     });
-    // Fallback if rAF doesn't fire within 50ms (background tab)
     setTimeout(function () {
       if (!scheduled) { scheduled = true; draw(performance.now()); }
     }, 50);
