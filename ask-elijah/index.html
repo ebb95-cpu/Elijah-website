@@ -159,9 +159,13 @@
 
     <!-- Typing indicator -->
     <div id="typing-indicator">
-      <span class="typing-dot"></span>
-      <span class="typing-dot"></span>
-      <span class="typing-dot"></span>
+      <svg class="typing-dots-svg" viewBox="0 0 44 12" width="44" height="12" fill="none">
+        <circle class="typing-dot-circle typing-dot-1" cx="6" cy="6" r="3" fill="#e8573a"/>
+        <circle class="typing-dot-circle typing-dot-2" cx="22" cy="6" r="3" fill="#e8573a"/>
+        <circle class="typing-dot-circle typing-dot-3" cx="38" cy="6" r="3" fill="#e8573a"/>
+        <line class="typing-line" x1="9" y1="6" x2="19" y2="6" stroke="#e8573a" stroke-width="2" stroke-linecap="round"/>
+        <line class="typing-line" x1="25" y1="6" x2="35" y2="6" stroke="#e8573a" stroke-width="2" stroke-linecap="round"/>
+      </svg>
     </div>
 
     <!-- Input bar -->

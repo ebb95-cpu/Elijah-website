@@ -462,27 +462,40 @@
   color: #fff;
 }
 
-/* Typing indicator */
+/* Typing indicator — three dots with connecting line */
 .conv-typing {
   display: flex;
-  gap: 4px;
   padding: 10px 14px;
 }
 
-.conv-typing-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #555;
-  animation: typingBounce 1.2s infinite;
+.conv-typing .typing-dots-svg .typing-line {
+  stroke-dasharray: 32;
+  stroke-dashoffset: 32;
+  animation: convLineDraw 2s ease-in-out infinite;
 }
 
-.conv-typing-dot:nth-child(2) { animation-delay: .2s; }
-.conv-typing-dot:nth-child(3) { animation-delay: .4s; }
+.conv-typing .typing-dot-circle {
+  opacity: 0.3;
+}
 
-@keyframes typingBounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: .4; }
-  30% { transform: translateY(-4px); opacity: 1; }
+.conv-typing .typing-dot-1 { animation: convDotFade 2s ease-in-out infinite; }
+.conv-typing .typing-dot-2 { animation: convDotFade 2s ease-in-out 0.3s infinite; }
+.conv-typing .typing-dot-3 { animation: convDotFade 2s ease-in-out 0.6s infinite; }
+
+@keyframes convLineDraw {
+  0% { stroke-dashoffset: 32; opacity: 0; }
+  10% { opacity: 1; }
+  50% { stroke-dashoffset: 0; opacity: 1; }
+  80% { stroke-dashoffset: 0; opacity: 0; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes convDotFade {
+  0% { opacity: 0.3; }
+  30% { opacity: 1; }
+  60% { opacity: 1; }
+  80% { opacity: 0.3; }
+  100% { opacity: 0.3; }
 }
 
 /* Source pills in preview */

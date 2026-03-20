@@ -568,7 +568,7 @@ async function sendPreviewMessage(text) {
 
   // Show typing indicator
   var $msgs = document.getElementById('conv-thread-messages');
-  $msgs.innerHTML += '<div class="conv-msg ai" id="preview-typing"><div class="conv-msg-bubble"><div class="conv-typing"><span class="conv-typing-dot"></span><span class="conv-typing-dot"></span><span class="conv-typing-dot"></span></div></div></div>';
+  $msgs.innerHTML += '<div class="conv-msg ai" id="preview-typing"><div class="conv-msg-bubble"><div class="conv-typing"><svg class="typing-dots-svg" viewBox="0 0 44 12" width="44" height="12" fill="none"><circle class="typing-dot-circle typing-dot-1" cx="6" cy="6" r="3" fill="#e8573a"/><circle class="typing-dot-circle typing-dot-2" cx="22" cy="6" r="3" fill="#e8573a"/><circle class="typing-dot-circle typing-dot-3" cx="38" cy="6" r="3" fill="#e8573a"/><line class="typing-line" x1="9" y1="6" x2="19" y2="6" stroke="#e8573a" stroke-width="2" stroke-linecap="round"/><line class="typing-line" x1="25" y1="6" x2="35" y2="6" stroke="#e8573a" stroke-width="2" stroke-linecap="round"/></svg></div></div></div>';
   $msgs.scrollTop = $msgs.scrollHeight;
 
   // Build history for API (last 10 messages)
