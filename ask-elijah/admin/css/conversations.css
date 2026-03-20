@@ -602,3 +602,81 @@
     flex-direction: column;
   }
 }
+
+/* ============================================================
+   Inline Edit — matches chat bubble design, no white popup
+   ============================================================ */
+.conv-msg-bubble.editing {
+  padding: 0;
+  background: transparent;
+}
+
+.conv-edit-textarea {
+  width: 100%;
+  min-height: 60px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  color: #e0e0e0;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 12px 14px;
+  resize: vertical;
+  outline: none;
+  transition: border-color .15s;
+  box-sizing: border-box;
+}
+
+.conv-edit-textarea:focus {
+  border-color: #e8573a;
+}
+
+.conv-edit-textarea::placeholder {
+  color: #555;
+}
+
+.conv-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.conv-edit-save {
+  background: #e8573a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.conv-edit-save:hover { background: #d04a30; }
+
+.conv-edit-cancel {
+  background: transparent;
+  color: #888;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.conv-edit-cancel:hover { color: #ccc; border-color: #555; }
+
+.conv-edit-saving {
+  color: #888;
+  font-size: 13px;
+  padding: 12px;
+  text-align: center;
+}
+
+.conv-add-container {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #2a2a2a;
+}

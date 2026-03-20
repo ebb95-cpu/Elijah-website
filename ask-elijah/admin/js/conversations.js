@@ -297,17 +297,67 @@ async function sendReply() {
   }
 }
 
-// ── Edit answer ──
+// ── Edit answer (inline, no white popup) ──
 window.editAnswer = function (questionId) {
-  var newAnswer = prompt('Edit the AI response:');
-  if (!newAnswer) return;
+  // Find the bubble for this question's AI response
+  var btn = document.querySelector('[onclick="editAnswer(\'' + questionId + '\')"]');
+  if (!btn) return;
+  var msgDiv = btn.closest('.conv-msg');
+  if (!msgDiv) return;
+  var bubble = msgDiv.querySelector('.conv-msg-bubble');
+  if (!bubble) return;
 
-  sb.from('questions')
-    .update({ response_text: newAnswer })
-    .eq('id', questionId)
-    .then(function () {
-      renderThread(convState.selectedUserId);
-    });
+  // Get current text (strip HTML tags to get plain text)
+  var currentText = bubble.textContent || bubble.innerText;
+
+  // Replace bubble with inline textarea
+  var originalHtml = bubble.innerHTML;
+  bubble.innerHTML = '';
+  bubble.classList.add('editing');
+
+  var textarea = document.createElement('textarea');
+  textarea.className = 'conv-edit-textarea';
+  textarea.value = currentText;
+  textarea.rows = Math.min(12, Math.max(3, currentText.split('\n').length + 1));
+  bubble.appendChild(textarea);
+
+  var actions = document.createElement('div');
+  actions.className = 'conv-edit-actions';
+  actions.innerHTML = '<button class="conv-edit-save">Save</button><button class="conv-edit-cancel">Cancel</button>';
+  bubble.appendChild(actions);
+
+  textarea.focus();
+  textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+  // Save
+  actions.querySelector('.conv-edit-save').addEventListener('click', function () {
+    var newText = textarea.value.trim();
+    if (!newText) return;
+
+    bubble.classList.remove('editing');
+    bubble.innerHTML = '<div class="conv-edit-saving">Saving...</div>';
+
+    sb.from('questions')
+      .update({ response_text: newText })
+      .eq('id', questionId)
+      .then(function () {
+        renderThread(convState.selectedUserId);
+      });
+  });
+
+  // Cancel
+  actions.querySelector('.conv-edit-cancel').addEventListener('click', function () {
+    bubble.classList.remove('editing');
+    bubble.innerHTML = originalHtml;
+  });
+
+  // Escape to cancel
+  textarea.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      bubble.classList.remove('editing');
+      bubble.innerHTML = originalHtml;
+    }
+  });
 };
 
 // ── Format AI response with citations ──
@@ -519,19 +569,97 @@ function handlePreviewAction(msgIdx, action, btnEl) {
       btnEl.style.color = '';
     }
   } else if (action === 'edit') {
-    var newText = prompt('Edit the AI response:', msg.text);
-    if (newText && newText !== msg.text) {
-      msg.text = newText;
-      msg.edited = true;
+    // Inline edit — replace bubble with textarea
+    var msgEl = btnEl.closest('.conv-msg');
+    if (!msgEl) return;
+    var bubble = msgEl.querySelector('.conv-msg-bubble');
+    if (!bubble) return;
+
+    var originalHtml = bubble.innerHTML;
+    bubble.innerHTML = '';
+    bubble.classList.add('editing');
+
+    var textarea = document.createElement('textarea');
+    textarea.className = 'conv-edit-textarea';
+    textarea.value = msg.text;
+    textarea.rows = Math.min(12, Math.max(3, msg.text.split('\n').length + 1));
+    bubble.appendChild(textarea);
+
+    var editActions = document.createElement('div');
+    editActions.className = 'conv-edit-actions';
+    editActions.innerHTML = '<button class="conv-edit-save">Save</button><button class="conv-edit-cancel">Cancel</button>';
+    bubble.appendChild(editActions);
+
+    textarea.focus();
+
+    editActions.querySelector('.conv-edit-save').addEventListener('click', function () {
+      var newText = textarea.value.trim();
+      if (newText && newText !== msg.text) {
+        msg.text = newText;
+        msg.edited = true;
+      }
+      bubble.classList.remove('editing');
       renderPreviewMessages();
-    }
+    });
+
+    editActions.querySelector('.conv-edit-cancel').addEventListener('click', function () {
+      bubble.classList.remove('editing');
+      bubble.innerHTML = originalHtml;
+    });
+
+    textarea.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        bubble.classList.remove('editing');
+        bubble.innerHTML = originalHtml;
+      }
+    });
+    return; // Don't re-render while editing
   } else if (action === 'add') {
-    var addition = prompt('Add to this response:');
-    if (addition) {
-      msg.text = msg.text + '\n\n' + addition;
-      msg.edited = true;
-      renderPreviewMessages();
-    }
+    // Inline add — show textarea below the bubble
+    var msgEl2 = btnEl.closest('.conv-msg');
+    if (!msgEl2) return;
+    var bubble2 = msgEl2.querySelector('.conv-msg-bubble');
+    if (!bubble2) return;
+
+    // Check if already adding
+    if (bubble2.querySelector('.conv-edit-textarea')) return;
+
+    var addContainer = document.createElement('div');
+    addContainer.className = 'conv-add-container';
+
+    var addTextarea = document.createElement('textarea');
+    addTextarea.className = 'conv-edit-textarea';
+    addTextarea.placeholder = 'Add to this response...';
+    addTextarea.rows = 3;
+    addContainer.appendChild(addTextarea);
+
+    var addActions = document.createElement('div');
+    addActions.className = 'conv-edit-actions';
+    addActions.innerHTML = '<button class="conv-edit-save">Add</button><button class="conv-edit-cancel">Cancel</button>';
+    addContainer.appendChild(addActions);
+
+    bubble2.appendChild(addContainer);
+    addTextarea.focus();
+
+    addActions.querySelector('.conv-edit-save').addEventListener('click', function () {
+      var addition = addTextarea.value.trim();
+      if (addition) {
+        msg.text = msg.text + '\n\n' + addition;
+        msg.edited = true;
+        renderPreviewMessages();
+      } else {
+        addContainer.remove();
+      }
+    });
+
+    addActions.querySelector('.conv-edit-cancel').addEventListener('click', function () {
+      addContainer.remove();
+    });
+
+    addTextarea.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') addContainer.remove();
+    });
+    return;
   }
 }
 
