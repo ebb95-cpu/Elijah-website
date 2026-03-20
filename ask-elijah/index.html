@@ -121,13 +121,38 @@
     </div>
   </div>
 
-  <!-- ── PAYWALL OVERLAY ── -->
+  <!-- ── BETA LIMIT OVERLAY ── -->
   <div id="paywall-overlay">
-    <div id="paywall-card">
-      <h2 class="paywall-title">You've used all your free questions</h2>
-      <p class="paywall-sub">Join the Consistency Club for unlimited access</p>
-      <a href="https://yourplaybook.beehiiv.com" target="_blank" rel="noopener" class="paywall-cta">Join the Consistency Club</a>
-      <p class="paywall-footer">Or check back later for more free questions</p>
+    <div id="paywall-card" class="beta-card">
+      <div class="beta-logo">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none"><circle cx="4" cy="12" r="2.5" fill="#e8573a"/><circle cx="12" cy="12" r="2.5" fill="#e8573a"/><circle cx="20" cy="12" r="2.5" fill="#e8573a"/><line x1="6.5" y1="12" x2="9.5" y2="12" stroke="#e8573a" stroke-width="1.5"/><line x1="14.5" y1="12" x2="17.5" y2="12" stroke="#e8573a" stroke-width="1.5"/></svg>
+      </div>
+      <span class="beta-badge">BETA</span>
+      <h2 class="beta-title">You've used your 3 free questions</h2>
+      <p class="beta-sub">Ask Elijah is still in beta mode, so it's limited to 3 questions per user right now.</p>
+      <p class="beta-sub">To unlock 3 more questions, share with someone you think could benefit from it.</p>
+
+      <!-- Feedback -->
+      <div class="beta-feedback">
+        <label class="beta-feedback-label">Before you go — what could be better?</label>
+        <textarea id="beta-feedback-input" class="beta-feedback-input" rows="3" placeholder="Any feedback helps us improve..."></textarea>
+      </div>
+
+      <!-- Share buttons -->
+      <div class="beta-share-section">
+        <button class="beta-share-btn" id="beta-share-btn" onclick="window.__betaShare()">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share &amp; Unlock 3 More Questions
+        </button>
+        <div class="beta-share-options" id="beta-share-options" style="display:none">
+          <button class="beta-share-option" data-platform="copy">Copy Link</button>
+          <button class="beta-share-option" data-platform="sms">Text</button>
+          <button class="beta-share-option" data-platform="twitter">X</button>
+          <button class="beta-share-option" data-platform="whatsapp">WhatsApp</button>
+        </div>
+      </div>
+
+      <p class="beta-tagline">Faith + Consistency</p>
     </div>
   </div>
 

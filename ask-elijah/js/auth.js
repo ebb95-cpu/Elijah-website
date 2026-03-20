@@ -271,7 +271,7 @@
     var user = window.__askUser;
     if (!user || !supabase) return;
 
-    var questionsRemaining = onboardingData.bonus ? 7 : 6;
+    var questionsRemaining = onboardingData.bonus ? 4 : 3;
 
     // Auto-detect location + language
     var language = (navigator.language || navigator.userLanguage || 'en').substring(0, 2);

@@ -33,9 +33,94 @@
     }
   }
 
-  // ── Show paywall ──
+  // ── Show beta limit popup ──
   function showPaywall() {
     if (paywallOverlay) paywallOverlay.classList.add('visible');
+  }
+
+  // ── Beta share flow ──
+  window.__betaShare = function () {
+    var shareOptions = document.getElementById('beta-share-options');
+    if (shareOptions) {
+      // If native Web Share API is available, use it directly
+      if (navigator.share) {
+        var shareUrl = window.location.origin + '/ask-elijah/profile.html';
+        navigator.share({
+          title: 'Ask Elijah',
+          text: 'Get real answers from Elijah Bryant — faith, training, mindset, consistency.',
+          url: shareUrl
+        }).then(function () {
+          submitFeedbackAndUnlock();
+        }).catch(function () {
+          // User cancelled share — show manual options
+          shareOptions.style.display = 'flex';
+        });
+      } else {
+        shareOptions.style.display = 'flex';
+      }
+    }
+  };
+
+  // Bind share option buttons
+  document.querySelectorAll('.beta-share-option').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var platform = btn.dataset.platform;
+      var shareUrl = encodeURIComponent(window.location.origin + '/ask-elijah/profile.html');
+      var shareText = encodeURIComponent('Get real answers from Elijah Bryant — faith, training, mindset, consistency.');
+      var url = '';
+
+      if (platform === 'copy') {
+        navigator.clipboard.writeText(window.location.origin + '/ask-elijah/profile.html');
+        btn.textContent = 'Copied!';
+        setTimeout(function () { submitFeedbackAndUnlock(); }, 800);
+        return;
+      } else if (platform === 'sms') {
+        url = 'sms:?body=' + shareText + '%20' + shareUrl;
+      } else if (platform === 'twitter') {
+        url = 'https://twitter.com/intent/tweet?url=' + shareUrl + '&text=' + shareText;
+      } else if (platform === 'whatsapp') {
+        url = 'https://wa.me/?text=' + shareText + '%20' + shareUrl;
+      }
+
+      if (url) window.open(url, '_blank');
+      // Give them credit after clicking share
+      setTimeout(function () { submitFeedbackAndUnlock(); }, 1500);
+    });
+  });
+
+  function submitFeedbackAndUnlock() {
+    var feedbackInput = document.getElementById('beta-feedback-input');
+    var feedback = feedbackInput ? feedbackInput.value.trim() : '';
+    var user = window.__askUser || {};
+
+    // Save feedback + grant 3 more questions via backend
+    fetch('/.netlify/functions/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'beta-share',
+        userId: user.id || null,
+        feedback: feedback
+      })
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data.questionsGranted) {
+        questionsRemaining = data.questionsRemaining || 3;
+        updateQuotaDisplay();
+      }
+      // Close overlay
+      if (paywallOverlay) paywallOverlay.classList.remove('visible');
+      // Show confirmation
+      appendMessage('ai', 'Thanks for sharing! You\'ve unlocked 3 more questions. Faith + Consistency.');
+    })
+    .catch(function () {
+      // Grant locally even if API fails
+      questionsRemaining = 3;
+      updateQuotaDisplay();
+      if (paywallOverlay) paywallOverlay.classList.remove('visible');
+      appendMessage('ai', 'Thanks for sharing! You\'ve unlocked 3 more questions. Faith + Consistency.');
+    });
   }
 
   // ── Fetch current quota from Supabase ──

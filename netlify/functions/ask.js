@@ -165,6 +165,11 @@ exports.handler = async function (event) {
     return handleNotifyOptIn(body);
   }
 
+  // Handle beta share — grant 3 more questions + save feedback
+  if (body.action === 'beta-share') {
+    return handleBetaShare(body);
+  }
+
   const { message, history, userId } = body;
 
   if (!message) {
@@ -299,6 +304,70 @@ exports.handler = async function (event) {
     return respond(500, { error: 'Something went wrong. Please try again.' });
   }
 };
+
+// ── Handle beta share — grant 3 more questions + save feedback ──
+async function handleBetaShare(body) {
+  const { userId, feedback } = body;
+  if (!userId) {
+    return respond(400, { error: 'Missing userId' });
+  }
+
+  try {
+    // Check how many times they've already shared (limit to 3 share rounds = 9 bonus questions)
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('questions_remaining, share_count')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    const shareCount = (profile && profile.share_count) || 0;
+    const currentRemaining = (profile && profile.questions_remaining) || 0;
+
+    if (shareCount >= 3) {
+      return respond(200, {
+        questionsGranted: false,
+        questionsRemaining: currentRemaining,
+        message: 'Maximum share bonus reached'
+      });
+    }
+
+    const newRemaining = currentRemaining + 3;
+    const newShareCount = shareCount + 1;
+
+    // Update profile with new questions + share count
+    await supabase
+      .from('user_profiles')
+      .update({
+        questions_remaining: newRemaining,
+        share_count: newShareCount
+      })
+      .eq('user_id', userId);
+
+    // Save feedback if provided
+    if (feedback && feedback.trim()) {
+      await supabase
+        .from('questions')
+        .insert({
+          user_id: userId,
+          question_text: '[BETA FEEDBACK] ' + feedback.trim(),
+          response_text: '',
+          sources_used: '[]',
+          confidence: 1,
+          status: 'feedback',
+          notify_user: false
+        }).catch(function () {});
+    }
+
+    return respond(200, {
+      questionsGranted: true,
+      questionsRemaining: newRemaining,
+      shareCount: newShareCount
+    });
+  } catch (err) {
+    console.error('Beta share error:', err);
+    return respond(500, { error: 'Failed to process share' });
+  }
+}
 
 // ── Handle notification opt-in ──
 async function handleNotifyOptIn(body) {
