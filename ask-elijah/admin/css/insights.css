@@ -1,50 +1,78 @@
 /* ============================================================
    Insights Page — Ask Elijah Admin
+   Pixel-perfect spec: #141410 page bg, #1c1c18 content panel
    ============================================================ */
+
+/* ── Override page + panel backgrounds ── */
+.insights-page .app-shell {
+  background: #141410;
+}
+.insights-page .main-content {
+  background: #1c1c18;
+  border-radius: 14px;
+  margin: 8px 8px 8px 0;
+}
+
+/* ── Insights panel container ── */
+.insights-panel {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
 /* ── Profile photo at top ── */
 .insight-profile-photo {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #222;
+  background: #222220;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+  margin: 0 auto 8px;
   font-size: 16px;
   font-weight: 700;
-  color: #888;
+  color: #888884;
   border: 2px solid #333;
 }
 
-/* ── Greeting override for insights page ── */
+.insight-profile-name {
+  text-align: center;
+  font-size: 13px;
+  color: #aaaaaa;
+  margin-bottom: 20px;
+}
+
+/* ── Greeting ── */
 .insight-greeting {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  padding: 0;
 }
 
 .insight-greeting-text {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 600;
-  color: #fff;
+  color: #ffffff;
 }
 
 .insight-share-btn {
-  background: #2a2a2a;
+  width: 90px;
+  height: 36px;
+  background: #2a2a26;
   border: none;
-  color: #fff;
-  font-size: 13px;
-  padding: 8px 20px;
-  border-radius: 20px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 400;
+  border-radius: 18px;
   cursor: pointer;
-  transition: all .15s;
+  transition: background .15s;
 }
 
 .insight-share-btn:hover {
-  background: #333;
+  background: #333330;
 }
 
 /* ── Share Modal ── */
@@ -59,7 +87,7 @@
 }
 
 .share-modal {
-  background: #1a1a1a;
+  background: #1c1c18;
   border-radius: 20px;
   padding: 32px;
   width: 380px;
@@ -67,23 +95,21 @@
   text-align: center;
 }
 
-.share-modal-qr {
-  margin-bottom: 20px;
-}
+.share-modal-qr { margin-bottom: 20px; }
 
 .qr-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 16px;
-  background: #111;
+  padding: 20px;
+  background: #141410;
   border-radius: 12px;
 }
 
 .qr-url {
   font-size: 10px;
-  color: #555;
+  color: #555550;
   word-break: break-all;
 }
 
@@ -96,7 +122,7 @@
 
 .share-modal-desc {
   font-size: 14px;
-  color: #666;
+  color: #666660;
   line-height: 1.5;
   margin-bottom: 20px;
 }
@@ -104,7 +130,7 @@
 .share-modal-url {
   display: flex;
   align-items: center;
-  background: #111;
+  background: #141410;
   border: 1px solid #333;
   border-radius: 24px;
   padding: 10px 12px 10px 16px;
@@ -125,7 +151,7 @@
 .share-copy-btn {
   background: transparent;
   border: none;
-  color: #888;
+  color: #888884;
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -141,9 +167,7 @@
   stroke-linejoin: round;
 }
 
-.share-copy-btn:hover {
-  color: #fff;
-}
+.share-copy-btn:hover { color: #fff; }
 
 .share-social-row {
   display: flex;
@@ -155,9 +179,9 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #222;
+  background: #222220;
   border: none;
-  color: #aaa;
+  color: #888884;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -178,52 +202,80 @@
   color: #fff;
 }
 
-/* ── Enhanced Checklist ── */
+/* ── Onboarding Checklist Card ── */
+.insight-checklist {
+  background: #222220;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.insight-checklist-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+}
+
 .checklist-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: #3b82f6;
   color: #fff;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
-  margin-right: 8px;
   flex-shrink: 0;
 }
 
+.insight-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
 .insight-check-item.pending {
-  background: #151515;
+  background: #1a1a16;
   border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 6px;
+  padding: 16px 20px;
+  margin-top: 12px;
   cursor: pointer;
   transition: background .15s;
 }
 
 .insight-check-item.pending:hover {
-  background: #1a1a1a;
+  background: #1e1e1a;
 }
 
 .check-item-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .check-item-label {
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   color: #fff;
+}
+
+.check-item-desc {
+  font-size: 13px;
+  color: #888884;
 }
 
 .checklist-toggle {
   background: transparent;
   border: none;
-  color: #666;
+  color: #888884;
   font-size: 13px;
-  padding: 8px 0;
+  padding: 12px 0 0;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -231,9 +283,7 @@
   transition: color .15s;
 }
 
-.checklist-toggle:hover {
-  color: #aaa;
-}
+.checklist-toggle:hover { color: #aaa; }
 
 .checklist-toggle-arrow {
   font-size: 14px;
@@ -251,8 +301,36 @@
 }
 
 .insight-check-item.done {
-  color: #555;
-  text-decoration: none;
+  height: 34px;
+  color: #aaaaaa;
+  font-size: 14px;
+}
+
+.insight-check-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Conversations Chart Card ── */
+.insight-section {
+  background: #222220;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.insight-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.insight-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
 }
 
 /* ── Metric Selector Dropdown ── */
@@ -264,25 +342,22 @@
 .insight-metric-btn {
   background: transparent;
   border: none;
-  color: #888;
-  font-size: 12px;
+  color: #fff;
+  font-size: 15px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
   cursor: pointer;
   padding: 0;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   transition: color .15s;
 }
 
-.insight-metric-btn:hover {
-  color: #ccc;
-}
+.insight-metric-btn:hover { color: #ccc; }
 
 .metric-chevron {
-  font-size: 10px;
+  font-size: 12px;
+  color: #888884;
 }
 
 .insight-metric-dropdown {
@@ -290,17 +365,16 @@
   position: absolute;
   top: 100%;
   left: 0;
-  background: #1a1a1a;
-  border-radius: 10px;
+  margin-top: 4px;
+  background: #2a2a26;
+  border-radius: 12px;
   padding: 4px;
-  min-width: 200px;
+  min-width: 180px;
   z-index: 10;
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
 
-.insight-metric-dropdown.open {
-  display: block;
-}
+.insight-metric-dropdown.open { display: block; }
 
 .metric-option {
   display: block;
@@ -316,18 +390,73 @@
   transition: background .1s;
 }
 
-.metric-option:hover {
-  background: #222;
+.metric-option:hover { background: #333; }
+.metric-option.active { color: #fff; }
+
+/* ── Big number ── */
+.insight-big-num {
+  font-size: 52px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.1;
+  margin-top: 8px;
 }
 
-.metric-option.active {
-  color: #fff;
+/* ── Change indicator ── */
+.insight-change {
+  font-size: 14px;
+  font-weight: 500;
+}
+.insight-change.positive { color: #22c55e; }
+.insight-change.negative { color: #ef4444; }
+.insight-change.neutral { color: #888884; }
+
+/* ── Filters column ── */
+.insight-filters-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.insight-select {
+  background: #2a2a26;
+  border: none;
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 13px;
+  padding: 8px 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+.insight-select:hover { background: #333; }
+
+/* ── Chart ── */
+.insight-chart {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  min-height: 170px;
+}
+
+.insight-chart-svg {
+  width: 100%;
+  height: 170px;
+}
+
+.insight-chart-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0 0;
+  font-size: 12px;
+  color: #888884;
 }
 
 /* ── Chart Tooltip ── */
 .chart-tooltip {
   position: absolute;
-  background: #222;
+  background: #2a2a26;
   color: #fff;
   font-size: 12px;
   padding: 6px 12px;
@@ -338,52 +467,41 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
-.chart-dot {
-  transition: r .1s;
-}
-
-.chart-dot-hit:hover ~ .chart-dot {
-  r: 6;
-}
-
-/* ── Filters column ── */
-.insight-filters-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
+.chart-dot { transition: r .15s; }
 
 /* ── Bottom row — side by side ── */
 .insight-bottom-row {
   display: grid;
-  grid-template-columns: 45fr 55fr;
-  gap: 12px;
+  grid-template-columns: 46fr 54fr;
+  gap: 16px;
   margin-bottom: 16px;
 }
 
-/* Mind Score card inner */
+/* ── Mind Score Card ── */
 .insight-mind-card {
   display: flex;
   flex-direction: column;
+  min-height: 290px;
 }
 
 .insight-mind-inner {
-  background: #0a0a0a;
+  background: #1a1a16;
   border-radius: 10px;
   padding: 16px 20px;
-  margin-bottom: 16px;
+  min-height: 110px;
+  margin-top: 12px;
+  margin-bottom: 14px;
 }
 
 .insight-mind-tier-label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
+  font-size: 13px;
+  color: #888884;
+  margin-bottom: 6px;
 }
 
 .insight-mind-score {
-  font-size: 36px;
-  font-weight: 800;
+  font-size: 34px;
+  font-weight: 700;
   color: #fff;
   line-height: 1;
 }
@@ -396,63 +514,152 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
-  color: #555;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-/* ── Analytics right card ── */
+.insight-mind-progress-labels span {
+  font-size: 12px;
+  color: #888884;
+}
+
+.insight-mind-progress-labels span:nth-child(2) {
+  font-size: 14px;
+  color: #888884;
+}
+
+.insight-mind-progress-labels span:last-child {
+  text-align: right;
+}
+
+.insight-progress-bar {
+  height: 6px;
+  background: #1e3a28;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.insight-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width .6s ease;
+}
+
+/* ── Analytics Card ── */
 .insight-analytics-card-right {
   display: flex;
   flex-direction: column;
+  min-height: 290px;
 }
 
 .insight-analytics-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .insight-analytics-period {
-  font-size: 11px;
-  color: #555;
+  font-size: 13px;
+  color: #888884;
+}
+
+.analytics-stats-container {
+  background: #1a1a16;
+  border-radius: 10px;
+  overflow: hidden;
+  flex: 1;
 }
 
 .analytics-stat-row {
-  background: #0a0a0a;
-  border-radius: 8px;
   padding: 14px 16px;
-  margin-bottom: 6px;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px;
 }
 
+.analytics-stat-row + .analytics-stat-row {
+  border-top: 1px solid #2a2a28;
+}
+
 .analytics-stat-label {
-  font-size: 11px;
-  color: #555;
+  font-size: 13px;
+  color: #888884;
   width: 100%;
   margin-bottom: 2px;
 }
 
 .analytics-stat-value {
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 700;
   color: #fff;
   line-height: 1;
 }
 
 .analytics-unit {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
-  color: #666;
+  color: #fff;
+  margin-right: 4px;
 }
 
 .analytics-stat-change {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 13px;
+  color: #888884;
+}
+
+/* ── Source Bars ── */
+.insight-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.insight-bar-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+}
+
+.insight-bar-label {
+  font-size: 13px;
+  color: #ccc;
+  text-align: right;
+}
+
+.insight-bar-track {
+  height: 22px;
+  background: #1a1a16;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.insight-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width .4s ease;
+  min-width: 4px;
+}
+
+.insight-bar-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #aaa;
+  text-align: right;
+}
+
+/* ── Loading ── */
+.insight-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 0;
+  color: #666660;
+  font-size: 14px;
 }
 
 /* ── Responsive ── */
@@ -462,7 +669,11 @@
   }
 
   .insight-greeting-text {
-    font-size: 22px;
+    font-size: 24px;
+  }
+
+  .insight-big-num {
+    font-size: 36px;
   }
 
   .share-modal {

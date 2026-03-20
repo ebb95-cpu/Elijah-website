@@ -131,6 +131,7 @@ function renderInsights() {
   var greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
 
   html += '<div class="insight-profile-photo"><span>EB</span></div>';
+  html += '<div class="insight-profile-name">Elijah Bryant</div>';
   html += '<div class="insight-greeting">';
   html += '<div class="insight-greeting-text">' + greeting + ', Elijah!</div>';
   html += '<button class="insight-share-btn" onclick="openShareModal()">Share</button>';
@@ -138,17 +139,18 @@ function renderInsights() {
 
   // ═══ 1. ONBOARDING CHECKLIST ═══
   var checkItems = [
-    { label: 'Profile Picture', done: true },
-    { label: 'Add Bio', done: true },
-    { label: 'Add Headline', done: true },
-    { label: 'Edit Suggested Questions', done: true },
-    { label: 'Set Initial Greeting', done: true },
-    { label: 'Make Your AI Public', done: true },
-    { label: 'Add your first Q&A', done: d.ingestionByType && (d.ingestionByType.qa > 0 || d.ingestionByType['q&a'] > 0) },
-    { label: 'Connect a YouTube channel', done: d.ingestionByType && d.ingestionByType.youtube > 0 },
-    { label: 'Add a newsletter source', done: d.ingestionByType && d.ingestionByType.newsletter > 0 },
-    { label: 'Upload a document', done: d.ingestionByType && d.ingestionByType.upload > 0 },
-    { label: 'Get your first conversation', done: d.conversations && d.conversations.current > 0 }
+    { label: 'Profile Picture', desc: 'Upload a profile photo.', done: true },
+    { label: 'Add Bio', desc: 'Write a short bio about yourself.', done: true },
+    { label: 'Add Headline', desc: 'Add a headline that describes what you do.', done: true },
+    { label: 'Edit Suggested Questions', desc: 'Customize the questions users see first.', done: true },
+    { label: 'Set Initial Greeting', desc: 'Write the first message users see.', done: true },
+    { label: 'Make Your AI Public', desc: 'Let people find and chat with your AI.', done: true },
+    { label: 'Record Voice', desc: 'Record a 10 second voice sample.', done: false },
+    { label: 'Add your first Q&A', desc: 'Create a question and answer pair.', done: d.ingestionByType && (d.ingestionByType.qa > 0 || d.ingestionByType['q&a'] > 0) },
+    { label: 'Connect a YouTube channel', desc: 'Import knowledge from your videos.', done: d.ingestionByType && d.ingestionByType.youtube > 0 },
+    { label: 'Add a newsletter source', desc: 'Connect your newsletter for auto-ingestion.', done: d.ingestionByType && d.ingestionByType.newsletter > 0 },
+    { label: 'Upload a document', desc: 'Upload a PDF or text file.', done: d.ingestionByType && d.ingestionByType.upload > 0 },
+    { label: 'Get your first conversation', desc: 'Have someone ask your AI a question.', done: d.conversations && d.conversations.current > 0 }
   ];
   var doneItems = checkItems.filter(function (c) { return c.done; });
   var pendingItems = checkItems.filter(function (c) { return !c.done; });
@@ -161,12 +163,14 @@ function renderInsights() {
     html += '<span>Complete your profile</span>';
     html += '</div>';
 
-    // Show pending items prominently
-    pendingItems.forEach(function (ci) {
+    // Show pending items prominently (only first one above fold)
+    pendingItems.forEach(function (ci, idx) {
+      if (idx > 0) return; // only show first pending prominently
       html += '<div class="insight-check-item pending">';
-      html += '<span class="insight-check-icon"><svg viewBox="0 0 24 24" width="18" height="18" stroke="#555" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></span>';
+      html += '<span class="insight-check-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#888884" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="15 5"/></svg></span>';
       html += '<div class="check-item-content">';
       html += '<span class="check-item-label">' + ci.label + '</span>';
+      if (ci.desc) html += '<span class="check-item-desc">' + ci.desc + '</span>';
       html += '</div>';
       html += '</div>';
     });
@@ -260,6 +264,8 @@ function renderInsights() {
   html += '<span class="insight-analytics-period">Last ' + insightsDays + ' days</span>';
   html += '</div>';
 
+  html += '<div class="analytics-stats-container">';
+
   // Active Visitors
   html += '<div class="analytics-stat-row">';
   html += '<div class="analytics-stat-label">Active Visitors</div>';
@@ -280,6 +286,8 @@ function renderInsights() {
   html += '<div class="analytics-stat-value">' + mins + ' <span class="analytics-unit">m</span> ' + secs + ' <span class="analytics-unit">s</span></div>';
   html += '<div class="analytics-stat-change">' + renderChangeInline(d.avgDuration.change) + '</div>';
   html += '</div>';
+
+  html += '</div>'; // end analytics-stats-container
 
   html += '</div>';
   html += '</div>'; // end bottom row
@@ -369,14 +377,14 @@ function renderChart(data) {
   // Dashed grid lines
   for (var g = 0; g <= 4; g++) {
     var gy = chartH - (g / 4) * chartH;
-    html += '<line x1="0" y1="' + gy + '" x2="' + chartW + '" y2="' + gy + '" stroke="#222" stroke-width="1" stroke-dasharray="4 4"/>';
+    html += '<line x1="0" y1="' + gy + '" x2="' + chartW + '" y2="' + gy + '" stroke="#2a2a28" stroke-width="1" stroke-dasharray="4 4"/>';
   }
 
   // Y-axis labels
   for (var g = 0; g <= 4; g++) {
     var gy = chartH - (g / 4) * chartH;
     var yVal = Math.round((g / 4) * maxVal);
-    html += '<text x="' + (chartW - 4) + '" y="' + (gy - 4) + '" fill="#444" font-size="8" text-anchor="end">' + yVal + '</text>';
+    html += '<text x="' + (chartW - 4) + '" y="' + (gy - 4) + '" fill="#555550" font-size="8" text-anchor="end">' + yVal + '</text>';
   }
 
   // Line path
@@ -385,18 +393,18 @@ function renderChart(data) {
     var y = chartH - (d.count / maxVal) * (chartH - 10);
     return x + ',' + y;
   });
-  html += '<polyline points="' + points.join(' ') + '" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  html += '<polyline points="' + points.join(' ') + '" fill="none" stroke="#4ade80" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
 
   // Area fill
   var areaPoints = '10,' + chartH + ' ' + points.join(' ') + ' ' + ((data.length - 1) * 20 + 10) + ',' + chartH;
   html += '<polygon points="' + areaPoints + '" fill="url(#insightGrad)" opacity="0.2"/>';
-  html += '<defs><linearGradient id="insightGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/></linearGradient></defs>';
+  html += '<defs><linearGradient id="insightGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#4ade80" stop-opacity="0"/></linearGradient></defs>';
 
   // Dots with hover targets
   data.forEach(function (d, i) {
     var x = i * 20 + 10;
     var y = chartH - (d.count / maxVal) * (chartH - 10);
-    html += '<circle cx="' + x + '" cy="' + y + '" r="4" fill="#2dd4bf" stroke="#0d0d0d" stroke-width="2" class="chart-dot" data-idx="' + i + '"/>';
+    html += '<circle cx="' + x + '" cy="' + y + '" r="4" fill="#4ade80" stroke="#1c1c18" stroke-width="2" class="chart-dot" data-idx="' + i + '"/>';
     // Invisible larger hit area
     html += '<circle cx="' + x + '" cy="' + y + '" r="12" fill="transparent" class="chart-dot-hit" data-idx="' + i + '" onmouseenter="showTooltip(event,' + i + ')" onmouseleave="hideTooltip()"/>';
   });
