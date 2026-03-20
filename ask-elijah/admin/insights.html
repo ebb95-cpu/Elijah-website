@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insights — Elijah Bryant Admin</title>
+  <link rel="stylesheet" href="/ask-elijah/admin/css/admin.css">
+  <link rel="stylesheet" href="/ask-elijah/admin/css/insights.css">
+</head>
+<body>
+
+  <div id="loading-screen">Verifying access…</div>
+
+  <div class="app-shell" id="app-shell" style="display:none">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-logo"><svg viewBox="0 0 24 24" width="24" height="24" fill="none"><circle cx="4" cy="12" r="2.5" fill="#e8573a"/><circle cx="12" cy="12" r="2.5" fill="#e8573a"/><circle cx="20" cy="12" r="2.5" fill="#e8573a"/><line x1="6.5" y1="12" x2="9.5" y2="12" stroke="#e8573a" stroke-width="1.5"/><line x1="14.5" y1="12" x2="17.5" y2="12" stroke="#e8573a" stroke-width="1.5"/></svg></div>
+
+      <a href="/ask-elijah/admin/" class="sidebar-icon" title="Knowledge">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+      </a>
+      <a href="/ask-elijah/admin/conversations.html" class="sidebar-icon" title="Conversations">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </a>
+      <button class="sidebar-icon accent" title="Create" id="sidebar-create-btn">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </button>
+      <a href="/ask-elijah/admin/audience.html" class="sidebar-icon" title="Audience">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </a>
+      <a href="/ask-elijah/admin/insights.html" class="sidebar-icon active" title="Insights">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </a>
+
+      <div class="sidebar-spacer"></div>
+
+      <button class="sidebar-icon" id="btn-more" title="More">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+
+      <div class="sidebar-dropdown" id="sidebar-dropdown">
+        <a class="sidebar-dropdown-item" href="/ask-elijah/admin/">Knowledge</a>
+        <a class="sidebar-dropdown-item" href="/ask-elijah/admin/conversations.html">Conversations</a>
+        <a class="sidebar-dropdown-item" href="/ask-elijah/admin/audience.html">Audience</a>
+        <a class="sidebar-dropdown-item" href="/ask-elijah/admin/insights.html" style="color:#fff">Insights</a>
+        <a class="sidebar-dropdown-item" href="/ask-elijah/admin/settings.html">Settings</a>
+        <button class="sidebar-dropdown-item" onclick="adminLogout()">Log Out</button>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" style="overflow-y:auto">
+      <div class="insights-panel" id="insights-panel">
+        <div class="insight-loading"><div class="spinner"></div>Loading insights...</div>
+      </div>
+    </main>
+
+    <!-- SHARE MODAL -->
+    <div class="share-modal-overlay" id="share-modal" style="display:none">
+      <div class="share-modal">
+        <div class="share-modal-qr" id="share-qr"></div>
+        <div class="share-modal-title">Share Ask Elijah</div>
+        <div class="share-modal-desc">Scale your presence. Share your Digital Mind with friends and colleagues.</div>
+        <div class="share-modal-url">
+          <span id="share-url-text"></span>
+          <button class="share-copy-btn" id="share-copy-btn" title="Copy link">
+            <svg viewBox="0 0 24 24" width="16" height="16"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <div class="share-social-row">
+          <button class="share-social-btn" data-platform="sms" title="Message">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+          <button class="share-social-btn" data-platform="twitter" title="X / Twitter">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 4l6.5 8L4 20h2l5.5-6.8L16 20h4l-6.8-8.4L19.5 4H18l-5 6.2L9 4H4z"/></svg>
+          </button>
+          <button class="share-social-btn" data-platform="linkedin" title="LinkedIn">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </button>
+          <button class="share-social-btn" data-platform="whatsapp" title="WhatsApp">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+          </button>
+          <button class="share-social-btn" data-platform="email" title="Email">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/ask-elijah/admin/js/insights.js"></script>
+</body>
+</html>
