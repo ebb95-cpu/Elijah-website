@@ -1,7 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mdfind -name npm)"
+      "Bash(mdfind -name npm)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(grep -r \"ask-elijah\\\\|chatgpt\\\\|openai\\\\|claude\\\\|anthropic\" /Users/elijahbryant/Desktop/Elijah-website/.claude/worktrees/interesting-torvalds --include=*.ts --include=*.tsx --include=*.js --include=*.json)",
+      "Bash(find /Users/elijahbryant/Desktop/Elijah-website/.claude/worktrees/interesting-torvalds/ask-elijah -type f ! -path */node_modules/* ! -path */.git/*)",
+      "Bash(grep -r \"YouTube\\\\|transcript\\\\|openai\\\\|anthropic\\\\|claude\\\\|apiKey\" /Users/elijahbryant/Desktop/Elijah-website/.claude/worktrees/interesting-torvalds --include=*.json --include=*.ts --include=*.tsx --include=*.js)",
+      "Bash(xargs -I {} find {} -type f -o -type d)",
+      "Read(//Users/elijahbryant/Desktop/Elijah-website/**)",
+      "Bash(git rebase:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)"
     ]
   }
 }

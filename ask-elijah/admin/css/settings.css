@@ -1,0 +1,218 @@
+/* ============================================================
+   Settings Page
+   ============================================================ */
+
+.settings-grid {
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 8px 0 40px;
+}
+
+.settings-section {
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.settings-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #666;
+  padding: 14px 20px 8px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-top: 1px solid #111;
+  gap: 16px;
+}
+
+.settings-row:first-child {
+  border-top: none;
+}
+
+.settings-section-title + .settings-row {
+  border-top: 1px solid #1e1e1e;
+}
+
+.settings-row-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-icon {
+  flex-shrink: 0;
+  color: #888;
+}
+
+.settings-row-icon svg {
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.settings-row-label {
+  font-size: 14px;
+  color: #fff;
+  font-weight: 400;
+}
+
+.settings-row-desc {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+/* Toggle switch */
+.settings-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #333;
+  border-radius: 24px;
+  transition: background .2s;
+}
+
+.settings-toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s;
+}
+
+.settings-toggle input:checked + .settings-toggle-slider {
+  background: #22c55e;
+}
+
+.settings-toggle input:checked + .settings-toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* Input */
+.settings-input {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 13px;
+  width: 180px;
+  outline: none;
+}
+
+.settings-input:focus {
+  border-color: #555;
+}
+
+/* Badge */
+.settings-badge {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: #1a1a1a;
+  color: #888;
+  border: 1px solid #333;
+}
+
+.settings-badge.accent {
+  background: rgba(232,87,58,.15);
+  color: #e8573a;
+  border-color: rgba(232,87,58,.3);
+}
+
+/* Visibility toggle */
+.settings-visibility-toggle {
+  display: flex;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.vis-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 12px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.vis-btn.active {
+  background: #fff;
+  color: #000;
+}
+
+.vis-btn:hover:not(.active) {
+  color: #ccc;
+}
+
+/* Button */
+.settings-btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #ccc;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.settings-btn:hover {
+  border-color: #555;
+  color: #fff;
+}
+
+.settings-btn.danger {
+  color: #ef4444;
+  border-color: rgba(239,68,68,.3);
+}
+
+.settings-btn.danger:hover {
+  background: rgba(239,68,68,.1);
+  border-color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .settings-input {
+    width: 100%;
+  }
+}

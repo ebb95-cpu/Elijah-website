@@ -274,6 +274,10 @@ function renderContent() {
     renderInsights();
     return;
   }
+  if (state.activeTab === 'feeds') {
+    renderFeeds();
+    return;
+  }
 
   var allItems = getFilteredItems();
   var folders = state.folders;
@@ -452,6 +456,60 @@ function renderGrid(folders, items) {
 }
 
 // ---- Insights view ----
+// ---- Feeds view ----
+function renderFeeds() {
+  // Filter for feed-type items (auto-syncing accounts)
+  var feedTypes = ['YouTube Channel', 'Newsletter', 'Twitter', 'Instagram', 'TikTok', 'Podcast Series'];
+  var feeds = state.items.filter(function (i) {
+    return feedTypes.indexOf(i.type) !== -1;
+  });
+
+  var html = '<div class="feeds-list">';
+
+  // Header
+  html += '<div class="feeds-header">';
+  html += '<span></span>';
+  html += '<span>Name</span>';
+  html += '<span>Last Synced</span>';
+  html += '<span></span>';
+  html += '</div>';
+
+  if (feeds.length === 0) {
+    html += '<div class="empty-state">No feeds connected. Click + to add an auto-syncing account.</div>';
+  }
+
+  var typeIcons = {
+    'YouTube Channel': '<svg viewBox="0 0 24 24" width="18" height="18"><polygon points="5 3 19 12 5 21 5 3"/></svg>',
+    'Newsletter': '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+    'Twitter': '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>',
+    'Instagram': '<svg viewBox="0 0 24 24" width="18" height="18"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg>',
+    'TikTok': '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>',
+    'Podcast Series': '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>'
+  };
+
+  feeds.forEach(function (feed) {
+    var icon = typeIcons[feed.type] || '';
+    var statusClass = feed.status === 'completed' ? 'green' : feed.status === 'processing' ? 'blue' : 'red';
+
+    html += '<div class="feeds-row">';
+    html += '<div class="feeds-icon">' + icon + '</div>';
+    html += '<div class="feeds-name">';
+    html += '<span class="row-status-dot ' + statusClass + '"></span>';
+    html += '<span>' + esc(feed.title) + '</span>';
+    html += '</div>';
+    html += '<div class="feeds-synced">' + formatDate(feed.updated_at) + '</div>';
+    html += '<div class="row-actions"><button class="row-actions-btn" onclick="toggleRowDropdown(event, this)">···</button>';
+    html += '<div class="row-dropdown">';
+    html += '<button class="row-dropdown-item" onclick="editItem(\'' + feed.id + '\')">Settings</button>';
+    html += '<button class="row-dropdown-item danger" onclick="deleteItem(\'' + feed.id + '\')">Delete</button>';
+    html += '</div></div>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  $contentArea.innerHTML = html;
+}
+
 var insightsData = null;
 var insightsDays = 30;
 
@@ -473,6 +531,36 @@ function renderInsights() {
 
   var d = insightsData;
   var html = '<div class="insights-panel">';
+
+  // ═══ 0. GREETING + ONBOARDING CHECKLIST ═══
+  var hour = new Date().getHours();
+  var greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+  html += '<div class="insight-greeting">';
+  html += '<div class="insight-greeting-text">' + greeting + ', Elijah!</div>';
+  html += '<button class="insight-share-btn" onclick="navigator.clipboard.writeText(window.location.origin + \'/ask-elijah/profile.html\');this.textContent=\'Copied!\';setTimeout(function(){document.querySelector(\'.insight-share-btn\').textContent=\'Share\'},2000)">Share</button>';
+  html += '</div>';
+
+  // Checklist
+  var checkItems = [
+    { label: 'Add your first Q&A', done: d.ingestionByType && (d.ingestionByType.qa > 0 || d.ingestionByType['q&a'] > 0) },
+    { label: 'Connect a YouTube channel', done: d.ingestionByType && d.ingestionByType.youtube > 0 },
+    { label: 'Add a newsletter source', done: d.ingestionByType && d.ingestionByType.newsletter > 0 },
+    { label: 'Upload a document', done: d.ingestionByType && d.ingestionByType.upload > 0 },
+    { label: 'Get your first conversation', done: d.conversations && d.conversations.current > 0 }
+  ];
+  var doneCount = checkItems.filter(function (c) { return c.done; }).length;
+
+  if (doneCount < checkItems.length) {
+    html += '<div class="insight-checklist">';
+    html += '<div class="insight-checklist-header">Complete your profile <span class="insight-checklist-count">' + doneCount + ' of ' + checkItems.length + '</span></div>';
+    checkItems.forEach(function (ci) {
+      html += '<div class="insight-check-item' + (ci.done ? ' done' : '') + '">';
+      html += '<span class="insight-check-icon">' + (ci.done ? '<svg viewBox="0 0 24 24" width="16" height="16" stroke="#22c55e" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' : '<svg viewBox="0 0 24 24" width="16" height="16" stroke="#444" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>') + '</span>';
+      html += '<span>' + ci.label + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
 
   // ═══ 1. CONVERSATIONS CHART ═══
   html += '<div class="insight-section">';
@@ -759,6 +847,14 @@ function bindEvents() {
     document.getElementById('sidebar-dropdown').classList.toggle('open');
   });
 
+  // Sidebar create button
+  var sidebarCreate = document.getElementById('sidebar-create-btn');
+  if (sidebarCreate) {
+    sidebarCreate.addEventListener('click', function () {
+      openModal(null);
+    });
+  }
+
   // Status filter chip
   document.getElementById('filter-status').addEventListener('click', function (e) {
     e.stopPropagation();
@@ -920,23 +1016,149 @@ function toggleRowDropdown(e, btn) {
 // ============================================================
 var MODAL_TYPES = ['YouTube Channel', 'YouTube Video', 'Newsletter', 'Twitter', 'File', 'Q&A', 'Manual'];
 
+// 3-tab modal structure
+var MODAL_TABS = {
+  suggested: {
+    label: 'Suggested',
+    types: [
+      { type: 'Q&A', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', desc: 'Question & answer pair' },
+      { type: 'Manual', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>', desc: 'Free-form text' },
+      { type: 'Quick Note', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>', desc: 'Short typed note' },
+      { type: 'URL', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>', desc: 'Linked web page' },
+      { type: 'File', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', desc: 'Upload document' },
+      { type: 'YouTube Video', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><polygon points="5 3 19 12 5 21 5 3"/></svg>', desc: 'Transcribed video' },
+      { type: 'Podcast Episode', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>', desc: 'Transcribed audio' }
+    ]
+  },
+  accounts: {
+    label: 'Accounts',
+    types: [
+      { type: 'Website', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>', desc: 'Scrape a website URL' },
+      { type: 'Twitter', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>', desc: 'Auto-sync tweets' },
+      { type: 'Instagram', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>', desc: 'Auto-sync posts' },
+      { type: 'TikTok', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>', desc: 'Auto-sync videos' },
+      { type: 'YouTube Channel', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><polygon points="5 3 19 12 5 21 5 3"/></svg>', desc: 'Auto-sync channel videos' },
+      { type: 'Newsletter', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>', desc: 'Substack / Beehiiv RSS' },
+      { type: 'Podcast Series', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>', desc: 'Auto-sync podcast episodes' }
+    ]
+  },
+  files: {
+    label: 'Files & Notes',
+    types: [
+      { type: 'File', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', desc: 'Upload a document' },
+      { type: 'Google Drive', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2L2 19.5h20L12 2z"/></svg>', desc: 'Connect & import' },
+      { type: 'Notion', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>', desc: 'Connect workspace' }
+    ]
+  }
+};
+
+var activeModalTab = 'suggested';
+
 function openModal(item) {
   state.editingItem = item || null;
   $modalTitle.textContent = item ? 'Edit Content' : 'Add Content';
 
-  // Set type tabs
-  var activeType = item ? item.type : 'Q&A';
-  $modalTypeTabs.innerHTML = '';
-  MODAL_TYPES.forEach(function (t) {
-    var btn = document.createElement('button');
-    btn.className = 'modal-type-tab' + (t === activeType ? ' active' : '');
-    btn.textContent = t;
-    btn.dataset.type = t;
-    $modalTypeTabs.appendChild(btn);
+  if (item) {
+    // Editing: show flat type tabs
+    var activeType = item.type;
+    $modalTypeTabs.innerHTML = '';
+    MODAL_TYPES.forEach(function (t) {
+      var btn = document.createElement('button');
+      btn.className = 'modal-type-tab' + (t === activeType ? ' active' : '');
+      btn.textContent = t;
+      btn.dataset.type = t;
+      $modalTypeTabs.appendChild(btn);
+    });
+    renderModalFields(activeType);
+  } else {
+    // Adding: show 3-tab structure
+    activeModalTab = 'suggested';
+    renderModalTabs();
+    renderModalTabContent();
+  }
+
+  $modalOverlay.classList.add('open');
+}
+
+function renderModalTabs() {
+  var html = '';
+  Object.keys(MODAL_TABS).forEach(function (key) {
+    html += '<button class="modal-meta-tab' + (key === activeModalTab ? ' active' : '') + '" data-meta-tab="' + key + '">' + MODAL_TABS[key].label + '</button>';
+  });
+  $modalTypeTabs.innerHTML = html;
+
+  // Bind tab clicks
+  $modalTypeTabs.querySelectorAll('.modal-meta-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      activeModalTab = btn.dataset.metaTab;
+      renderModalTabs();
+      renderModalTabContent();
+    });
+  });
+}
+
+function renderModalTabContent() {
+  var tab = MODAL_TABS[activeModalTab];
+  var html = '<div class="modal-type-grid">';
+  tab.types.forEach(function (t) {
+    html += '<button class="modal-type-card" data-type="' + t.type + '">';
+    html += '<div class="modal-type-card-icon">' + t.icon + '</div>';
+    html += '<div class="modal-type-card-info">';
+    html += '<div class="modal-type-card-name">' + t.type + '</div>';
+    html += '<div class="modal-type-card-desc">' + t.desc + '</div>';
+    html += '</div>';
+    html += '</button>';
+  });
+  html += '</div>';
+
+  if (activeModalTab === 'files') {
+    html += '<div class="modal-dropzone" id="modal-dropzone">Drag and drop anything</div>';
+  }
+
+  $modalFields.innerHTML = html;
+
+  // Bind card clicks → switch to that type's fields
+  $modalFields.querySelectorAll('.modal-type-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      var type = card.dataset.type;
+      // Switch to flat type view
+      $modalTypeTabs.innerHTML = '';
+      var backBtn = document.createElement('button');
+      backBtn.className = 'modal-back-btn';
+      backBtn.textContent = '\u2190 Back';
+      backBtn.addEventListener('click', function () {
+        renderModalTabs();
+        renderModalTabContent();
+      });
+      $modalTypeTabs.appendChild(backBtn);
+
+      var typeLabel = document.createElement('span');
+      typeLabel.className = 'modal-type-label';
+      typeLabel.textContent = type;
+      $modalTypeTabs.appendChild(typeLabel);
+
+      renderModalFields(type);
+    });
   });
 
-  renderModalFields(activeType);
-  $modalOverlay.classList.add('open');
+  // Dropzone handler
+  var dropzone = document.getElementById('modal-dropzone');
+  if (dropzone) {
+    dropzone.addEventListener('dragover', function (e) { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', function () { dropzone.classList.remove('dragover'); });
+    dropzone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) {
+        pendingFile = e.dataTransfer.files[0];
+        // Switch to file fields
+        $modalTypeTabs.innerHTML = '<span class="modal-type-label">File: ' + esc(pendingFile.name) + '</span>';
+        renderModalFields('File');
+        var titleInput = document.getElementById('modal-title-input');
+        if (titleInput && !titleInput.value) titleInput.value = pendingFile.name;
+      }
+    });
+  }
 }
 
 function renderModalFields(type) {
@@ -970,6 +1192,25 @@ function renderModalFields(type) {
     html += '<div class="modal-hint">Add any text content — blog posts, notes, transcripts, etc.</div>';
     html += field('Title', 'input', 'modal-title-input', item ? item.title : '');
     html += field('Content', 'textarea', 'modal-content', item ? item.content : '', 'tall');
+  } else if (type === 'Quick Note') {
+    html += '<div class="modal-hint">Jot down a quick note or thought.</div>';
+    html += field('Note', 'textarea', 'modal-content', item ? item.content : '');
+  } else if (type === 'URL' || type === 'Website') {
+    html += '<div class="modal-hint">Add a web page URL to scrape and ingest its content.</div>';
+    html += field('URL', 'input', 'modal-url', item ? item.source_url : '', '', 'url');
+    html += field('Title (optional)', 'input', 'modal-title-input', item ? item.title : '');
+  } else if (type === 'Podcast Episode' || type === 'Podcast Series') {
+    html += '<div class="modal-hint">Add a podcast episode or RSS feed. Audio will be transcribed via Whisper.</div>';
+    html += field('Podcast URL or RSS', 'input', 'modal-url', item ? item.source_url : '', '', 'url');
+    html += field('Title (optional)', 'input', 'modal-title-input', item ? item.title : '');
+  } else if (type === 'Instagram') {
+    html += '<div class="modal-hint">Connect your Instagram account. Requires INSTAGRAM_ACCESS_TOKEN in Netlify env vars.</div>';
+    html += field('Instagram Username', 'input', 'modal-url', item ? item.source_url : '', '', 'text');
+  } else if (type === 'TikTok') {
+    html += '<div class="modal-hint">Connect your TikTok account. Requires TIKTOK_ACCESS_TOKEN in Netlify env vars.</div>';
+    html += field('TikTok Username', 'input', 'modal-url', item ? item.source_url : '', '', 'text');
+  } else if (type === 'Google Drive' || type === 'Notion') {
+    html += '<div class="modal-hint">' + type + ' integration coming soon. For now, download files and upload them directly.</div>';
   }
 
   $modalFields.innerHTML = html;
@@ -1279,6 +1520,48 @@ function openDetailPanel(item) {
     html += '<div class="detail-content-text" style="color:#555;font-style:italic">No content stored yet.</div>';
   }
 
+  // Editable fields section
+  html += '<div class="detail-divider"></div>';
+  html += '<div class="detail-fields">';
+
+  // Name (editable)
+  html += '<div class="detail-field">';
+  html += '<label>Name</label>';
+  html += '<input type="text" id="detail-field-name" value="' + escAttr(item.title) + '">';
+  html += '</div>';
+
+  // Context
+  html += '<div class="detail-field">';
+  html += '<label>Context</label>';
+  html += '<input type="text" id="detail-field-context" placeholder="Optional extra info to help the AI" value="' + escAttr(item.context || '') + '">';
+  html += '</div>';
+
+  // Published Date
+  html += '<div class="detail-field">';
+  html += '<label>Published Date</label>';
+  html += '<input type="date" id="detail-field-date" value="' + (item.created_at ? item.created_at.substring(0, 10) : '') + '">';
+  html += '</div>';
+
+  // Author toggle
+  html += '<div class="detail-field detail-field-row">';
+  html += '<label>Content is by or about me</label>';
+  html += '<label class="settings-toggle"><input type="checkbox" id="detail-field-author"' + (item.is_author !== false ? ' checked' : '') + '><span class="settings-toggle-slider"></span></label>';
+  html += '</div>';
+
+  // Citation URL
+  html += '<div class="detail-field">';
+  html += '<label>Citation URL</label>';
+  html += '<input type="url" id="detail-field-citation" placeholder="https://..." value="' + escAttr(item.source_url || '') + '">';
+  html += '</div>';
+
+  // Save/Cancel
+  html += '<div class="detail-field-actions">';
+  html += '<button class="btn-save" onclick="saveDetailFields()">Save</button>';
+  html += '<button class="btn-cancel" onclick="closeDetailPanel()">Cancel</button>';
+  html += '</div>';
+
+  html += '</div>';
+
   $detailBody.innerHTML = html;
 
   // Show/hide retry button
@@ -1287,6 +1570,35 @@ function openDetailPanel(item) {
 
   $detailPanel.classList.add('open');
 }
+
+// Save detail panel fields
+window.saveDetailFields = async function () {
+  if (!state.selectedItem) return;
+  var item = state.selectedItem;
+
+  var newTitle = document.getElementById('detail-field-name').value.trim();
+  var context = document.getElementById('detail-field-context').value.trim();
+  var pubDate = document.getElementById('detail-field-date').value;
+  var isAuthor = document.getElementById('detail-field-author').checked;
+  var citationUrl = document.getElementById('detail-field-citation').value.trim();
+
+  if (item.source === 'knowledge_items') {
+    await adminAPI('save-item', {
+      id: item.id,
+      title: newTitle || item.title,
+      type: item.type,
+      content: item.content,
+      source_url: citationUrl || item.source_url,
+      word_count: item.word_count
+    });
+  }
+
+  // Refresh
+  await loadData();
+  render();
+  var fresh = state.items.find(function (i) { return i.id === item.id; });
+  if (fresh) openDetailPanel(fresh);
+};
 
 function closeDetailPanel() {
   $detailPanel.classList.remove('open');

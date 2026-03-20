@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversations — Elijah Bryant Admin</title>
+  <link rel="stylesheet" href="/ask-elijah/admin/css/admin.css">
+  <link rel="stylesheet" href="/ask-elijah/admin/css/conversations.css">
+</head>
+<body>
+
+  <!-- Loading / Auth gate -->
+  <div id="loading-screen">Verifying access…</div>
+
+  <!-- App shell -->
+  <div class="app-shell" id="app-shell" style="display:none">
+
+    <!-- ========== SIDEBAR ========== -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">EB</div>
+
+      <!-- Compass / Discover -->
+      <a href="/ask-elijah/admin/" class="sidebar-icon" title="Discover">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+      </a>
+
+      <!-- Chat -->
+      <a href="/ask-elijah/admin/conversations.html" class="sidebar-icon active" title="Chat">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </a>
+
+      <!-- + (accent) -->
+      <a href="/ask-elijah/admin/" class="sidebar-icon accent" title="Create">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </a>
+
+      <!-- Person -->
+      <a href="/ask-elijah/admin/" class="sidebar-icon" title="Profile">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>
+
+      <div class="sidebar-spacer"></div>
+
+      <!-- More ··· -->
+      <button class="sidebar-icon" id="btn-more" title="More">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+
+      <!-- More dropdown -->
+      <div class="sidebar-dropdown" id="sidebar-dropdown">
+        <a class="sidebar-dropdown-item" href="/ask-elijah/admin/">Knowledge</a>
+        <a class="sidebar-dropdown-item" href="/ask-elijah/admin/conversations.html" style="color:#fff">Conversations</a>
+        <a class="sidebar-dropdown-item" href="/ask-elijah/admin/audience.html">Audience</a>
+        <a class="sidebar-dropdown-item" href="/ask-elijah/admin/settings.html">Settings</a>
+        <button class="sidebar-dropdown-item" onclick="adminLogout()">Log Out</button>
+      </div>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="conv-layout">
+
+      <!-- Left: Conversation list -->
+      <div class="conv-list-panel">
+        <div class="conv-list-header">
+          <div class="conv-tabs">
+            <button class="conv-tab active" data-tab="my-delphi">My Delphi</button>
+            <button class="conv-tab" data-tab="me">Me</button>
+          </div>
+          <div class="conv-list-actions">
+            <button class="conv-search-btn" id="conv-search-btn" title="Search">
+              <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <button class="conv-filter-btn" title="Filter">
+              <svg viewBox="0 0 24 24" width="18" height="18"><line x1="4" y1="6" x2="20" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="conv-search-bar" id="conv-search-bar">
+          <input type="text" id="conv-search-input" placeholder="Search conversations…">
+        </div>
+
+        <div class="conv-list" id="conv-list">
+          <!-- Conversations rendered here -->
+        </div>
+      </div>
+
+      <!-- Right: Chat thread -->
+      <div class="conv-thread-panel" id="conv-thread-panel">
+        <div class="conv-thread-empty" id="conv-thread-empty">
+          <svg viewBox="0 0 24 24" width="48" height="48" stroke="#444" fill="none" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <p>Select a conversation to view</p>
+        </div>
+
+        <div class="conv-thread" id="conv-thread" style="display:none">
+          <div class="conv-thread-header" id="conv-thread-header"></div>
+          <div class="conv-thread-messages" id="conv-thread-messages"></div>
+          <div class="conv-thread-input">
+            <input type="text" id="conv-reply-input" placeholder="Respond as the real you…">
+            <button class="conv-send-btn" id="conv-send-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/ask-elijah/admin/js/conversations.js"></script>
+</body>
+</html>

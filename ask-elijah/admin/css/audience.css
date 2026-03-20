@@ -1,0 +1,212 @@
+/* ============================================================
+   Audience / Members Page
+   ============================================================ */
+
+.aud-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.aud-btn {
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+
+.aud-btn:hover { opacity: .85; }
+
+.aud-btn.secondary {
+  background: transparent;
+  color: #ccc;
+  border: 1px solid #333;
+}
+
+.aud-btn.secondary:hover {
+  border-color: #555;
+}
+
+/* Toolbar */
+.aud-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.aud-stats {
+  font-size: 13px;
+  color: #888;
+}
+
+.aud-stats strong {
+  color: #fff;
+}
+
+.aud-toolbar-right {
+  display: flex;
+  gap: 4px;
+}
+
+/* Filter bar */
+.aud-filter-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0 0 12px;
+}
+
+/* Members table */
+.aud-table-header {
+  display: grid;
+  grid-template-columns: 36px 1fr 100px 140px 120px 40px;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #666;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.aud-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 100px 140px 120px 40px;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #111;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.aud-row:hover {
+  background: #111;
+}
+
+.aud-row-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+}
+
+.aud-row-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.aud-row-name {
+  font-size: 13px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aud-row-email {
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aud-row-messages {
+  font-size: 13px;
+  color: #ccc;
+  text-align: center;
+}
+
+.aud-row-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.aud-tag {
+  background: #1a1a1a;
+  color: #aaa;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #333;
+}
+
+.aud-row-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.aud-row-actions {
+  position: relative;
+}
+
+.aud-row-actions-btn {
+  background: transparent;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+}
+
+.aud-row-actions-btn:hover {
+  color: #fff;
+}
+
+.aud-empty {
+  text-align: center;
+  color: #555;
+  padding: 60px 20px;
+  font-size: 14px;
+}
+
+/* Pagination (reuses main admin.css styles) */
+
+/* Status badges */
+.aud-status {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.aud-status.active {
+  background: rgba(34,197,94,.15);
+  color: #22c55e;
+}
+
+.aud-status.inactive {
+  background: rgba(156,163,175,.1);
+  color: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .aud-table-header,
+  .aud-row {
+    grid-template-columns: 36px 1fr 60px 40px;
+  }
+
+  .aud-row-tags,
+  .aud-row-date {
+    display: none;
+  }
+
+  .aud-header-actions {
+    flex-wrap: wrap;
+  }
+}
