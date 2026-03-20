@@ -294,45 +294,65 @@ function renderContent() {
     renderList(folders, pageItems);
   }
 
-  // Render pagination controls if more than 1 page
-  if (totalPages > 1) {
-    renderPagination(allItems.length, totalPages);
-  }
+  // Render pagination controls + per-page selector
+  renderPagination(allItems.length, totalPages);
 }
 
 function renderPagination(totalItems, totalPages) {
   var html = '<div class="pagination">';
+
+  // Per-page selector
+  html += '<div class="pagination-perpage">';
+  html += '<label>Show</label>';
+  html += '<select class="pagination-perpage-select" onchange="changePerPage(this.value)">';
+  [25, 50, 100].forEach(function (n) {
+    html += '<option value="' + n + '"' + (ITEMS_PER_PAGE === n ? ' selected' : '') + '>' + n + '</option>';
+  });
+  html += '</select>';
+  html += '</div>';
+
   html += '<span class="pagination-info">Showing ' + (((state.currentPage - 1) * ITEMS_PER_PAGE) + 1) + '–' + Math.min(state.currentPage * ITEMS_PER_PAGE, totalItems) + ' of ' + totalItems + '</span>';
-  html += '<div class="pagination-controls">';
 
-  // Previous
-  html += '<button class="pagination-btn" onclick="goToPage(' + (state.currentPage - 1) + ')"' + (state.currentPage <= 1 ? ' disabled' : '') + '>&lsaquo;</button>';
+  if (totalPages > 1) {
+    html += '<div class="pagination-controls">';
 
-  // Page numbers
-  var startPage = Math.max(1, state.currentPage - 2);
-  var endPage = Math.min(totalPages, startPage + 4);
-  if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+    // Previous
+    html += '<button class="pagination-btn" onclick="goToPage(' + (state.currentPage - 1) + ')"' + (state.currentPage <= 1 ? ' disabled' : '') + '>&lsaquo;</button>';
 
-  if (startPage > 1) {
-    html += '<button class="pagination-btn" onclick="goToPage(1)">1</button>';
-    if (startPage > 2) html += '<span class="pagination-ellipsis">…</span>';
+    // Page numbers
+    var startPage = Math.max(1, state.currentPage - 2);
+    var endPage = Math.min(totalPages, startPage + 4);
+    if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+    if (startPage > 1) {
+      html += '<button class="pagination-btn" onclick="goToPage(1)">1</button>';
+      if (startPage > 2) html += '<span class="pagination-ellipsis">…</span>';
+    }
+
+    for (var p = startPage; p <= endPage; p++) {
+      html += '<button class="pagination-btn' + (p === state.currentPage ? ' active' : '') + '" onclick="goToPage(' + p + ')">' + p + '</button>';
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) html += '<span class="pagination-ellipsis">…</span>';
+      html += '<button class="pagination-btn" onclick="goToPage(' + totalPages + ')">' + totalPages + '</button>';
+    }
+
+    // Next
+    html += '<button class="pagination-btn" onclick="goToPage(' + (state.currentPage + 1) + ')"' + (state.currentPage >= totalPages ? ' disabled' : '') + '>&rsaquo;</button>';
+
+    html += '</div>';
   }
 
-  for (var p = startPage; p <= endPage; p++) {
-    html += '<button class="pagination-btn' + (p === state.currentPage ? ' active' : '') + '" onclick="goToPage(' + p + ')">' + p + '</button>';
-  }
-
-  if (endPage < totalPages) {
-    if (endPage < totalPages - 1) html += '<span class="pagination-ellipsis">…</span>';
-    html += '<button class="pagination-btn" onclick="goToPage(' + totalPages + ')">' + totalPages + '</button>';
-  }
-
-  // Next
-  html += '<button class="pagination-btn" onclick="goToPage(' + (state.currentPage + 1) + ')"' + (state.currentPage >= totalPages ? ' disabled' : '') + '>&rsaquo;</button>';
-
-  html += '</div></div>';
+  html += '</div>';
   $contentArea.innerHTML += html;
 }
+
+window.changePerPage = function (val) {
+  ITEMS_PER_PAGE = parseInt(val, 10);
+  state.currentPage = 1;
+  renderContent();
+};
 
 window.goToPage = function (page) {
   state.currentPage = page;
@@ -429,21 +449,56 @@ function renderList(folders, items) {
 
 // ---- Grid view ----
 function renderGrid(folders, items) {
-  var html = '<div class="content-grid">';
+  // Determine grid density class based on items per page
+  var densityClass = '';
+  if (ITEMS_PER_PAGE >= 100) densityClass = ' grid-dense-100';
+  else if (ITEMS_PER_PAGE >= 50) densityClass = ' grid-dense-50';
+
+  var html = '<div class="content-grid' + densityClass + '">';
 
   folders.forEach(function (f) {
     html += '<div class="grid-card">';
-    html += '<div class="grid-card-icon folder">\uD83D\uDCC1</div>';
+    html += '<div class="grid-card-thumb folder-thumb"><span>\uD83D\uDCC1</span></div>';
+    html += '<div class="grid-card-info">';
     html += '<div class="grid-card-name">' + esc(f.name) + '</div>';
     html += '<div class="grid-card-type">Folder</div>';
+    html += '</div>';
     html += '</div>';
   });
 
   items.forEach(function (item) {
+    var ytMeta = ytMetaCache[item.source_url];
+    var displayTitle = (ytMeta && ytMeta.title) ? ytMeta.title : item.title;
+    var thumbUrl = (ytMeta && ytMeta.thumbnail) ? ytMeta.thumbnail : null;
+    var typeLower = (item.type || '').toLowerCase();
+
     html += '<div class="grid-card" data-item-id="' + item.id + '">';
-    html += '<div class="grid-card-icon">' + docIconSVG(40) + '</div>';
-    html += '<div class="grid-card-name">' + esc(item.title) + '</div>';
+
+    // Thumbnail area
+    html += '<div class="grid-card-thumb">';
+    if (thumbUrl) {
+      html += '<img src="' + escAttr(thumbUrl) + '" alt="" loading="lazy">';
+    } else {
+      // Color-coded type icon
+      var typeColor = '#555';
+      var typeIcon = docIconSVG(32);
+      if (typeLower === 'youtube' || typeLower === 'youtube channel') { typeColor = '#ef4444'; typeIcon = '<svg viewBox="0 0 24 24" width="32" height="32" fill="' + typeColor + '"><path d="M23 7s-.3-2-1.1-2.9C20.8 3 19.6 3 19 2.9 16 2.7 12 2.7 12 2.7s-4 0-7 .2c-.6.1-1.8.1-2.9 1.1C1.3 5 1 7 1 7S.7 9.3.7 11.7v2.1c0 2.3.3 4.7.3 4.7s.3 2 1.1 2.9c1.1 1 2.5.9 3.1 1 2.3.2 9.8.3 9.8.3s4 0 7-.2c.6-.1 1.8-.1 2.9-1.1.8-.9 1.1-2.9 1.1-2.9s.3-2.3.3-4.7v-2.1C24.3 9.3 23 7 23 7zM9.7 15.9V8.5l6.3 3.7-6.3 3.7z"/></svg>'; }
+      else if (typeLower === 'newsletter') { typeColor = '#f59e0b'; typeIcon = '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="' + typeColor + '" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'; }
+      else if (typeLower === 'q&a' || typeLower === 'qa') { typeColor = '#22c55e'; typeIcon = '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="' + typeColor + '" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'; }
+      else if (typeLower === 'file upload' || typeLower === 'upload' || typeLower === 'pdf') { typeColor = '#a855f7'; typeIcon = '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="' + typeColor + '" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'; }
+      else if (typeLower === 'instagram') { typeColor = '#e879f9'; }
+      else if (typeLower === 'tiktok') { typeColor = '#f472b6'; }
+      else if (typeLower === 'twitter') { typeColor = '#38bdf8'; }
+      html += '<div class="grid-card-type-icon" style="color:' + typeColor + '">' + typeIcon + '</div>';
+    }
+    html += '<span class="grid-card-status ' + statusDotColor(item.status) + '"></span>';
+    html += '</div>';
+
+    // Info area
+    html += '<div class="grid-card-info">';
+    html += '<div class="grid-card-name">' + esc(displayTitle) + '</div>';
     html += '<div class="grid-card-type">' + esc(item.type) + '</div>';
+    html += '</div>';
     html += '</div>';
   });
 
