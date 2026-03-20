@@ -434,7 +434,7 @@ function renderPreviewMessages() {
   var $msgs = document.getElementById('conv-thread-messages');
   var html = '';
 
-  convState.previewHistory.forEach(function (msg) {
+  convState.previewHistory.forEach(function (msg, idx) {
     if (msg.role === 'user') {
       html += '<div class="conv-msg user">';
       html += '<div class="conv-msg-bubble">' + esc(msg.text) + '</div>';
@@ -443,14 +443,35 @@ function renderPreviewMessages() {
     } else {
       html += '<div class="conv-msg ai">';
       html += '<div class="conv-msg-bubble">' + esc(msg.text) + '</div>';
+
+      // Source links
       if (msg.sources && msg.sources.length > 0) {
         html += '<div class="preview-sources">';
         msg.sources.forEach(function (s) {
-          var label = s.title || s.url || s.source_type || 'Source';
-          html += '<span class="preview-source-pill" title="' + esc(label) + '">' + esc(label) + '</span>';
+          var label = s.title || s.source_type || 'Source';
+          var icon = getSourceIcon(s.source_type);
+          if (s.url) {
+            html += '<a class="preview-source-pill preview-source-link" href="' + esc(s.url) + '" target="_blank" rel="noopener" title="' + esc(s.url) + '">' + icon + esc(label) + '</a>';
+          } else {
+            html += '<span class="preview-source-pill" title="' + esc(label) + '">' + icon + esc(label) + '</span>';
+          }
         });
         html += '</div>';
       }
+
+      // Action buttons
+      html += '<div class="preview-msg-actions">';
+      html += '<button class="preview-action-btn" data-idx="' + idx + '" data-action="thumbsup" title="Good response">';
+      html += '<svg viewBox="0 0 24 24" width="14" height="14"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>';
+      html += '</button>';
+      html += '<button class="preview-action-btn" data-idx="' + idx + '" data-action="edit" title="Edit this response">';
+      html += '<svg viewBox="0 0 24 24" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+      html += '</button>';
+      html += '<button class="preview-action-btn" data-idx="' + idx + '" data-action="add" title="Add to this response">';
+      html += '<svg viewBox="0 0 24 24" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+      html += '</button>';
+      html += '</div>';
+
       if (msg.confidence) {
         html += '<div class="conv-msg-meta">' + formatDateTime(msg.time) + ' · ' + Math.round(msg.confidence * 100) + '% confidence</div>';
       } else {
@@ -462,6 +483,56 @@ function renderPreviewMessages() {
 
   $msgs.innerHTML = html;
   $msgs.scrollTop = $msgs.scrollHeight;
+
+  // Bind action buttons
+  $msgs.querySelectorAll('.preview-action-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var idx = parseInt(btn.dataset.idx);
+      var action = btn.dataset.action;
+      handlePreviewAction(idx, action, btn);
+    });
+  });
+}
+
+function getSourceIcon(sourceType) {
+  if (!sourceType) return '';
+  var t = sourceType.toLowerCase();
+  if (t.indexOf('youtube') !== -1) return '<span class="source-icon">▶</span>';
+  if (t.indexOf('tiktok') !== -1) return '<span class="source-icon">♪</span>';
+  if (t.indexOf('newsletter') !== -1 || t.indexOf('email') !== -1) return '<span class="source-icon">✉</span>';
+  if (t.indexOf('manual') !== -1 || t.indexOf('qa') !== -1) return '<span class="source-icon">✎</span>';
+  if (t.indexOf('instagram') !== -1) return '<span class="source-icon">◎</span>';
+  return '<span class="source-icon">📄</span>';
+}
+
+function handlePreviewAction(msgIdx, action, btnEl) {
+  var msg = convState.previewHistory[msgIdx];
+  if (!msg || msg.role !== 'ai') return;
+
+  if (action === 'thumbsup') {
+    btnEl.classList.toggle('active');
+    if (btnEl.classList.contains('active')) {
+      msg.thumbsUp = true;
+      btnEl.style.color = '#4ade80';
+    } else {
+      msg.thumbsUp = false;
+      btnEl.style.color = '';
+    }
+  } else if (action === 'edit') {
+    var newText = prompt('Edit the AI response:', msg.text);
+    if (newText && newText !== msg.text) {
+      msg.text = newText;
+      msg.edited = true;
+      renderPreviewMessages();
+    }
+  } else if (action === 'add') {
+    var addition = prompt('Add to this response:');
+    if (addition) {
+      msg.text = msg.text + '\n\n' + addition;
+      msg.edited = true;
+      renderPreviewMessages();
+    }
+  }
 }
 
 // Called from suggestion buttons or input
