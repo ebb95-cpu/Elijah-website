@@ -379,9 +379,19 @@
   backToAuth.addEventListener('click', function () { showScreen(authScreen); });
 
   // ── Init ──
-  authScreen.classList.add('visible');
   setAuthMode(false);
-  checkSession();
+
+  // If brain intro is active, wait for it to finish before showing auth / checking session
+  var brainIntro = document.getElementById('brain-intro');
+  if (brainIntro && brainIntro.style.display !== 'none') {
+    window.addEventListener('brain-intro-done', function () {
+      authScreen.classList.add('visible');
+      checkSession();
+    });
+  } else {
+    authScreen.classList.add('visible');
+    checkSession();
+  }
 
   // Expose for other modules
   window.__askSupabase = supabase;
