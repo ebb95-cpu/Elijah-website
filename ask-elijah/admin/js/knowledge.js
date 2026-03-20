@@ -12,6 +12,8 @@ var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 var ADMIN_EMAIL = 'ebb95@mac.com';
 
 // --- State ---
+var ITEMS_PER_PAGE = 25;
+
 var state = {
   items: [],
   folders: [],
@@ -23,6 +25,7 @@ var state = {
   totalWords: 0,
   editingItem: null,          // null = adding, object = editing
   selectedItem: null,         // item shown in detail panel
+  currentPage: 1,            // pagination
 };
 
 // --- DOM refs ---
@@ -272,15 +275,67 @@ function renderContent() {
     return;
   }
 
-  var items = getFilteredItems();
+  var allItems = getFilteredItems();
   var folders = state.folders;
 
+  // Pagination
+  var totalPages = Math.max(1, Math.ceil(allItems.length / ITEMS_PER_PAGE));
+  if (state.currentPage > totalPages) state.currentPage = totalPages;
+  var start = (state.currentPage - 1) * ITEMS_PER_PAGE;
+  var pageItems = allItems.slice(start, start + ITEMS_PER_PAGE);
+
   if (state.viewMode === 'grid') {
-    renderGrid(folders, items);
+    renderGrid(folders, pageItems);
   } else {
-    renderList(folders, items);
+    renderList(folders, pageItems);
+  }
+
+  // Render pagination controls if more than 1 page
+  if (totalPages > 1) {
+    renderPagination(allItems.length, totalPages);
   }
 }
+
+function renderPagination(totalItems, totalPages) {
+  var html = '<div class="pagination">';
+  html += '<span class="pagination-info">Showing ' + (((state.currentPage - 1) * ITEMS_PER_PAGE) + 1) + '–' + Math.min(state.currentPage * ITEMS_PER_PAGE, totalItems) + ' of ' + totalItems + '</span>';
+  html += '<div class="pagination-controls">';
+
+  // Previous
+  html += '<button class="pagination-btn" onclick="goToPage(' + (state.currentPage - 1) + ')"' + (state.currentPage <= 1 ? ' disabled' : '') + '>&lsaquo;</button>';
+
+  // Page numbers
+  var startPage = Math.max(1, state.currentPage - 2);
+  var endPage = Math.min(totalPages, startPage + 4);
+  if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+  if (startPage > 1) {
+    html += '<button class="pagination-btn" onclick="goToPage(1)">1</button>';
+    if (startPage > 2) html += '<span class="pagination-ellipsis">…</span>';
+  }
+
+  for (var p = startPage; p <= endPage; p++) {
+    html += '<button class="pagination-btn' + (p === state.currentPage ? ' active' : '') + '" onclick="goToPage(' + p + ')">' + p + '</button>';
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) html += '<span class="pagination-ellipsis">…</span>';
+    html += '<button class="pagination-btn" onclick="goToPage(' + totalPages + ')">' + totalPages + '</button>';
+  }
+
+  // Next
+  html += '<button class="pagination-btn" onclick="goToPage(' + (state.currentPage + 1) + ')"' + (state.currentPage >= totalPages ? ' disabled' : '') + '>&rsaquo;</button>';
+
+  html += '</div></div>';
+  $contentArea.innerHTML += html;
+}
+
+window.goToPage = function (page) {
+  state.currentPage = page;
+  renderContent();
+  // Scroll content area to top
+  $contentArea.scrollTop = 0;
+};
 
 function getFilteredItems() {
   var arr = state.items.slice();
@@ -678,6 +733,7 @@ function bindEvents() {
   });
   $searchInput.addEventListener('input', function () {
     state.searchQuery = $searchInput.value;
+    state.currentPage = 1;
     renderContent();
   });
 
@@ -719,6 +775,7 @@ function bindEvents() {
   document.getElementById('filter-clear').addEventListener('click', function () {
     state.filterStatus = null;
     state.filterType = null;
+    state.currentPage = 1;
     updateFilterChips();
     renderContent();
   });
@@ -803,6 +860,7 @@ function updateFilterChips() {
 // Status dropdown items
 window.selectStatus = function (val) {
   state.filterStatus = state.filterStatus === val ? null : val;
+  state.currentPage = 1;
   updateFilterChips();
   closeAllDropdowns();
   renderContent();
@@ -811,6 +869,7 @@ window.selectStatus = function (val) {
 // Type dropdown items
 window.selectType = function (val) {
   state.filterType = state.filterType === val ? null : val;
+  state.currentPage = 1;
   updateFilterChips();
   closeAllDropdowns();
   renderContent();
@@ -982,6 +1041,18 @@ async function saveModal() {
 
   if (!title && !source_url && !pendingFile) return alert('Please fill in the required fields.');
 
+  // Check for duplicates before submitting
+  if (source_url && !state.editingItem) {
+    var normalizedUrl = source_url.trim().toLowerCase();
+    var isDupe = state.items.some(function (item) {
+      return (item.source_url || '').toLowerCase() === normalizedUrl;
+    });
+    if (isDupe) {
+      alert('This source has already been added. Duplicate content is not allowed.');
+      return;
+    }
+  }
+
   // Route to appropriate backend based on type
   try {
     if (type === 'YouTube Channel') {
@@ -998,9 +1069,13 @@ async function saveModal() {
     } else if (type === 'YouTube Video') {
       $modalSaveBtn.textContent = 'Ingesting...';
       $modalSaveBtn.disabled = true;
-      await adminAPI('ingest-video', { url: source_url });
+      var result = await adminAPI('ingest-video', { url: source_url });
       $modalSaveBtn.textContent = 'Save';
       $modalSaveBtn.disabled = false;
+      if (result.alreadyExists) {
+        alert('This video has already been ingested.');
+        return;
+      }
     } else if (type === 'Newsletter') {
       $modalSaveBtn.textContent = 'Ingesting...';
       $modalSaveBtn.disabled = true;
