@@ -3,57 +3,66 @@
 
   var STOPS = [
     {
-      lat: 33.749, lng: -84.388, zoom: 6,
-      num: '01', city: 'Atlanta', sub: 'Georgia',
-      message: 'Where the dream started.',
+      lat: 34.082, lng: -83.902, zoom: 8,
+      num: '01', city: 'Georgia', sub: 'Mill Creek High School',
+      tag: 'Zero-star recruit',
+      message: 'The foundation was built before anyone was watching.',
       image: null
     },
     {
       lat: 43.194, lng: -71.572, zoom: 7,
-      num: '02', city: 'New Hampshire', sub: 'USA',
-      message: 'Learning what it means to sacrifice.',
+      num: '02', city: 'New Hampshire', sub: 'New Hampton School',
+      tag: 'Post-graduate year',
+      message: 'One more year to grow, sharpen, and keep believing.',
       image: null
     },
     {
       lat: 36.100, lng: -79.512, zoom: 7,
-      num: '03', city: 'Elon University', sub: 'Elon, North Carolina',
-      message: 'The work begins to show.',
+      num: '03', city: 'Elon, North Carolina', sub: 'Elon University',
+      tag: 'CAA Rookie of the Year',
+      message: 'The work started turning into proof.',
       image: null
     },
     {
       lat: 40.234, lng: -111.658, zoom: 7,
-      num: '04', city: 'BYU', sub: 'Provo, Utah',
-      message: 'Faith becomes part of the foundation.',
+      num: '04', city: 'Provo, Utah', sub: 'BYU',
+      tag: 'Redshirt. Injury. NBA pursuit.',
+      message: 'A setback became a decision point. Faith had to become action.',
       image: null
     },
     {
       lat: 29.558, lng: 34.952, zoom: 8,
-      num: '05', city: 'Eilat', sub: 'Israel',
-      message: 'The world opens up.',
+      num: '05', city: 'Eilat, Israel', sub: 'Hapoel Eilat',
+      tag: 'First Team All-Israeli League',
+      message: 'The first pro chapter opened the world.',
       image: null
     },
     {
       lat: 32.085, lng: 34.782, zoom: 8,
-      num: '06', city: 'Maccabi Tel Aviv', sub: 'Israel',
-      message: 'Pressure, tradition, and growth.',
+      num: '06', city: 'Tel Aviv, Israel', sub: 'Maccabi Tel Aviv',
+      tag: 'Role player',
+      message: 'Learning how to impact winning inside a bigger system.',
       image: null
     },
     {
       lat: 43.039, lng: -87.907, zoom: 7,
-      num: '07', city: 'Milwaukee Bucks', sub: 'Wisconsin',
-      message: 'The NBA dream realized.',
+      num: '07', city: 'Milwaukee, Wisconsin', sub: 'Milwaukee Bucks',
+      tag: 'NBA Champion',
+      message: 'The dream became real. The preparation was not wasted.',
       image: null
     },
     {
       lat: 41.008, lng: 28.978, zoom: 7,
-      num: '08', city: 'Anadolu Efes', sub: 'Istanbul, Turkey',
-      message: 'A different culture. Same pursuit.',
+      num: '08', city: 'Istanbul, Turkey', sub: 'Anadolu Efes',
+      tag: 'Role player. EuroLeague Champion.',
+      message: 'Another elite room. Another lesson in winning.',
       image: null
     },
     {
-      lat: 32.090, lng: 34.790, zoom: 8,
-      num: '09', city: 'Hapoel Tel-Aviv', sub: 'Israel',
-      message: 'The journey continues.',
+      lat: 32.113, lng: 34.806, zoom: 8,
+      num: '09', city: 'Tel Aviv, Israel', sub: 'Hapoel Tel Aviv',
+      tag: 'First Team All-EuroLeague',
+      message: 'The journey kept expanding. The work kept speaking.',
       image: null
     }
   ];
@@ -83,24 +92,72 @@
   var locNumber     = document.getElementById('loc-number');
   var locCity       = document.getElementById('loc-city');
   var locSub        = document.getElementById('loc-sub');
+  var locTag        = document.getElementById('loc-tag');
   var locMessage    = document.getElementById('loc-message');
   var journeyOverlay = document.getElementById('journey-overlay');
   var finalMsg1     = document.getElementById('final-msg-1');
   var finalMsg2     = document.getElementById('final-msg-2');
   var finalMsg3     = document.getElementById('final-msg-3');
+  var routeLines = [];
+  var canDrawRoute = false;
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
-  function flyTo(stop) {
+  function getFlightDuration(stop) {
+    var currentCenter = map.getCenter();
+    var distance = currentCenter.distanceTo([stop.lat, stop.lng]);
+    var duration = 1.55 + Math.min(distance / 6200000, 0.9);
+    return Math.max(1.55, Math.min(duration, 2.45));
+  }
+
+  function flyToView(lat, lng, zoom, duration) {
     return new Promise(function (resolve) {
-      var timeout = setTimeout(resolve, 2400); // fallback
+      var timeout = setTimeout(resolve, (duration * 1000) + 900);
       map.once('moveend', function () {
         clearTimeout(timeout);
-        setTimeout(resolve, 100); // brief settle
+        setTimeout(resolve, 260);
+      });
+      map.flyTo([lat, lng], zoom, {
+        duration: duration,
+        easeLinearity: 0.18
+      });
+    });
+  }
+
+  async function flyToFirstStop(stop) {
+    await flyToView(stop.lat, stop.lng, 5, 1.35);
+  }
+
+  function flyTo(stop) {
+    return new Promise(function (resolve) {
+      var duration = getFlightDuration(stop);
+      var timeout = setTimeout(resolve, (duration * 1000) + 900); // fallback
+      map.once('moveend', function () {
+        clearTimeout(timeout);
+        setTimeout(resolve, 260); // brief settle
       });
       map.flyTo([stop.lat, stop.lng], stop.zoom, {
-        duration: 1.9,
-        easeLinearity: 0.28
+        duration: duration,
+        easeLinearity: 0.18
+      });
+    });
+  }
+
+  function flyToSegment(from, to) {
+    return new Promise(function (resolve) {
+      var bounds = L.latLngBounds([[from.lat, from.lng], [to.lat, to.lng]]);
+      var center = bounds.getCenter();
+      var duration = getFlightDuration({ lat: center.lat, lng: center.lng });
+      var timeout = setTimeout(resolve, (duration * 1000) + 900);
+      map.once('moveend', function () {
+        clearTimeout(timeout);
+        setTimeout(resolve, 220);
+      });
+      map.flyToBounds(bounds, {
+        padding: [170, 170],
+        maxZoom: 5,
+        duration: duration,
+        easeLinearity: 0.18
       });
     });
   }
@@ -112,23 +169,87 @@
   function addDot(stop) {
     var icon = L.divIcon({
       className: 'journey-dot-icon',
+      html: '<span class="journey-dot-core"></span>',
       iconSize: [10, 10],
       iconAnchor: [5, 5]
     });
-    L.marker([stop.lat, stop.lng], { icon: icon, interactive: false }).addTo(map);
+    return L.marker([stop.lat, stop.lng], {
+      icon: icon,
+      interactive: false,
+      zIndexOffset: 500
+    }).addTo(map);
   }
 
   function addLine(from, to) {
-    L.polyline(
-      [[from.lat, from.lng], [to.lat, to.lng]],
-      { color: 'rgba(255,255,255,0.32)', weight: 1, interactive: false }
-    ).addTo(map);
+    return new Promise(function (resolve) {
+      if (!canDrawRoute) {
+        resolve();
+        return;
+      }
+      var fromPoint = map.latLngToLayerPoint([from.lat, from.lng]);
+      var toPoint = map.latLngToLayerPoint([to.lat, to.lng]);
+      var line = L.polyline(
+        [[from.lat, from.lng]],
+        { color: 'rgba(255,255,255,0.42)', weight: 1.15, interactive: false }
+      ).addTo(map);
+      routeLines.push(line);
+      var start = performance.now();
+      var duration = 320;
+
+      function draw(now) {
+        var progress = Math.min(1, (now - start) / duration);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var x = fromPoint.x + (toPoint.x - fromPoint.x) * eased;
+        var y = fromPoint.y + (toPoint.y - fromPoint.y) * eased;
+        var current = map.layerPointToLatLng([x, y]);
+        line.setLatLngs([[from.lat, from.lng], current]);
+
+        if (progress < 1) {
+          requestAnimationFrame(draw);
+        } else {
+          line.setLatLngs([[from.lat, from.lng], [to.lat, to.lng]]);
+          resolve();
+        }
+      }
+
+      requestAnimationFrame(draw);
+    });
+  }
+
+  function drawFullRoute() {
+    return new Promise(function (resolve) {
+      canDrawRoute = true;
+      var index = 0;
+
+      function drawNext() {
+        if (index >= STOPS.length - 1) {
+          resolve();
+          return;
+        }
+
+        addLine(STOPS[index], STOPS[index + 1]).then(function () {
+          index += 1;
+          setTimeout(drawNext, 25);
+        });
+      }
+
+      drawNext();
+    });
+  }
+
+  function clearRouteLines() {
+    routeLines.forEach(function (line) {
+      map.removeLayer(line);
+    });
+    routeLines = [];
+    canDrawRoute = false;
   }
 
   function showCard(stop) {
     locNumber.textContent  = stop.num;
     locCity.textContent    = stop.city;
     locSub.textContent     = stop.sub;
+    locTag.textContent     = stop.tag;
     locMessage.textContent = stop.message;
     locationCard.classList.add('visible');
   }
@@ -139,38 +260,36 @@
 
   async function showFinalMessages() {
     var lines = finalMsg2.querySelectorAll('.fm-line');
+    lines.forEach(function (line) { line.classList.remove('visible'); });
 
     // 1. Dim the map
     journeyOverlay.classList.add('dimmed');
     await wait(900);
 
-    // 2. "Every experience is a dot."
+    // 2. Final word sequence, one fixed center slot
     finalMsg1.classList.add('visible');
-    await wait(3800); // covers 0.9s fade-in + hold
+    await wait(2100);
 
-    // 3. Fade out msg1, wait for transition to finish
     finalMsg1.classList.remove('visible');
     await wait(1000);
 
-    // 4. Reveal msg2 container, then stagger each line
     finalMsg2.classList.add('visible');
-    await wait(150); // brief settle before first line appears
+    await wait(100);
     lines[0].classList.add('visible');
-    await wait(1800);
+    await wait(2100);
+    lines[0].classList.remove('visible');
+    await wait(1000);
     lines[1].classList.add('visible');
-    await wait(1800);
-    lines[2].classList.add('visible');
-    await wait(3200); // hold all three lines
-
-    // 5. Fade out msg2
-    finalMsg2.classList.remove('visible');
+    await wait(2100);
+    lines[1].classList.remove('visible');
     await wait(1000);
 
-    // 6. "Faith + Consistency"
-    finalMsg3.classList.add('visible');
-    await wait(3000);
+    finalMsg2.classList.remove('visible');
+    await wait(100);
 
-    // 7. Fade out "Faith + Consistency"
+    finalMsg3.classList.add('visible');
+    await wait(2300);
+
     finalMsg3.classList.remove('visible');
     await wait(1100);
 
@@ -178,27 +297,65 @@
     document.dispatchEvent(new CustomEvent('journeyComplete'));
   }
 
+  function pulseMarker(marker, isActive) {
+    var element = marker && marker.getElement ? marker.getElement() : null;
+    if (!element) return;
+    element.classList.toggle('active', !!isActive);
+  }
+
+  function showFullRoute() {
+    return new Promise(function (resolve) {
+      var bounds = L.latLngBounds(STOPS.map(function (stop) {
+        return [stop.lat, stop.lng];
+      }));
+      var timeout = setTimeout(resolve, 2600);
+      map.once('moveend', function () {
+        clearTimeout(timeout);
+        setTimeout(resolve, 240);
+      });
+      map.flyToBounds(bounds, {
+        padding: [70, 70],
+        duration: 2,
+        easeLinearity: 0.25
+      });
+    });
+  }
+
   // ─── Main journey runner ──────────────────────────────────────────────────
 
   async function runJourney() {
+    clearRouteLines();
     var prev = null;
+    var activeMarker = null;
     for (var i = 0; i < STOPS.length; i++) {
       var stop = STOPS[i];
       // 1. Fly to location
-      await flyTo(stop);
+      if (i === 0) {
+        await flyToFirstStop(stop);
+      } else if (prev) {
+        await flyToSegment(prev, stop);
+      } else {
+        await flyTo(stop);
+      }
       // 2. Add dot
-      addDot(stop);
-      // 3. Draw line from previous
-      if (prev) addLine(prev, stop);
+      if (activeMarker) pulseMarker(activeMarker, false);
+      activeMarker = addDot(stop);
+      pulseMarker(activeMarker, true);
+      await wait(260);
       // 4. Show card
       showCard(stop);
       // 5. Hold
-      await wait(3000);
+      await wait(2850);
       // 6. Hide card
       hideCard();
-      await wait(350);
+      await wait(520);
       prev = stop;
     }
+    if (activeMarker) pulseMarker(activeMarker, false);
+    await showFullRoute();
+    await wait(450);
+    await drawFullRoute();
+    await wait(1100);
     // Final messages
     await showFinalMessages();
   }
@@ -208,11 +365,12 @@
   document.addEventListener('journeyStart', function () {
     var journeyScreen = document.getElementById('journey-screen');
     journeyScreen.classList.add('visible');
+    clearRouteLines();
     // invalidate map size after screen is shown
     setTimeout(function () {
       map.invalidateSize();
-      runJourney();
-    }, 500);
+      setTimeout(runJourney, 320);
+    }, 280);
   });
 
 }());

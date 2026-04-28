@@ -50,17 +50,68 @@
     if (e.target === askScreen) closeAsk();
   });
 
-  // ─── Skip button (during journey map animation) ───────────────────────────
+  // ─── Skip slider (during journey map animation) ───────────────────────────
 
   var skipBtn = document.getElementById('skip-btn');
   if (skipBtn) {
-    skipBtn.addEventListener('click', function () {
+    var skipTrack = skipBtn.querySelector('.skip-slider-track');
+    var skipFill = skipBtn.querySelector('.skip-slider-fill');
+    var skipHandle = skipBtn.querySelector('.skip-slider-handle');
+    var skipDragging = false;
+    var skipProgress = 0;
+
+    function setSkipProgress(progress) {
+      var clamped = Math.max(0, Math.min(1, progress));
+      var width = skipTrack.offsetWidth;
+      var start = skipHandle.offsetWidth / 2;
+      var end = width - start;
+      var x = start + (end - start) * clamped;
+      skipProgress = clamped;
+      skipHandle.style.left = x + 'px';
+      skipFill.style.width = Math.max(0, x - start) + 'px';
+    }
+
+    function resetSkipSlider() {
+      skipHandle.style.transition = 'left 0.28s ease';
+      skipFill.style.transition = 'width 0.28s ease';
+      setSkipProgress(0);
+      setTimeout(function () {
+        skipHandle.style.transition = '';
+        skipFill.style.transition = '';
+      }, 300);
+    }
+
+    function runSkip() {
       journeySkipped = true;
       var journeyScreen = document.getElementById('journey-screen');
       journeyScreen.style.transition = 'opacity 0.6s ease';
       journeyScreen.style.opacity = '0';
       journeyScreen.style.pointerEvents = 'none';
       setTimeout(showSections, 650);
+    }
+
+    skipHandle.addEventListener('pointerdown', function (event) {
+      skipDragging = true;
+      skipHandle.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+
+    window.addEventListener('pointermove', function (event) {
+      if (!skipDragging) return;
+      var rect = skipTrack.getBoundingClientRect();
+      var inset = skipHandle.offsetWidth / 2;
+      setSkipProgress((event.clientX - rect.left - inset) / (rect.width - inset * 2));
+      event.preventDefault();
+    });
+
+    window.addEventListener('pointerup', function () {
+      if (!skipDragging) return;
+      skipDragging = false;
+      if (skipProgress >= 0.95) {
+        runSkip();
+      } else {
+        resetSkipSlider();
+      }
     });
   }
 
@@ -78,9 +129,8 @@
   // Level definitions (dot-based levels)
   var LEVELS = {
     main: [
-      { id:'ask',  label:'Ask Elijah', desc:'direct questions \u00b7 personal guidance', angle:-52 },
-      { id:'res',  label:'Resources',  desc:'books \u00b7 tools \u00b7 guides',           angle:0   },
-      { id:'jour', label:'My Journey', desc:'story \u00b7 faith \u00b7 consistency',      angle:52  },
+      { id:'ask',  label:'Ask Elijah', desc:'direct questions \u00b7 personal guidance', angle:-46 },
+      { id:'news', label:'Newsletter', desc:'one letter every Friday \u00b7 free',        angle:46  },
     ],
     resources: [
       { id:'back',   label:'Back',   desc:'', angle:180, isBack:true },
@@ -90,7 +140,7 @@
     ]
   };
 
-  var ALL_LABELS = ['lbl-ask','lbl-res','lbl-jour','lbl-books','lbl-tools','lbl-guides','lbl-back'];
+  var ALL_LABELS = ['lbl-ask','lbl-news','lbl-res','lbl-jour','lbl-books','lbl-tools','lbl-guides','lbl-back'];
 
   function initCanvas() {
     if (canvasInited) return;
@@ -150,7 +200,7 @@
       ctx.scale(devicePixelRatio, devicePixelRatio);
       sc = W / 460;
       cx = W/2; cy = H*0.44;
-      src.x=cx; src.y=cy; src.r=10*sc;
+      src.x=cx; src.y=cy; src.r=Math.max(10*sc, 11);
 
       if (isBookMode) {
         setupBooks();
@@ -158,7 +208,7 @@
         var arm = Math.min(W*0.37, H*0.34, 180);
         dests = DESTS.map(function(d) {
           var rad = d.angle * Math.PI / 180;
-          return { id:d.id, label:d.label, desc:d.desc, angle:d.angle, isBack:!!d.isBack, x:cx+Math.sin(rad)*arm, y:cy+Math.cos(rad)*arm*0.82, r:6*sc };
+          return { id:d.id, label:d.label, desc:d.desc, angle:d.angle, isBack:!!d.isBack, x:cx+Math.sin(rad)*arm, y:cy+Math.cos(rad)*arm*0.82, r:Math.max(6*sc, 7) };
         });
         hideAllLabels();
         dests.forEach(function(d) {
@@ -696,7 +746,7 @@
       if (!isBookMode && revealed) return;
 
       var p=pt(e); var dx=p.x-src.x,dy=p.y-src.y;
-      if (Math.sqrt(dx*dx+dy*dy)<src.r+20*sc) {
+      if (Math.sqrt(dx*dx+dy*dy) < Math.max(src.r + 20 * sc, 44)) {
         dragging=true; dragPos=p; canvas.classList.add('drag');
         document.getElementById('instr').style.opacity='0'; e.preventDefault();
       }
@@ -755,11 +805,9 @@
           if (snapDest.id === 'back') {
             setTimeout(function() { switchLevel('main'); }, 600);
           } else if (snapDest.id === 'ask') {
-            setTimeout(function() { window.location.href = '/ask-elijah/'; }, 600);
-          } else if (snapDest.id === 'jour') {
-            setTimeout(function() { location.reload(); }, 600);
-          } else if (snapDest.id === 'res') {
-            setTimeout(function() { switchLevel('resources'); }, 800);
+            setTimeout(function() { window.location.assign('https://elijahbryant.pro'); }, 600);
+          } else if (snapDest.id === 'news') {
+            setTimeout(function() { window.location.assign('https://yourplaybook.beehiiv.com'); }, 600);
           } else if (snapDest.id === 'books') {
             setTimeout(enterBookMode, 800);
           }
@@ -771,9 +819,11 @@
     canvas.addEventListener('mousedown',onDown);
     canvas.addEventListener('mousemove',onMove);
     canvas.addEventListener('mouseup',onUp);
+    window.addEventListener('mouseup',onUp);
     canvas.addEventListener('touchstart',onDown,{passive:false});
     canvas.addEventListener('touchmove',onMove,{passive:false});
     canvas.addEventListener('touchend',onUp);
+    window.addEventListener('touchend',onUp);
 
     document.getElementById('rbtn').addEventListener('click',function(){
       if (fading) return;

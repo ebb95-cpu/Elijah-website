@@ -13,9 +13,10 @@
 
   <!-- Styles (no old map.css, hub.css, or social.css) -->
   <link rel="stylesheet" href="css/main.css" />
-  <link rel="stylesheet" href="css/intro.css" />
-  <link rel="stylesheet" href="css/journey.css" />
-  <link rel="stylesheet" href="css/sections.css" />
+  <link rel="stylesheet" href="css/intro.css?v=20260428-mobile" />
+  <link rel="stylesheet" href="css/journey.css?v=20260428-mobile" />
+  <link rel="stylesheet" href="css/sections.css?v=20260428-mobile" />
+  <link rel="stylesheet" href="css/credibility.css" />
 </head>
 <body>
 
@@ -23,6 +24,7 @@
   <div id="intro-screen">
     <div id="intro-inner">
       <h1 id="intro-name">Elijah Bryant</h1>
+      <p class="credibility-line">NBA · EuroLeague Champion · 3 Continents.</p>
 
       <!-- Dot slider -->
       <div class="journey-slider" id="intro-slider">
@@ -48,6 +50,7 @@
   <div id="reflection-screen">
     <div id="reflect-inner">
       <h1 id="reflect-name">Elijah Bryant</h1>
+      <p class="credibility-line">NBA · EuroLeague Champion · 3 Continents.</p>
       <p id="reflect-question">What did your last dot teach you?</p>
 
       <!-- Dot slider (returning visitors) -->
@@ -79,14 +82,23 @@
   <div id="journey-screen">
     <div id="map"></div>
 
-    <!-- Skip button (top-right, appears during animation) -->
-    <button id="skip-btn">skip &rarr;</button>
+    <!-- Skip slider (top-right, appears during animation) -->
+    <div id="skip-btn" class="skip-slider" aria-label="Skip journey">
+      <div class="skip-slider-track">
+        <div class="skip-slider-fill"></div>
+        <div class="skip-slider-dot start"></div>
+        <div class="skip-slider-dot end"></div>
+        <div class="skip-slider-handle"></div>
+      </div>
+      <p class="skip-slider-label">slide to skip &rarr;</p>
+    </div>
 
     <!-- Location info card (bottom-left overlay) -->
     <div id="location-card">
       <div id="loc-number">01</div>
       <div id="loc-city">Atlanta</div>
       <div id="loc-sub">Georgia</div>
+      <div id="loc-tag">Mill Creek High School</div>
       <div id="loc-message">Where the dream started.</div>
     </div>
 
@@ -95,15 +107,14 @@
 
     <!-- Final messages (shown over dimmed map) -->
     <div id="final-msg-1" class="final-msg">
-      Every experience is a dot.
+      <span class="final-copy">Every dot is data.</span>
     </div>
     <div id="final-msg-2" class="final-msg final-msg--lines">
-      <span class="fm-line">Everyone's journey is different.</span>
-      <span class="fm-line">Focus on your journey.</span>
-      <span class="fm-line">What will you learn from each dot?</span>
+      <span class="fm-line final-copy">All data is good data.</span>
+      <span class="fm-line final-copy">If you learn from it.</span>
     </div>
     <div id="final-msg-3" class="final-msg">
-      <span class="fc-text">Faith <span class="fc-plus">+</span> Consistency</span>
+      <span class="fc-text final-copy">Faith <span class="fc-plus">+</span> Consistency</span>
     </div>
   </div>
 
@@ -154,6 +165,7 @@
           <canvas id="c"></canvas>
           <!-- Main level labels -->
           <div id="lbl-ask"  class="dlabel"></div>
+          <div id="lbl-news" class="dlabel"></div>
           <div id="lbl-res"  class="dlabel"></div>
           <div id="lbl-jour" class="dlabel"></div>
           <!-- Resources sub-level labels -->
@@ -177,14 +189,13 @@
     </div>
   </div>
 
-
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <!-- App scripts -->
-  <script src="js/intro.js"></script>
-  <script src="js/journey.js"></script>
+  <script src="js/intro.js?v=20260428-faster-start"></script>
+  <script src="js/journey.js?v=20260428-faster-start"></script>
   <script src="js/books-data.js"></script>
-  <script src="js/sections.js"></script>
+  <script src="js/sections.js?v=20260428-mobile"></script>
 </body>
 </html>

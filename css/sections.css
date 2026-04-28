@@ -636,6 +636,56 @@
 @media (max-width: 768px) {
   #ask-card { padding: 1.8rem 1.4rem; width: min(540px, 92vw); }
   .ask-title { font-size: clamp(1.6rem, 7vw, 2.2rem); }
+
+  #header {
+    padding: max(1.2rem, env(safe-area-inset-top)) 1.2rem 0;
+  }
+
+  #logo {
+    font-size: clamp(0.68rem, 2.8vw, 0.88rem);
+    letter-spacing: 0.28em;
+  }
+
+  #canvas-zone {
+    align-items: center;
+    padding-top: 0;
+  }
+
+  #wrap {
+    width: 100vw;
+    height: min(58vh, 430px);
+    min-height: 340px;
+  }
+
+  #wrap canvas {
+    cursor: default;
+  }
+
+  .dlabel {
+    font-size: clamp(1.15rem, 5.4vw, 1.55rem);
+    letter-spacing: 0.08em;
+  }
+
+  #footer {
+    padding: 0 1.2rem max(1.4rem, env(safe-area-inset-bottom));
+    min-height: 92px;
+  }
+
+  #instr {
+    font-size: 0.52rem;
+    letter-spacing: 0.22em;
+  }
+
+  #ptitle {
+    font-size: clamp(1.45rem, 7vw, 2rem);
+  }
+
+  #pdesc {
+    max-width: 88vw;
+    font-size: 0.52rem;
+    letter-spacing: 0.16em;
+    line-height: 1.6;
+  }
 }
 
 /* ─── Small phones ─── */
@@ -644,4 +694,19 @@
   .ask-title { font-size: clamp(1.4rem, 8vw, 1.9rem); }
   #ask-desc { font-size: 0.8rem; }
   .dot-btn { font-size: 0.68rem; padding: 0.7rem 1rem; }
+
+  #wrap {
+    height: min(54vh, 390px);
+    min-height: 310px;
+  }
+
+  .dlabel {
+    font-size: clamp(1rem, 6.2vw, 1.35rem);
+    letter-spacing: 0.06em;
+  }
+
+  #instr {
+    font-size: 0.48rem;
+    letter-spacing: 0.18em;
+  }
 }

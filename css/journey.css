@@ -27,24 +27,88 @@
   display: none !important;
 }
 
-/* Skip button — top-right */
+/* Skip slider — top-right */
 #skip-btn {
   position: absolute;
   top: 1.5rem;
   right: 1.8rem;
   z-index: 1000;
-  background: none;
-  border: none;
   color: rgba(255,255,255,0.28);
+  width: 160px;
+  user-select: none;
+  touch-action: none;
+}
+
+.skip-slider-track {
+  position: relative;
+  height: 44px;
+}
+
+.skip-slider-track::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 50%;
+  height: 1px;
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-50%);
+}
+
+.skip-slider-fill {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.62);
+  transform: translateY(-50%);
+}
+
+.skip-slider-dot {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.48);
+  transform: translate(-50%, -50%);
+}
+
+.skip-slider-dot.start {
+  left: 8px;
+}
+
+.skip-slider-dot.end {
+  left: calc(100% - 8px);
+}
+
+.skip-slider-handle {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 0 18px rgba(255,255,255,0.22);
+  cursor: grab;
+  transform: translate(-50%, -50%);
+}
+
+.skip-slider-handle:active {
+  cursor: grabbing;
+}
+
+.skip-slider-label {
+  margin: 0.35rem 0 0;
   font-family: 'Inter', sans-serif;
   font-size: 0.62rem;
   font-weight: 300;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  cursor: pointer;
-  touch-action: manipulation;
   transition: color 0.25s ease;
-  padding: 0.5rem 0;
+  text-align: center;
 }
 
 #skip-btn:hover {
@@ -91,7 +155,21 @@
   color: rgba(255,255,255,0.4);
   text-transform: uppercase;
   margin-top: 0.3rem;
+  margin-bottom: 0.35rem;
+}
+
+#loc-tag {
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  color: rgba(212,201,176,0.52);
+  text-transform: uppercase;
   margin-bottom: 0.8rem;
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+#location-card.visible #loc-tag {
+  animation: loc-tag-pulse 1.4s ease forwards;
 }
 
 #loc-message {
@@ -136,8 +214,18 @@
   opacity: 1;
 }
 
-/* Message 1 — "Every experience is a dot." */
-#final-msg-1 {
+.final-copy {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(92vw, 980px);
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+/* Message 1 — "Every dot is data." */
+#final-msg-1 .final-copy {
   font-family: 'Inter', sans-serif;
   font-weight: 300;
   font-size: clamp(1.1rem, 3vw, 1.8rem);
@@ -146,14 +234,7 @@
   line-height: 1.75;
 }
 
-/* Message 2 — three staggered lines */
-.final-msg--lines {
-  flex-direction: column;
-  gap: clamp(0.6rem, 2vh, 1rem);
-}
-
 .fm-line {
-  display: block;
   font-family: 'Inter', sans-serif;
   font-weight: 300;
   font-size: clamp(1rem, 2.8vw, 1.65rem);
@@ -184,9 +265,40 @@
 
 /* Custom Leaflet markers */
 .journey-dot-icon {
-  background: #fff;
+  background: transparent;
   border-radius: 50%;
-  box-shadow: 0 0 10px rgba(255,255,255,0.55), 0 0 0 3px rgba(255,255,255,0.12);
+  z-index: 700 !important;
+}
+
+.journey-dot-core {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(255,255,255,0.88);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(255,255,255,0.62), 0 0 0 4px rgba(255,255,255,0.12);
+}
+
+.journey-dot-icon.active .journey-dot-core {
+  animation: active-journey-dot 1.15s ease-in-out infinite;
+}
+
+@keyframes active-journey-dot {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255,255,255,0.62), 0 0 0 4px rgba(255,255,255,0.12);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(255,255,255,0.75), 0 0 0 9px rgba(255,255,255,0.08);
+    transform: scale(1.2);
+  }
+}
+
+@keyframes loc-tag-pulse {
+  0% { opacity: 0; transform: translateY(5px); }
+  35% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0.72; transform: translateY(0); }
 }
 
 /* ─── Tablet ─── */
@@ -204,6 +316,32 @@
 
 /* ─── Mobile ─── */
 @media (max-width: 768px) {
+  #skip-btn {
+    top: max(0.9rem, env(safe-area-inset-top));
+    right: 1rem;
+    width: min(190px, 48vw);
+  }
+
+  .skip-slider-track {
+    height: 52px;
+  }
+
+  .skip-slider-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .skip-slider-handle {
+    width: 30px;
+    height: 30px;
+  }
+
+  .skip-slider-label {
+    margin-top: 0.15rem;
+    font-size: 0.52rem;
+    letter-spacing: 0.16em;
+  }
+
   #location-card {
     bottom: 1.4rem;
     left: 1.2rem;
@@ -219,14 +357,22 @@
     font-size: 0.6rem;
   }
 
+  #loc-tag {
+    font-size: 0.52rem;
+  }
+
   #loc-message {
     font-size: 0.82rem;
   }
 
-  #final-msg-1 {
+  #final-msg-1 .final-copy {
     font-size: clamp(1rem, 5vw, 1.4rem);
     padding: 1.5rem;
     line-height: 1.65;
+  }
+
+  .final-copy {
+    width: 94vw;
   }
 
   .fm-line {
@@ -241,6 +387,10 @@
 
 /* ─── Small phones ─── */
 @media (max-width: 480px) {
+  #skip-btn {
+    width: min(176px, 54vw);
+  }
+
   #location-card {
     bottom: 1rem;
     left: 1rem;
@@ -260,21 +410,26 @@
     margin-bottom: 0.5rem;
   }
 
+  #loc-tag {
+    font-size: 0.48rem;
+  }
+
   #loc-message {
     font-size: 0.78rem;
     line-height: 1.55;
   }
 
-  #final-msg-1 {
+  #final-msg-1 .final-copy {
     font-size: clamp(0.9rem, 6vw, 1.2rem);
     padding: 1.2rem;
   }
 
   .fm-line {
-    font-size: clamp(0.85rem, 5.5vw, 1.1rem);
+    font-size: clamp(0.82rem, 5vw, 1rem);
   }
 
   .fc-text {
-    font-size: clamp(2rem, 14vw, 3.5rem);
+    font-size: clamp(1.7rem, 11vw, 2.8rem);
+    letter-spacing: 0.04em;
   }
 }
