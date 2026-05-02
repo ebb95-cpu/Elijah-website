@@ -101,13 +101,20 @@
   var routeLines = [];
   var canDrawRoute = false;
 
+  function isMobileViewport() {
+    return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+  }
+
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
   function getFlightDuration(stop) {
     var currentCenter = map.getCenter();
     var distance = currentCenter.distanceTo([stop.lat, stop.lng]);
-    var duration = 1.55 + Math.min(distance / 6200000, 0.9);
-    return Math.max(1.55, Math.min(duration, 2.45));
+    var base = isMobileViewport() ? 1.35 : 1.55;
+    var range = isMobileViewport() ? 0.72 : 0.9;
+    var max = isMobileViewport() ? 2.05 : 2.45;
+    var duration = base + Math.min(distance / 6800000, range);
+    return Math.max(base, Math.min(duration, max));
   }
 
   function flyToView(lat, lng, zoom, duration) {
@@ -125,7 +132,7 @@
   }
 
   async function flyToFirstStop(stop) {
-    await flyToView(stop.lat, stop.lng, 5, 1.35);
+    await flyToView(stop.lat, stop.lng, isMobileViewport() ? 4 : 5, isMobileViewport() ? 1.1 : 1.35);
   }
 
   function flyTo(stop) {
@@ -154,8 +161,8 @@
         setTimeout(resolve, 220);
       });
       map.flyToBounds(bounds, {
-        padding: [170, 170],
-        maxZoom: 5,
+        padding: isMobileViewport() ? [120, 120] : [170, 170],
+        maxZoom: isMobileViewport() ? 4 : 5,
         duration: duration,
         easeLinearity: 0.18
       });
@@ -180,7 +187,7 @@
     }).addTo(map);
   }
 
-  function addLine(from, to) {
+  function addLine(from, to, delay) {
     return new Promise(function (resolve) {
       if (!canDrawRoute) {
         resolve();
@@ -193,10 +200,11 @@
         { color: 'rgba(255,255,255,0.42)', weight: 1.15, interactive: false }
       ).addTo(map);
       routeLines.push(line);
-      var start = performance.now();
-      var duration = 320;
+      var start = null;
+      var duration = 520;
 
       function draw(now) {
+        if (!start) start = now;
         var progress = Math.min(1, (now - start) / duration);
         var eased = 1 - Math.pow(1 - progress, 3);
         var x = fromPoint.x + (toPoint.x - fromPoint.x) * eased;
@@ -212,28 +220,20 @@
         }
       }
 
-      requestAnimationFrame(draw);
+      setTimeout(function () {
+        requestAnimationFrame(draw);
+      }, delay || 0);
     });
   }
 
   function drawFullRoute() {
-    return new Promise(function (resolve) {
-      canDrawRoute = true;
-      var index = 0;
-
-      function drawNext() {
-        if (index >= STOPS.length - 1) {
-          resolve();
-          return;
-        }
-
-        addLine(STOPS[index], STOPS[index + 1]).then(function () {
-          index += 1;
-          setTimeout(drawNext, 25);
-        });
-      }
-
-      drawNext();
+    canDrawRoute = true;
+    var segments = [];
+    for (var i = 0; i < STOPS.length - 1; i++) {
+      segments.push(addLine(STOPS[i], STOPS[i + 1], i * 65));
+    }
+    return Promise.all(segments).then(function () {
+      return undefined;
     });
   }
 
@@ -301,6 +301,7 @@
     var element = marker && marker.getElement ? marker.getElement() : null;
     if (!element) return;
     element.classList.toggle('active', !!isActive);
+    if (!isActive) element.classList.add('settled');
   }
 
   function showFullRoute() {
@@ -314,8 +315,8 @@
         setTimeout(resolve, 240);
       });
       map.flyToBounds(bounds, {
-        padding: [70, 70],
-        duration: 2,
+        padding: isMobileViewport() ? [34, 34] : [70, 70],
+        duration: isMobileViewport() ? 1.6 : 2,
         easeLinearity: 0.25
       });
     });
@@ -341,21 +342,21 @@
       if (activeMarker) pulseMarker(activeMarker, false);
       activeMarker = addDot(stop);
       pulseMarker(activeMarker, true);
-      await wait(260);
+      await wait(210);
       // 4. Show card
       showCard(stop);
       // 5. Hold
-      await wait(2850);
+      await wait(2200);
       // 6. Hide card
       hideCard();
-      await wait(520);
+      await wait(380);
       prev = stop;
     }
     if (activeMarker) pulseMarker(activeMarker, false);
     await showFullRoute();
-    await wait(450);
+    await wait(350);
     await drawFullRoute();
-    await wait(1100);
+    await wait(750);
     // Final messages
     await showFinalMessages();
   }

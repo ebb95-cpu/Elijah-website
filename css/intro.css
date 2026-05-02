@@ -59,8 +59,8 @@
 .slider-track {
   position: relative;
   width: 420px;
-  height: 44px;
-  margin: 18px auto;
+  height: 1px;
+  margin: 40px auto;
 }
 
 .slider-track::before {

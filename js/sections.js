@@ -129,8 +129,9 @@
   // Level definitions (dot-based levels)
   var LEVELS = {
     main: [
-      { id:'ask',  label:'Ask Elijah', desc:'direct questions \u00b7 personal guidance', angle:-46 },
-      { id:'news', label:'Newsletter', desc:'one letter every Friday \u00b7 free',        angle:46  },
+      { id:'ask',  label:'Ask Elijah', desc:'direct questions \u00b7 personal guidance', angle:-58 },
+      { id:'news', label:'Newsletter', desc:'one letter every Friday \u00b7 free',        angle:0  },
+      { id:'social', label:'Socials', desc:'links \u00b7 updates \u00b7 connect', angle:58 },
     ],
     resources: [
       { id:'back',   label:'Back',   desc:'', angle:180, isBack:true },
@@ -140,7 +141,7 @@
     ]
   };
 
-  var ALL_LABELS = ['lbl-ask','lbl-news','lbl-res','lbl-jour','lbl-books','lbl-tools','lbl-guides','lbl-back'];
+  var ALL_LABELS = ['lbl-ask','lbl-social','lbl-news','lbl-res','lbl-jour','lbl-books','lbl-tools','lbl-guides','lbl-back'];
 
   function initCanvas() {
     if (canvasInited) return;
@@ -162,6 +163,10 @@
     // Fade transition state
     var fading = false;
     var fadeAlpha = 1;
+
+    function isMobileCanvas() {
+      return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    }
 
     // Book mode state
     var bookPositions = []; // {book, x, y, r, el}
@@ -200,15 +205,15 @@
       ctx.scale(devicePixelRatio, devicePixelRatio);
       sc = W / 460;
       cx = W/2; cy = H*0.44;
-      src.x=cx; src.y=cy; src.r=Math.max(10*sc, 11);
+      src.x=cx; src.y=cy; src.r=isMobileCanvas() ? Math.max(10*sc, 11) : 10*sc;
 
       if (isBookMode) {
         setupBooks();
       } else {
-        var arm = Math.min(W*0.37, H*0.34, 180);
+        var arm = currentLevel === 'main' ? Math.min(W*0.43, H*0.39, 225) : Math.min(W*0.37, H*0.34, 180);
         dests = DESTS.map(function(d) {
           var rad = d.angle * Math.PI / 180;
-          return { id:d.id, label:d.label, desc:d.desc, angle:d.angle, isBack:!!d.isBack, x:cx+Math.sin(rad)*arm, y:cy+Math.cos(rad)*arm*0.82, r:Math.max(6*sc, 7) };
+          return { id:d.id, label:d.label, desc:d.desc, angle:d.angle, isBack:!!d.isBack, x:cx+Math.sin(rad)*arm, y:cy+Math.cos(rad)*arm*0.82, r:isMobileCanvas() ? Math.max(6*sc, 7) : 6*sc };
         });
         hideAllLabels();
         dests.forEach(function(d) {
@@ -746,7 +751,8 @@
       if (!isBookMode && revealed) return;
 
       var p=pt(e); var dx=p.x-src.x,dy=p.y-src.y;
-      if (Math.sqrt(dx*dx+dy*dy) < Math.max(src.r + 20 * sc, 44)) {
+      var grabRadius = isMobileCanvas() ? Math.max(src.r + 20 * sc, 44) : src.r + 20 * sc;
+      if (Math.sqrt(dx*dx+dy*dy) < grabRadius) {
         dragging=true; dragPos=p; canvas.classList.add('drag');
         document.getElementById('instr').style.opacity='0'; e.preventDefault();
       }
@@ -806,6 +812,8 @@
             setTimeout(function() { switchLevel('main'); }, 600);
           } else if (snapDest.id === 'ask') {
             setTimeout(function() { window.location.assign('https://elijahbryant.pro'); }, 600);
+          } else if (snapDest.id === 'social') {
+            setTimeout(function() { window.location.assign('https://link.me/elijahbryant3?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGn4StJs-aMI6c1m7wLFfG1iJIv6-E-qkXwkBYdV4T9Nnd-OuSwFz3bpvGt4Jk_aem_C8XrYEYpsrFCZt4MjA9sfg'); }, 600);
           } else if (snapDest.id === 'news') {
             setTimeout(function() { window.location.assign('https://yourplaybook.beehiiv.com'); }, 600);
           } else if (snapDest.id === 'books') {
