@@ -215,7 +215,7 @@
     { id:'contract-checklist', title:'Contract Checklist Guide', author:'Available', genre:'career', cover:'resources/guides/contract-checklist/contract-checklist-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/contract-checklist-guide' },
     { id:'packing-guide', title:'Packing Guide', author:'Coming soon', genre:'life' },
     { id:'financial-guide', title:'Financial Guide', author:'Coming soon', genre:'life' },
-    { id:'film-study', title:'Film Study Guide', author:'Coming soon', genre:'basketball' },
+    { id:'film-study', title:'Film Study Guide', author:'Available', genre:'basketball', cover:'resources/guides/film-study/assets/film-study-circle-thumbnail.jpg', url:'https://yourplaybook.beehiiv.com/products/film-study-guide' },
     { id:'body-tools', title:'Body Tools Guide', author:'Coming soon', genre:'performance' },
     { id:'apps-overseas', title:'Apps for Overseas', author:'Coming soon', genre:'life' },
     { id:'mental-game', title:'Mental Game Guide', author:'Coming soon', genre:'mindset' }
