@@ -137,16 +137,22 @@ var BOOKS = [
   { id:136, title:'No Money Down Real Estate',               author:'Brandon Turner',              isbn:'9780990711711', read:false, genre:'Finance',            why:'', helped:'', notes:'' },
 ];
 
-// Helper: get cover URL from ISBN (Open Library Covers API)
+// Amazon Associates tag. Leave empty until Elijah's real tag is known.
+// Example once he has one: 'elijahbryant-20'
+var AMAZON_ASSOCIATE_TAG = '';
+
+// Open Library returns a 1x1 blank image when it has no cover.
+// default=false makes that a 404 so the on-page fallback can show.
 function getBookCover(isbn) {
   if (!isbn) return '';
-  return 'https://covers.openlibrary.org/b/isbn/' + isbn + '-M.jpg';
+  return 'https://covers.openlibrary.org/b/isbn/' + encodeURIComponent(isbn) + '-M.jpg?default=false';
 }
 
-// Helper: generate Amazon search link (replace YOUR_TAG with your affiliate tag)
 function getAmazonLink(book) {
-  var query = encodeURIComponent(book.title + ' ' + book.author);
-  return 'https://www.amazon.com/s?k=' + query + '&tag=YOUR_TAG-20';
+  var query = encodeURIComponent((book.title + ' ' + (book.author || '')).trim());
+  var url = 'https://www.amazon.com/s?k=' + query;
+  if (AMAZON_ASSOCIATE_TAG) url += '&tag=' + encodeURIComponent(AMAZON_ASSOCIATE_TAG);
+  return url;
 }
 
 // Pagination

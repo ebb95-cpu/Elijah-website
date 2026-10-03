@@ -3,7 +3,9 @@
   var screen = document.getElementById('intro-screen'), host = document.getElementById('championship-window');
   var toggle = document.getElementById('championship-toggle'), status = document.getElementById('video-loading-status');
   var retry = document.getElementById('video-loading-retry'), reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  var manifest, videos = [], paused = reduced.matches, blocked = false, away = false, layout, timer, revealed = false;
+  var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  var saveData = !!(connection && connection.saveData);
+  var manifest, videos = [], paused = reduced.matches || saveData, blocked = false, away = false, layout, timer, revealed = false;
   var previous = [], key = 'elijah-native-selection';
   var startupTimers = [];
   var phoneUsed = new Set(), phoneActive = [], phoneGeneration = 0;
@@ -80,10 +82,17 @@
   function update() { toggle.textContent = paused || blocked ? 'Play videos' : 'Pause videos'; toggle.setAttribute('aria-pressed', String(!paused && !blocked)); }
   function reveal() {
     revealed = true; clearTimeout(timer); clearStartup(); retry.hidden = true;
-    screen.classList.remove('videos-loading'); screen.setAttribute('aria-busy', 'false');
-    host.inert = false; document.getElementById('intro-inner').inert = false;
+    screen.classList.remove('videos-loading', 'videos-stalled'); screen.setAttribute('aria-busy', 'false');
+    host.inert = false;
+    var inner = document.getElementById('intro-inner');
+    if (inner) inner.inert = false;
   }
-  function stalled() { if (!revealed) { status.textContent = blocked ? 'Tap to start the videos.' : 'Waiting for videos to load.'; retry.hidden = false; } }
+  function stalled() {
+    if (revealed) return;
+    screen.classList.add('videos-stalled');
+    status.textContent = blocked ? 'Tap to start the videos.' : 'Waiting for videos to load.';
+    retry.hidden = false;
+  }
   function play() {
     if (paused || document.hidden || away) return;
     blocked = false;
@@ -112,7 +121,7 @@
     v.addEventListener('error', stalled); v.src = src; videos.push(v); return v;
   }
   function link(clip) {
-    if (!clip.href) { var tile = document.createElement('div'); tile.setAttribute('aria-label', clip.title); return tile; }
+    if (!clip.href) { var tile = document.createElement('div'); tile.setAttribute('aria-hidden', 'true'); return tile; }
     var a = document.createElement('a'); a.href = clip.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
     a.title = 'Watch ' + clip.title + ' on YouTube'; a.setAttribute('aria-label', 'Watch ' + clip.title + ' on YouTube (opens in a new tab)'); return a;
   }
@@ -122,8 +131,8 @@
     videos.forEach(function (v) { v.pause(); v.removeAttribute('src'); v.load(); }); videos = [];
     host.replaceChildren(); host.removeAttribute('style'); layout = phone();
     host.className = layout ? 'native-video-wall phone-video-wall' : 'native-video-wall desktop-video-wall';
-    revealed = false; blocked = false; screen.classList.add('videos-loading'); screen.setAttribute('aria-busy', 'true');
-    host.inert = true; document.getElementById('intro-inner').inert = true; status.textContent = 'Loading...'; retry.hidden = true;
+    revealed = false; blocked = false; screen.classList.add('videos-loading'); screen.classList.remove('videos-stalled'); screen.setAttribute('aria-busy', 'true');
+    host.inert = true; status.textContent = ''; retry.hidden = true;
     var featured = manifest.clips.find(function (clip) { return clip.featured; });
     var pool = layout && featured ? manifest.clips.filter(function (clip) { return clip.sourceId !== featured.sourceId; }) : manifest.clips;
     var selected = choose(layout ? pool : manifest.variants, layout ? (featured ? 2 : 3) : 1);
@@ -178,20 +187,34 @@
     host.hidden = false; toggle.hidden = false; clearTimeout(timer); timer = setTimeout(stalled, 12000);
     if (paused) reveal(); else startPlayback(); update();
   }
+  function introHidden() {
+    return document.hidden || screen.classList.contains('fading') || getComputedStyle(screen).display === 'none';
+  }
   function sync() {
-    if (!manifest) return;
-    if (document.hidden || screen.classList.contains('fading') || getComputedStyle(screen).display === 'none') { away = true; clearStartup(); videos.forEach(function (v) { v.pause(); }); return; }
+    if (introHidden()) {
+      away = true; clearStartup(); videos.forEach(function (v) { v.pause(); }); return;
+    }
+    if (!manifest) { load(); return; }
     if (away || layout !== phone()) { away = false; render(); }
   }
+  var loadingManifest = false;
   function load() {
+    if (introHidden() || manifest || loadingManifest) return;
+    loadingManifest = true;
     fetch('videos/background/manifest.json').then(function (r) { if (!r.ok) throw Error('Unavailable'); return r.json(); })
-      .then(function (data) { manifest = data; render(); }).catch(function () { status.textContent = 'Unable to load videos. Please retry.'; retry.hidden = false; });
+      .then(function (data) { manifest = data; if (!introHidden()) render(); }).catch(function () { screen.classList.add('videos-stalled'); status.textContent = 'Unable to load videos. Please retry.'; retry.hidden = false; });
   }
   retry.addEventListener('click', function () { retry.hidden = true; if (!manifest) load(); else { videos.forEach(function (v) { if (v.error) v.load(); }); play(); } });
-  toggle.addEventListener('click', function () { paused = blocked ? false : !paused; if (paused) videos.forEach(function (v) { v.pause(); }); else play(); update(); });
+  toggle.addEventListener('click', function () {
+    if (!manifest) { paused = false; saveData = false; load(); return; }
+    paused = blocked ? false : !paused; if (paused) videos.forEach(function (v) { v.pause(); }); else play(); update();
+  });
   screen.addEventListener('pointerdown', function (e) { if (blocked && !paused && e.target !== toggle && e.target !== retry) play(); });
   reduced.addEventListener('change', function () { paused = reduced.matches; if (manifest) render(); });
   document.addEventListener('visibilitychange', sync); window.addEventListener('resize', sync);
   window.addEventListener('pagehide', function () { away = true; videos.forEach(function (v) { v.pause(); }); }); window.addEventListener('pageshow', sync);
-  new MutationObserver(sync).observe(screen, { attributes: true, attributeFilter: ['class', 'style'] }); load();
+  new MutationObserver(sync).observe(screen, { attributes: true, attributeFilter: ['class', 'style'] });
+  new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  if (saveData) { paused = true; toggle.hidden = false; update(); }
+  else load();
 }());

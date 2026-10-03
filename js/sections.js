@@ -9,27 +9,71 @@
   var askResponse    = document.getElementById('ask-response');
 
   var journeySkipped = false;
-  var requestedEntryLevel = new URLSearchParams(window.location.search).get('menu');
+  var params = new URLSearchParams(window.location.search);
+  var requestedEntryLevel = params.get('menu');
+  var forceIntro = params.get('intro') === '1';
   var directEntryHandled = false;
+  var directMenus = { resources: 1, books: 1, guides: 1, ask: 1, contact: 1 };
+  var applyHubDestination = function () {};
+
+  if (document.documentElement.classList.contains('unknown-path')) return;
+
+  function rememberVisit() {
+    try { localStorage.setItem('elijah-return-visit', '1'); } catch (e) {}
+  }
+
+  function isReturningVisitor() {
+    try { return localStorage.getItem('elijah-return-visit') === '1'; } catch (e) { return false; }
+  }
+
+  function shouldOpenHub() {
+    if (forceIntro) return false;
+    if (directMenus[requestedEntryLevel]) return true;
+    if (window.history.state && window.history.state.returnToSections) return true;
+    return isReturningVisitor();
+  }
+
+  function hideGates() {
+    ['intro-screen', 'reflection-screen', 'journey-screen'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    document.documentElement.classList.add('skip-intro');
+    document.documentElement.classList.remove('watching-journey');
+  }
+
   // History state survives both a cached Back navigation and a full page reload.
   function handleDirectEntry() {
-    var returningToSections = window.history.state && window.history.state.returnToSections;
-    if ((!returningToSections && requestedEntryLevel !== 'resources') || directEntryHandled) return;
+    if (directEntryHandled || !shouldOpenHub()) return;
     directEntryHandled = true;
-    ['intro-screen', 'reflection-screen', 'journey-screen'].forEach(function (id) {
-      document.getElementById(id).style.display = 'none';
-    });
+    hideGates();
     showSections();
-    if (returningToSections && requestedEntryLevel !== 'resources') {
-      setTimeout(function () { document.getElementById('rbtn').click(); }, 140);
-    }
   }
-  window.addEventListener('pageshow', handleDirectEntry);
   handleDirectEntry();
+  rememberVisit();
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) handleDirectEntry();
+  });
+
+  window.enterHub = function (dest) {
+    var target = dest || 'main';
+    rememberVisit();
+    hideGates();
+    if (!sectionsScreen.classList.contains('visible')) {
+      requestedEntryLevel = target === 'main' ? '' : target;
+      showSections();
+    } else if (canvasInited) {
+      applyHubDestination(target);
+    } else {
+      requestedEntryLevel = target === 'main' ? '' : target;
+    }
+  };
 
   // ─── Core screen transitions ──────────────────────────────────────────────
 
   function showSections() {
+    document.documentElement.classList.remove('watching-journey');
+    document.documentElement.classList.add('skip-intro');
     sectionsScreen.classList.add('visible');
     document.body.style.overflow = 'auto';
     setTimeout(initCanvas, 100);
@@ -185,10 +229,27 @@
 
   // ─── Journey complete → show sections ────────────────────────────────────
 
+  document.addEventListener('journeyStart', function () {
+    journeySkipped = false;
+    sectionsScreen.classList.remove('visible');
+    document.documentElement.classList.add('watching-journey');
+  });
+
   document.addEventListener('journeyComplete', function () {
     if (journeySkipped) return;
     setTimeout(showSections, 800);
   });
+
+  var watchFromHub = document.getElementById('watch-journey-hub');
+  if (watchFromHub) {
+    watchFromHub.addEventListener('click', function () {
+      document.documentElement.classList.add('watching-journey');
+      document.documentElement.classList.remove('skip-intro');
+      sectionsScreen.classList.remove('visible');
+      document.getElementById('intro-screen').style.display = 'none';
+      document.dispatchEvent(new CustomEvent('journeyStart'));
+    });
+  }
 
   // ─── Canvas dot navigation ───────────────────────────────────────────────
 
@@ -211,8 +272,8 @@
   };
 
   var GUIDE_RESOURCES = [
-    { id:'agent-questions', title:'Agent Questions Guide', author:'Available', genre:'career', cover:'resources/guides/agent-questions/agent-questions-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/agent-questions-guide' },
-    { id:'contract-checklist', title:'Contract Checklist Guide', author:'Available', genre:'career', cover:'resources/guides/contract-checklist/contract-checklist-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/contract-checklist-guide' },
+    { id:'agent-questions', title:'Agent Questions Guide', author:'Available', genre:'career', cover:'resources/guides/agent-questions/agent-questions-circle-thumbnail.webp', url:'https://yourplaybook.beehiiv.com/products/agent-questions-guide' },
+    { id:'contract-checklist', title:'Contract Checklist Guide', author:'Available', genre:'career', cover:'resources/guides/contract-checklist/contract-checklist-circle-thumbnail.webp', url:'https://yourplaybook.beehiiv.com/products/contract-checklist-guide' },
     { id:'packing-guide', title:'Packing Guide', author:'Coming soon', genre:'life' },
     { id:'financial-guide', title:'Financial Guide', author:'Coming soon', genre:'life' },
     { id:'film-study', title:'Film Study Guide', author:'Coming soon', genre:'basketball' },
@@ -232,8 +293,9 @@
     var wrap   = document.getElementById('wrap');
     var booksOrbit = document.getElementById('books-orbit');
 
-    var currentLevel = requestedEntryLevel === 'resources' ? 'resources' : 'main';
-    var isBookMode = false;
+    var currentLevel = (requestedEntryLevel === 'resources' || requestedEntryLevel === 'books' || requestedEntryLevel === 'guides') ? 'resources' : 'main';
+    var isBookMode = requestedEntryLevel === 'books' || requestedEntryLevel === 'guides';
+    var orbitMode = requestedEntryLevel === 'guides' ? 'guides' : 'books';
     var DESTS = LEVELS[currentLevel];
     var W, H, cx, cy, sc, dests=[];
     var src = { x:0, y:0, r:10 };
@@ -250,7 +312,6 @@
 
     // Book mode state
     var bookPositions = []; // {book, x, y, r, el}
-    var orbitMode = 'books';
     var snapBook = null;
     var revealedBook = null;
     var bookLineP = 0;
@@ -381,14 +442,18 @@
           if (coverUrl) {
             el = document.createElement('img');
             el.className = 'book-thumb' + (orbitMode === 'guides' ? ' guide-thumb' : '') + (book.read ? ' read-badge' : '');
-            el.src = coverUrl;
             el.alt = book.title;
-            el.onerror = function() {
+            el.loading = 'lazy';
+            el.decoding = 'async';
+            function usePlaceholder() {
+              if (!el.parentNode) return;
               var ph = createPlaceholder(book);
               ph.style.left = el.style.left;
               ph.style.top = el.style.top;
               ph.style.width = el.style.width;
               ph.style.height = el.style.height;
+              var preview = el.style.getPropertyValue('--preview-transform');
+              if (preview) ph.style.setProperty('--preview-transform', preview);
               el.parentNode.replaceChild(ph, el);
               for (var k=0; k<bookPositions.length; k++) {
                 if (bookPositions[k].book.id === book.id) {
@@ -397,7 +462,12 @@
                 }
               }
               setTimeout(function(){ ph.classList.add('visible'); }, 50);
+            }
+            el.onerror = usePlaceholder;
+            el.onload = function () {
+              if (el.naturalWidth < 20 || el.naturalHeight < 20) usePlaceholder();
             };
+            el.src = coverUrl;
           } else {
             el = createPlaceholder(book);
           }
@@ -978,11 +1048,31 @@
 
     canvas.style.cursor='grab';
     setup();
-    if (requestedEntryLevel === 'resources') {
-      requestedEntryLevel = '';
+    if (isBookMode) {
+      document.getElementById('instr').textContent = orbitMode === 'guides' ? 'drag the dot \u00b7 connect to a guide' : 'drag the dot \u00b7 connect to a book';
+      document.getElementById('rbtn').style.display = 'none';
+    } else if (currentLevel === 'resources') {
       document.getElementById('instr').textContent = 'drag the dot \u00b7 explore resources';
       document.getElementById('rbtn').style.display = 'none';
     }
+    if (requestedEntryLevel === 'ask') setTimeout(openAsk, 350);
+    if (requestedEntryLevel === 'contact' && window.openSiteDialog) {
+      setTimeout(function () { window.openSiteDialog('contact-dialog'); }, 350);
+    }
+    requestedEntryLevel = '';
+
+    applyHubDestination = function (dest) {
+      if (fading) return;
+      if (dest === 'books' || dest === 'guides') enterBookMode(dest === 'guides' ? 'guides' : 'books');
+      else if (dest === 'resources') {
+        if (isBookMode) exitBookMode();
+        else switchLevel('resources');
+      } else if (dest === 'ask') openAsk();
+      else if (dest === 'contact' && window.openSiteDialog) window.openSiteDialog('contact-dialog');
+      else if (isBookMode) exitBookMode();
+      else switchLevel('main');
+    };
+
     window.addEventListener('resize', function() {
       setup();
     });

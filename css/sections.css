@@ -62,14 +62,14 @@
 .ask-brand-copy { min-width: 0; }
 .ask-brain-logo { width: 92px; height: 83px; object-fit: contain; flex: 0 0 auto; }
 #ask-screen .ask-title { font-family: 'Geist', Arial, sans-serif; font-weight: 600; text-transform: uppercase; color: var(--ask-accent); font-size: 14px; letter-spacing: 0; margin: 0; }
-#ask-screen .ask-beta-tag { color: #8c9298; letter-spacing: 0; font-size: 12px; margin: 12px 0 0; }
-#ask-input-row label { display: block; color: #8c9298; font-size: 12px; margin-bottom: 8px; }
+#ask-screen .ask-beta-tag { color: #c5c8cc; letter-spacing: 0; font-size: 14px; margin: 12px 0 0; }
+#ask-input-row label { display: block; color: #c5c8cc; font-size: 14px; margin-bottom: 8px; }
 #ask-screen #ask-submit { width: 100%; justify-content: center; background: var(--ask-accent); color: #0a0a0a; border: 0; border-radius: 6px; font-family: inherit; font-weight: 600; letter-spacing: 0; }
 #ask-screen #ask-email { padding: 14px 12px; background: #1a1f24; border: 1px solid #2c333a; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px; }
 #ask-screen #ask-email:focus { outline: 2px solid var(--ask-accent); outline-offset: 2px; }
 #ask-screen #ask-email::placeholder { color: #8c9298; opacity: 0.8; }
 #ask-screen #ask-input-row { border: 0; }
-#ask-screen #ask-desc { color: #8c9298; }
+#ask-screen #ask-desc { color: #d5d8dc; }
 @media (max-width: 420px) {
   #ask-card { width: 100%; padding: 24px; }
   .ask-brain-logo { width: 72px; height: 65px; }
@@ -94,10 +94,10 @@
 }
 
 #ask-desc {
-  font-size: 0.85rem;
-  font-weight: 300;
-  color: rgba(255,255,255,0.5);
-  line-height: 1.75;
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.6;
   margin-bottom: 1.8rem;
 }
 
@@ -237,7 +237,7 @@
   background: transparent;
   border: 0;
   color: #aaa;
-  font: 12px 'Montserrat', sans-serif;
+  font: 14px 'Montserrat', sans-serif;
   cursor: pointer;
   padding: 10px;
 }
@@ -254,10 +254,10 @@
 
 #logo {
   font-family: 'Montserrat', sans-serif;
-  font-weight: 300;
-  font-size: clamp(0.85rem, 2.2vw, 1.1rem);
-  letter-spacing: 0.45em;
-  color: #c8bfa8;
+  font-weight: 400;
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  color: #e8e0d0;
   text-transform: uppercase;
 }
 
@@ -303,7 +303,7 @@
 
 #lbl-back {
   font-family: 'Montserrat', sans-serif;
-  font-size: clamp(0.6rem, 1.6vw, 0.75rem);
+  font-size: 14px;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: #2a2a2a;
@@ -321,10 +321,10 @@
 
 #instr {
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.58rem;
-  font-weight: 300;
-  letter-spacing: 0.32em;
-  color: #333;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #d2d2d2;
   text-transform: uppercase;
   transition: opacity 0.5s;
 }
@@ -350,10 +350,10 @@
 
 #pdesc {
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.58rem;
-  font-weight: 300;
-  letter-spacing: 0.22em;
-  color: #555;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #e4e4e4;
   text-transform: uppercase;
 }
 
@@ -361,10 +361,11 @@
   margin-top: 0.7rem;
   background: transparent;
   border: 0.5px solid #2c2c2c;
-  color: #444;
-  padding: 6px 20px;
+  color: #e4e4e4;
+  padding: 10px 20px;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.55rem;
+  font-size: 14px;
+  min-height: 44px;
   font-weight: 300;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -392,11 +393,11 @@
   align-items: center;
   gap: 6px;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.5rem;
-  font-weight: 300;
-  letter-spacing: 0.22em;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.15);
+  color: #d8d8d8;
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -428,10 +429,10 @@
   border-radius: 0;
   padding: 4px 0;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.5rem;
-  font-weight: 300;
-  letter-spacing: 0.2em;
-  color: rgba(255,255,255,0.5);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #eee;
   outline: none;
   transition: border-color 0.3s, width 0.3s, color 0.3s;
   text-align: right;
@@ -506,14 +507,14 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #1a1a1a;
-  border: 1.5px solid rgba(212,201,176,0.15);
+  background: radial-gradient(circle at 50% 35%, #3a342c, #141210 70%);
+  border: 1.5px solid rgba(232,224,208,0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 0.5rem;
-  color: rgba(212,201,176,0.4);
+  font-size: 11px;
+  color: #e8e0d0;
   letter-spacing: 0.05em;
   opacity: 0;
   transform: scale(0.7);
@@ -747,8 +748,8 @@
   }
 
   #logo {
-    font-size: clamp(0.68rem, 2.8vw, 0.88rem);
-    letter-spacing: 0.28em;
+    font-size: 15px;
+    letter-spacing: 0.12em;
   }
 
   #canvas-zone {
@@ -777,8 +778,8 @@
   }
 
   #instr {
-    font-size: 0.52rem;
-    letter-spacing: 0.22em;
+    font-size: 14px;
+    letter-spacing: 0.06em;
   }
 
   #ptitle {
@@ -787,8 +788,8 @@
 
   #pdesc {
     max-width: 88vw;
-    font-size: 0.52rem;
-    letter-spacing: 0.16em;
+    font-size: 14px;
+    letter-spacing: 0.04em;
     line-height: 1.6;
   }
 }
@@ -797,8 +798,8 @@
 @media (max-width: 480px) {
   #ask-card { padding: 1.5rem 1.1rem; width: 94vw; }
   .ask-title { font-size: clamp(1.4rem, 8vw, 1.9rem); }
-  #ask-desc { font-size: 0.8rem; }
-  .dot-btn { font-size: 0.68rem; padding: 0.7rem 1rem; }
+  #ask-desc { font-size: 16px; }
+  .dot-btn { font-size: 14px; padding: 0.7rem 1rem; }
 
   #wrap {
     height: min(54vh, 390px);
@@ -811,7 +812,7 @@
   }
 
   #instr {
-    font-size: 0.48rem;
-    letter-spacing: 0.18em;
+    font-size: 14px;
+    letter-spacing: 0.04em;
   }
 }

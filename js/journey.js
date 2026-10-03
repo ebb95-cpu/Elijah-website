@@ -1,6 +1,9 @@
 (function () {
   'use strict';
 
+  // Leaflet and the country geometry stay unloaded until someone chooses the journey.
+  function bootJourney() {
+
   var STOPS = [
     {
       lat: 34.082, lng: -83.902, zoom: 8,
@@ -431,15 +434,45 @@
 
   // ─── Listen for journey start ─────────────────────────────────────────────
 
+  var journeyScreen = document.getElementById('journey-screen');
+  journeyScreen.classList.add('visible');
+  journeyScreen.style.opacity = '';
+  journeyScreen.style.pointerEvents = '';
+  clearRouteLines();
+  setTimeout(function () {
+    map.invalidateSize();
+    setTimeout(runJourney, 320);
+  }, 280);
+  }
+
+  function loadLeaflet(done) {
+    if (window.L) { done(); return; }
+    var css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(css);
+    var script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = function () { done(); };
+    script.onerror = function () { console.error('Map could not be loaded'); };
+    document.head.appendChild(script);
+  }
+
+  var booted = false;
   document.addEventListener('journeyStart', function () {
+    document.documentElement.classList.add('watching-journey');
     var journeyScreen = document.getElementById('journey-screen');
-    journeyScreen.classList.add('visible');
-    clearRouteLines();
-    // invalidate map size after screen is shown
-    setTimeout(function () {
-      map.invalidateSize();
-      setTimeout(runJourney, 320);
-    }, 280);
+    if (journeyScreen) {
+      journeyScreen.classList.add('visible');
+      journeyScreen.style.opacity = '';
+      journeyScreen.style.pointerEvents = '';
+    }
+    if (booted) return;
+    loadLeaflet(function () {
+      if (booted) return;
+      booted = true;
+      bootJourney();
+    });
   });
 
 }());
