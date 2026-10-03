@@ -34,7 +34,10 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
   const rawProgress = useRef(0);
   const svgRef      = useRef<SVGSVGElement>(null);
   const phaseRef    = useRef<Phase>('dots');
-  phaseRef.current  = phase;
+
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
   // Show or skip on mount
   useEffect(() => {
@@ -44,9 +47,14 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         return;
       }
     } catch { /* ignore */ }
-    setVisible(true);
-    const t = setTimeout(() => setHintVisible(true), 1600);
-    return () => clearTimeout(t);
+
+    const showTimer = setTimeout(() => setVisible(true), 0);
+    const hintTimer = setTimeout(() => setHintVisible(true), 1600);
+
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hintTimer);
+    };
   }, [onComplete]);
 
   // Phase auto-progression
@@ -344,7 +352,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
                     textAlign: 'center',
                   }}
                 >
-                  Everyone's journey is different.
+                  Everyone&apos;s journey is different.
                 </motion.p>
               )}
 

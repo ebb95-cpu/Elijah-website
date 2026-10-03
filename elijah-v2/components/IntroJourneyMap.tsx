@@ -1,9 +1,11 @@
 'use client';
 
+import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import { motion } from 'framer-motion';
-import { ComposableMap, Geographies, Geography, Marker, Line } from 'react-simple-maps';
-
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+import type { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
+import { feature } from 'topojson-client';
+import type { GeometryCollection, Topology } from 'topojson-specification';
+import worldData from 'world-atlas/countries-110m.json';
 
 const STOPS: { label: string; coordinates: [number, number] }[] = [
   { label: 'Atlanta',      coordinates: [-84.388,  33.749] },
@@ -17,6 +19,33 @@ const STOPS: { label: string; coordinates: [number, number] }[] = [
   { label: "Ha'poel",      coordinates: [34.800,   32.200] },
 ];
 
+type CountryFeatureCollection = FeatureCollection<Geometry, GeoJsonProperties>;
+
+const MAP_SIZE = {
+  width: 960,
+  height: 540,
+};
+
+const worldTopology = worldData as unknown as Topology<{
+  countries: GeometryCollection;
+}>;
+
+const countryFeatures = feature(
+  worldTopology,
+  worldTopology.objects.countries
+) as CountryFeatureCollection;
+
+const projection = geoNaturalEarth1()
+  .scale(148)
+  .center([-30, 38])
+  .translate([MAP_SIZE.width / 2, MAP_SIZE.height / 2]);
+
+const pathGenerator = geoPath(projection);
+
+function projectPoint(coordinates: [number, number]) {
+  return projection(coordinates) ?? [0, 0];
+}
+
 export default function IntroJourneyMap() {
   return (
     <motion.div
@@ -25,53 +54,57 @@ export default function IntroJourneyMap() {
       animate={{ scale: 1 }}
       transition={{ duration: 6, ease: [0.16, 1, 0.3, 1] }}
     >
-      <ComposableMap
-        projection="geoNaturalEarth1"
-        projectionConfig={{ scale: 148, center: [-30, 38] }}
-        style={{ width: '100%', height: '100%' }}
+      <svg
+        aria-label="Elijah Bryant journey map"
+        className="h-full w-full"
+        role="img"
+        viewBox={`0 0 ${MAP_SIZE.width} ${MAP_SIZE.height}`}
       >
         {/* Base map — extremely subtle */}
-        <Geographies geography={GEO_URL}>
-          {({ geographies }) =>
-            geographies.map((geo) => (
-              <Geography
-                key={geo.rsmKey}
-                geography={geo}
+        <g>
+          {countryFeatures.features.map((country, index) => {
+            const path = pathGenerator(country);
+
+            return path ? (
+              <path
+                key={`${country.id ?? 'country'}-${index}`}
+                d={path}
                 fill="#141414"
                 stroke="rgba(255,255,255,0.04)"
                 strokeWidth={0.4}
-                style={{
-                  default: { outline: 'none' },
-                  hover:   { outline: 'none' },
-                  pressed: { outline: 'none' },
-                }}
               />
-            ))
-          }
-        </Geographies>
+            ) : null;
+          })}
+        </g>
 
         {/* Connection lines — staggered reveal */}
-        {STOPS.slice(0, -1).map((stop, i) => (
-          <motion.g
-            key={`line-${i}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 + i * 0.32, duration: 0.7 }}
-          >
-            <Line
-              from={stop.coordinates}
-              to={STOPS[i + 1].coordinates}
+        {STOPS.slice(0, -1).map((stop, i) => {
+          const [x1, y1] = projectPoint(stop.coordinates);
+          const [x2, y2] = projectPoint(STOPS[i + 1].coordinates);
+
+          return (
+            <motion.path
+              key={`line-${i}`}
+              d={`M ${x1} ${y1} L ${x2} ${y2}`}
+              fill="none"
               stroke="rgba(255,255,255,0.38)"
               strokeWidth={0.8}
               strokeLinecap="round"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 + i * 0.32, duration: 0.7 }}
             />
-          </motion.g>
-        ))}
+          );
+        })}
 
         {/* Markers — appear after their connecting line */}
-        {STOPS.map((stop, i) => (
-          <Marker key={`stop-${i}`} coordinates={stop.coordinates}>
+        {STOPS.map((stop, i) => {
+          const [x, y] = projectPoint(stop.coordinates);
+
+          return (
             <motion.g
+              key={`stop-${i}`}
+              transform={`translate(${x} ${y})`}
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 + i * 0.32, duration: 0.4, ease: 'backOut' }}
@@ -103,9 +136,9 @@ export default function IntroJourneyMap() {
                 {stop.label}
               </text>
             </motion.g>
-          </Marker>
-        ))}
-      </ComposableMap>
+          );
+        })}
+      </svg>
     </motion.div>
   );
 }

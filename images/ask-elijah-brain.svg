@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="32 36 137 123" fill="none">
+<style>
+  svg > path { animation: outline-glow 4.5s ease-in-out infinite; }
+  line { animation: wire-pulse 3.2s ease-in-out infinite; animation-delay: calc(1.4s + var(--i, 0) * .1s); }
+  g:last-child circle { transform-box: fill-box; transform-origin: center; animation: node-pulse 2.6s ease-in-out infinite; animation-delay: calc(1.3s + var(--i, 0) * .14s); }
+  g:last-child circle:nth-child(4), g:last-child circle:nth-child(8), g:last-child circle:nth-child(9), g:last-child circle:nth-child(10) { animation-name: hub-pulse; }
+  line, g:last-child circle { --i: 0; }
+  line:nth-child(10n + 2), g:last-child circle:nth-child(10n + 2) { --i: 1; }
+  line:nth-child(10n + 3), g:last-child circle:nth-child(10n + 3) { --i: 2; }
+  line:nth-child(10n + 4), g:last-child circle:nth-child(10n + 4) { --i: 3; }
+  line:nth-child(10n + 5), g:last-child circle:nth-child(10n + 5) { --i: 4; }
+  line:nth-child(10n + 6), g:last-child circle:nth-child(10n + 6) { --i: 5; }
+  line:nth-child(10n + 7), g:last-child circle:nth-child(10n + 7) { --i: 6; }
+  line:nth-child(10n + 8), g:last-child circle:nth-child(10n + 8) { --i: 7; }
+  line:nth-child(10n + 9), g:last-child circle:nth-child(10n + 9) { --i: 8; }
+  line:nth-child(10n), g:last-child circle:nth-child(10n) { --i: 9; }
+  g:last-child circle:nth-child(11) { --i: 10; }
+  g:last-child circle:nth-child(12) { --i: 11; }
+  g:last-child circle:nth-child(13) { --i: 0; }
+  g:last-child circle:nth-child(14) { --i: 1; }
+  @keyframes outline-glow { 0%, 100% { stroke-opacity: .82; } 50% { stroke-opacity: 1; } }
+  @keyframes wire-pulse { 0%, 100% { stroke-opacity: .35; } 50% { stroke-opacity: .75; } }
+  @keyframes node-pulse { 0%, 100% { opacity: .72; transform: scale(1); } 50% { opacity: 1; transform: scale(1.22); } }
+  @keyframes hub-pulse { 0%, 100% { opacity: .85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.32); } }
+  @media (prefers-reduced-motion: reduce) {
+    svg > path, line, g:last-child circle { animation: none; }
+    .packets { display: none; }
+  }
+</style>
+<defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<path d="M 40.6 94.1 Q 40.6 94.1 41 92.3 Q 41.4 90.6 42.2 88.8 Q 43 87.1 44.5 82.4 Q 46.1 77.7 46.5 76.3 Q 46.9 75 47.6 73.7 Q 48.4 72.3 49.8 70.5 Q 51.2 68.8 53.2 67.2 Q 55.1 65.6 57.8 61.9 Q 60.5 58.2 61.5 57.3 Q 62.5 56.3 63.9 55.3 Q 65.2 54.3 67.3 53.3 Q 69.5 52.3 73.3 50.5 Q 77 48.8 78.2 48.3 Q 79.3 47.7 81 47.1 Q 82.8 46.5 84.9 46.1 Q 87.1 45.7 89.3 45.7 Q 91.4 45.7 95.1 45.3 Q 98.8 44.9 101.8 44.7 Q 104.7 44.5 105.7 44.5 Q 106.6 44.5 108.5 44.9 Q 110.5 45.3 112.3 45.9 Q 114.1 46.5 118.2 47.5 Q 122.3 48.4 124.7 48.8 Q 127 49.2 129.5 50.2 Q 132 51.2 133.6 52.2 Q 135.2 53.1 135.8 53.7 Q 136.3 54.3 140.2 57.3 Q 144.1 60.2 146.3 61.5 Q 148.4 62.9 150.2 64.8 Q 152 66.8 152.2 67 Q 152.3 67.2 153.5 69.8 Q 154.7 72.3 156.6 76.6 Q 158.6 80.9 159.2 82.8 Q 159.8 84.8 159.8 85.9 Q 159.8 87.1 159.8 89.7 Q 159.8 92.2 158.8 95 Q 157.8 97.7 156.1 100 Q 154.3 102.3 151.4 104.1 Q 148.4 105.9 143.2 106.7 Q 137.9 107.4 135.6 109.6 Q 133.2 111.7 132.6 113.1 Q 132 114.5 131.7 115 Q 131.3 115.6 130.3 116.8 Q 129.3 118 128.2 119 Q 127 119.9 125.4 120.7 Q 123.8 121.5 122.4 121.9 Q 121.1 122.3 119.3 122.7 Q 117.6 123 116.2 123 Q 114.8 123 113.3 122.8 Q 111.7 122.7 110.3 122.5 Q 109 122.3 107 123 Q 105.1 123.8 104.1 125.4 Q 103.1 127 101.8 128.8 Q 100.4 130.5 98.8 131.8 Q 97.3 133.2 95.3 134.8 Q 93.4 136.3 90.7 139.9 Q 87.9 143.4 84.6 146.7 Q 81.3 150 78.5 150 Q 75.8 150 75.2 150 Q 74.6 150 74.8 145.3 Q 75 140.6 72.8 136.5 Q 70.7 132.4 68.2 132.2 Q 65.6 132 63.3 131.3 Q 60.9 130.5 59 129.3 Q 57 128.1 55.6 126.5 Q 54.3 125 53.9 124.2 Q 53.5 123.4 52.9 121.5 Q 52.3 119.5 49.4 115.8 Q 46.5 112.1 44.8 109.9 Q 43 107.8 42 105.3 Q 41 102.7 40.8 101.6 Q 40.6 100.4 40.6 97.3 Z" stroke="white" stroke-opacity=".92" stroke-width="1.55" stroke-linejoin="round" stroke-linecap="round" filter="url(#glow)"/>
+<g stroke="#20e294" stroke-linecap="round" stroke-opacity=".62"><line x1="52" y1="98" x2="59" y2="80"/><line x1="59" y1="80" x2="75" y2="66"/><line x1="75" y1="66" x2="98" y2="55"/><line x1="98" y1="55" x2="127" y2="70"/><line x1="127" y1="70" x2="139" y2="92"/><line x1="52" y1="98" x2="72" y2="98"/><line x1="59" y1="80" x2="72" y2="98"/><line x1="75" y1="66" x2="102" y2="77"/><line x1="98" y1="55" x2="102" y2="77"/><line x1="127" y1="70" x2="118" y2="89"/><line x1="139" y1="92" x2="118" y2="89"/><line x1="139" y1="92" x2="128" y2="101"/><line x1="72" y1="98" x2="102" y2="77"/><line x1="102" y1="77" x2="118" y2="89"/><line x1="72" y1="98" x2="100" y2="104"/><line x1="102" y1="77" x2="100" y2="104"/><line x1="118" y1="89" x2="100" y2="104"/><line x1="118" y1="89" x2="128" y2="101"/><line x1="52" y1="98" x2="61" y2="111"/><line x1="72" y1="98" x2="61" y2="111"/><line x1="72" y1="98" x2="83" y2="116"/><line x1="100" y1="104" x2="83" y2="116"/><line x1="100" y1="104" x2="128" y2="101"/><line x1="61" y1="111" x2="83" y2="116"/><line x1="83" y1="116" x2="84" y2="135"/></g>
+<g class="packets" fill="#b8ffe0" filter="url(#glow)">
+  <circle r="1.7" opacity="0"><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.85;1" dur="2.6s" begin="0s" repeatCount="indefinite"/><animateMotion dur="2.6s" begin="0s" repeatCount="indefinite" path="M59 80 L75 66"/></circle>
+  <circle r="1.7" opacity="0"><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.85;1" dur="3s" begin=".7s" repeatCount="indefinite"/><animateMotion dur="3s" begin=".7s" repeatCount="indefinite" path="M127 70 L139 92"/></circle>
+  <circle r="1.7" opacity="0"><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.85;1" dur="3.4s" begin="1.4s" repeatCount="indefinite"/><animateMotion dur="3.4s" begin="1.4s" repeatCount="indefinite" path="M127 70 L118 89"/></circle>
+  <circle r="1.7" opacity="0"><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.85;1" dur="2.6s" begin="2.1s" repeatCount="indefinite"/><animateMotion dur="2.6s" begin="2.1s" repeatCount="indefinite" path="M72 98 L102 77"/></circle>
+  <circle r="1.7" opacity="0"><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.85;1" dur="3s" begin="2.8s" repeatCount="indefinite"/><animateMotion dur="3s" begin="2.8s" repeatCount="indefinite" path="M118 89 L100 104"/></circle>
+  <circle r="1.7" opacity="0"><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.85;1" dur="3.4s" begin="3.5s" repeatCount="indefinite"/><animateMotion dur="3.4s" begin="3.5s" repeatCount="indefinite" path="M72 98 L61 111"/></circle>
+</g>
+<g fill="#20e294" filter="url(#glow)"><circle cx="52" cy="98" r="2.2"/><circle cx="59" cy="80" r="2.3"/><circle cx="75" cy="66" r="2.5"/><circle cx="98" cy="55" r="2.8"/><circle cx="127" cy="70" r="2.5"/><circle cx="139" cy="92" r="2.2"/><circle cx="72" cy="98" r="2.3"/><circle cx="102" cy="77" r="3"/><circle cx="118" cy="89" r="2.6"/><circle cx="100" cy="104" r="3.1"/><circle cx="61" cy="111" r="2.2"/><circle cx="83" cy="116" r="2.4"/><circle cx="128" cy="101" r="2.3"/><circle cx="84" cy="135" r="2.3"/></g>
+</svg>

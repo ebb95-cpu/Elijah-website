@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       source?: string;
     };
 
-    const { email, source: _source } = body;
+    const { email } = body;
 
     if (!email || typeof email !== 'string') {
       return NextResponse.json(

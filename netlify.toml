@@ -7,16 +7,3 @@
 
 [functions]
   directory = "netlify/functions"
-
-# Scheduled functions
-[functions."ingest-youtube"]
-  schedule = "0 6 * * *"
-
-[functions."ingest-social"]
-  schedule = "0 7 * * *"    # Daily at 7 AM UTC — Instagram, Twitter, LinkedIn, TikTok
-
-[functions."ingest-newsletter"]
-  schedule = "0 8 * * *"    # Daily at 8 AM UTC — Beehiiv, Substack newsletters
-
-[functions."ingest-web"]
-  schedule = "0 9 * * *"    # Daily at 9 AM UTC — Web articles, podcasts, interviews

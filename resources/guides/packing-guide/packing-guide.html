@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overseas Packing Guide | Consistency Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#090909; --paper:#f4f2ed; --muted:#77736b; --line:#c9c6be; --accent:#d74b2a; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; background:#292929; color:var(--ink); font-family:Inter,Arial,sans-serif; }
+    body { padding:24px 0; }
+    .page { position:relative; width:8.5in; min-height:11in; margin:0 auto 24px; padding:.62in .65in .58in; overflow:hidden; background:var(--paper); page-break-after:always; }
+    .page:last-child { page-break-after:auto; }
+    .page.dark { background:var(--ink); color:#fff; }
+    .page::after { content:""; position:absolute; left:.65in; right:.65in; bottom:.42in; height:1px; background:currentColor; opacity:.24; }
+    .brand { display:flex; align-items:center; justify-content:space-between; font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dots { display:inline-flex; align-items:center; justify-content:space-between; gap:0; position:relative; width:68px; }
+    .dots::before { content:""; position:absolute; left:5px; right:5px; height:2px; background:currentColor; }
+    .dots i { z-index:1; width:10px; height:10px; border-radius:50%; background:currentColor; }
+    .eyebrow { margin:0; color:var(--muted); font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dark .eyebrow { color:#a7a39b; }
+    h1, h2, h3, p { margin-top:0; }
+    h1, h2, h3 { font-family:"Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    h1 { margin:1.15in 0 .22in; font-size:82px; font-weight:900; line-height:.81; }
+    h2 { margin:.2in 0 .27in; font-size:48px; font-weight:900; line-height:.88; }
+    h3 { margin:0; font-size:22px; font-weight:800; line-height:1; }
+    .cover-sub { max-width:5.1in; color:#c7c4bd; font-size:13px; line-height:1.5; }
+    .cover-rule { width:1.6in; height:5px; margin:.42in 0; background:var(--accent); }
+    .cover-note { position:absolute; left:.65in; bottom:1in; color:#9f9c95; font-size:10px; line-height:1.55; }
+    .footer, .folio { position:absolute; bottom:.2in; font-size:8px; font-weight:700; text-transform:uppercase; }
+    .footer { left:.65in; } .folio { right:.65in; }
+    .intro { max-width:6.65in; font-size:13px; line-height:1.64; }
+    .callout { margin:.27in 0; padding:.2in .23in; border:2px solid var(--ink); font:800 27px/1.05 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .orange { border-color:var(--accent); color:var(--accent); }
+    .three { display:grid; grid-template-columns:repeat(3,1fr); gap:.12in; margin:.25in 0; }
+    .three > div { min-height:1.35in; padding:.15in; border:1px solid var(--line); }
+    .three b { display:block; margin-bottom:.08in; font:800 21px/1 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .three p { margin:0; color:#5d5a54; font-size:9px; line-height:1.45; }
+    .section { margin-bottom:.23in; }
+    .section-head { display:flex; align-items:center; gap:.15in; margin-bottom:.1in; }
+    .section-num { display:grid; place-content:center; flex:0 0 .38in; width:.38in; height:.38in; border-radius:50%; background:var(--accent); color:#fff; font:800 16px "Barlow Condensed",Impact,sans-serif; }
+    .checks { display:grid; gap:.06in; }
+    .check { display:grid; grid-template-columns:.21in 1fr; gap:.1in; align-items:start; padding:.085in 0; border-top:1px solid var(--line); font-size:10.5px; line-height:1.38; }
+    .box { width:.17in; height:.17in; margin-top:1px; border:1.5px solid var(--ink); }
+    .check b { font-weight:700; }
+    .tip { margin:.17in 0; padding:.14in .17in; background:var(--ink); color:#fff; font-size:9px; line-height:1.5; }
+    .tip b { color:#f3a58f; text-transform:uppercase; }
+    .table { border:2px solid var(--ink); }
+    .row { display:grid; grid-template-columns:1.35fr 1fr 2.2fr; border-top:1px solid var(--line); }
+    .row:first-child { border-top:0; background:var(--ink); color:#fff; font-size:8px; font-weight:700; text-transform:uppercase; }
+    .row > div { padding:.1in .12in; border-left:1px solid var(--line); font-size:8.5px; line-height:1.35; }
+    .row > div:first-child { border-left:0; font-weight:700; }
+    .gear-link { color:inherit; text-decoration:none; border-bottom:1px solid var(--accent); }
+    .gear-link span { color:var(--accent); font-size:.85em; }
+    .storefront-link { display:flex; align-items:center; justify-content:space-between; gap:.18in; margin:.2in 0 .22in; padding:.16in .2in; color:#fff; background:#111; border:1px solid #111; text-decoration:none; font-family:Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .storefront-destination { display:flex; align-items:center; gap:.08in; color:#c9c5bd; font-size:7px; font-weight:500; letter-spacing:.04em; text-transform:none; white-space:nowrap; }
+    .storefront-destination b { color:var(--accent); font-size:16px; font-weight:400; line-height:1; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:.16in; }
+    .panel { padding:.17in; border:1px solid var(--line); }
+    .panel h3 { margin-bottom:.1in; }
+    .panel p { margin:0; color:#5f5c56; font-size:9px; line-height:1.5; }
+    .final-list { display:grid; grid-template-columns:1fr 1fr; gap:0 .25in; }
+    .final-list .check { min-height:.42in; }
+    .legal { position:absolute; left:.65in; right:.65in; bottom:.62in; color:#777; font-size:7px; line-height:1.45; }
+    @page { size:Letter; margin:0; }
+    @media print { body { padding:0; background:#fff; } .page { margin:0; } }
+  </style>
+</head>
+<body>
+  <section class="page dark">
+    <div class="brand"><span>Consistency Club</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.7in">Player Toolkit / 03</p>
+    <h1>Overseas<br />Packing<br />Guide</h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">What to bring, what to carry on, and what to buy after you land.</p>
+    <p class="cover-note">A practical field guide by Elijah Bryant.<br />Pack for your career. Build a real life when you arrive.</p>
+    <span class="footer">Elijah Bryant</span><span class="folio">01</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>My Actual Setup</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">What I Travel With</p><h2>Bring What You<br />Can't Easily Replace.</h2>
+    <a class="storefront-link" href="https://www.amazon.com/shop/elijahself-improvementjunkie/list/19L8G3QMXTYW?tag=elijahbryan06-20"><span>Shop My Overseas Essentials</span><span class="storefront-destination">amazon.com/shop/elijahself-improvementjunkie <b aria-hidden="true">&#8599;</b></span></a>
+    <div class="table">
+      <div class="row"><div>Product</div><div>Category</div><div>Why It Earns A Spot</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/shop/elijahself-improvementjunkie/list/19L8G3QMXTYW?tag=elijahbryan06-20">OGIO Rig 9800 <span aria-hidden="true">&#8599;</span></a></div><div>Travel bag</div><div>My go-to wheeled bag for basketball shoes, recovery tools, team gear, and the bulky equipment a normal suitcase does not organize well.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/shop/elijahself-improvementjunkie/list/19L8G3QMXTYW?tag=elijahbryan06-20">Theragun PRO <span aria-hidden="true">&#8599;</span></a></div><div>Recovery</div><div>Portable percussion work for daily maintenance and tight muscles during a long season.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/shop/elijahself-improvementjunkie/list/19L8G3QMXTYW?tag=elijahbryan06-20">Hyperice Normatec <span aria-hidden="true">&#8599;</span></a></div><div>Recovery</div><div>Compression boots for heavy travel weeks and congested game schedules.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://gameready.com/">Game Ready <span aria-hidden="true">&#8599;</span></a></div><div>Recovery</div><div>Specialized cold and compression for joint swelling or injury recovery. Bring it from America when it is already part of your treatment plan because the same system may be difficult to access overseas.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/shop/elijahself-improvementjunkie/list/19L8G3QMXTYW?tag=elijahbryan06-20">Toe spacers <span aria-hidden="true">&#8599;</span></a></div><div>Foot care</div><div>Small toe spacers that pack easily and fit into a consistent foot-care routine.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://sidekicktool.com/products/eclipse-muscle-scraper">Sidekick Eclipse <span aria-hidden="true">&#8599;</span></a></div><div>Soft tissue</div><div>A compact scraping tool that is easy to carry when you know how to use it safely.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/shop/elijahself-improvementjunkie/list/19L8G3QMXTYW?tag=elijahbryan06-20">OOFOS recovery slides <span aria-hidden="true">&#8599;</span></a></div><div>Footwear</div><div>Comfortable recovery slides for the locker room, travel days, and giving your feet a break after practice.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/shop/elijahself-improvementjunkie/list/19L8G3QMXTYW?tag=elijahbryan06-20">AirPods Pro <span aria-hidden="true">&#8599;</span></a></div><div>Headphones</div><div>Noise cancellation for flights, focus, film, and quiet time away from the gym.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.pjfperformance.com/">PJF bands <span aria-hidden="true">&#8599;</span></a></div><div>Activation</div><div>Lightweight tools for warmups, mobility, and hotel-room work.</div></div>
+    </div>
+    <div class="tip"><b>How to use this list:</b> Start with the gear you already use consistently. The Amazon button collects the items available there; specialty products link directly to their official source.</div>
+    <p class="legal">The Amazon list and Amazon product searches use affiliate links, which means I may earn a commission from qualifying purchases at no additional cost to you. Products stocked on Amazon link to that list; specialty products link to their official source. These are personal recommendations, not guarantees. Prices, models, availability, baggage fees, and airline size limits change. Confirm current product details and your airline's rules before flying.</p>
+    <span class="footer">Overseas Packing Guide</span><span class="folio">02</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Start Here</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.42in">The Packing Rule</p><h2>Pack For Your Job.<br />Buy For Your Life.</h2>
+    <p class="intro">When you go overseas, your body becomes your business. The right gear helps you stay healthy, study film, recover, and feel settled. But you do not need to move your whole house across the world.</p>
+    <div class="callout orange">Protect what is hard to replace. Buy the ordinary stuff there.</div>
+    <div class="three">
+      <div><b>Pack From Home</b><p>Specialized training tools, prescription items, preferred shoes, key electronics, and personal comfort items.</p></div>
+      <div><b>Carry On</b><p>Everything you need to survive the first 48 hours and anything you cannot afford to lose.</p></div>
+      <div><b>Buy There</b><p>Bulky, inexpensive household items such as kitchen tools, cleaning supplies, toys, and basic bedding.</p></div>
+    </div>
+    <div class="tip"><b>For families:</b> You will buy toys, small appliances, storage bins, and everyday items that you may later give away or throw out. That is normal. You are living, not camping. Put an arrival budget aside for making the new place feel like home.</div>
+    <div class="tip"><b>Do not leave important gear to chance:</b> You can ship packages from the United States, but I would not rely on international shipping for anything expensive, difficult to replace, or essential to your season. Packages can be delayed, lost, stolen, or charged additional customs fees. Bring those items when you first travel or have someone you trust carry them on a later trip.</div>
+    <p class="legal">Product examples are practical references, not endorsements or guarantees. Airline baggage rules, electrical standards, customs rules, and medical requirements vary. Confirm current requirements before travel.</p>
+    <span class="footer">Overseas Packing Guide</span><span class="folio">03</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Ferrari Tools</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Body + Basketball</p><h2>Protect Your Money Maker.</h2>
+    <div class="table">
+      <div class="row"><div>Item</div><div>Pack</div><div>Why It Matters</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/s?k=basketball+shoes&amp;tag=elijahbryan06-20">Basketball shoes <span aria-hidden="true">&#8599;</span></a></div><div>2-3 pairs</div><div>Bring the exact models your feet trust. Rotate pairs and do not depend on local stock.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/shop/elijahself-improvementjunkie/list/19L8G3QMXTYW?tag=elijahbryan06-20">Recovery kit <span aria-hidden="true">&#8599;</span></a></div><div>Based on routine</div><div>Choose only the recovery tools from the previous page that you already use consistently.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/s?k=basketball+wobble+board&amp;tag=elijahbryan06-20">Wobble board <span aria-hidden="true">&#8599;</span></a></div><div>Optional</div><div>Helpful for ankle and balance work, but easy to buy after arrival if luggage space is tight.</div></div>
+      <div class="row"><div><a class="gear-link" href="https://www.amazon.com/s?k=athletic+tape+compression+sleeves+braces&amp;tag=elijahbryan06-20">Tape, sleeves, braces <span aria-hidden="true">&#8599;</span></a></div><div>Carry on</div><div>Bring your preferred sizes and brands. Replacements may be hard to find quickly.</div></div>
+    </div>
+    <div class="tip"><b>Pro rule:</b> Do not bring a recovery tool because it looks professional. Bring it because you use it consistently. A compact routine you follow beats a heavy suitcase of equipment you ignore.</div>
+    <span class="footer">Overseas Packing Guide</span><span class="folio">04</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Control Center</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Electronics</p><h2>Stay Connected.<br />Stay Prepared.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">1</span><h3>Work + Film</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div><b>Laptop or tablet:</b> film study, contracts, banking, email, and calls.</div></div>
+      <div class="check"><span class="box"></span><div><b>Headphones:</b> flights, focus, recovery, and pregame routine.</div></div>
+      <div class="check"><span class="box"></span><div><b>HDMI cable + dongles:</b> put film on the apartment or hotel TV.</div></div>
+      <div class="check"><span class="box"></span><div><b>Portable drive or cloud backup:</b> keep passport scans, contracts, medical records, and film accessible.</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">2</span><h3>Power + Connection</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div><b>Universal plug adapters:</b> one in your carry-on and one in your checked bag.</div></div>
+      <div class="check"><span class="box"></span><div><b>Voltage check:</b> confirm every device supports the country's voltage before plugging it in. An adapter does not convert voltage.</div></div>
+      <div class="check"><span class="box"></span><div><b>Power bank:</b> keep your phone alive during arrival, travel, and long bus days.</div></div>
+      <div class="check"><span class="box"></span><div><b>Unlocked phone:</b> makes a local SIM or eSIM much easier.</div></div>
+      <div class="check"><span class="box"></span><div><b>Extra charging cables:</b> small item, huge annoyance when one breaks.</div></div>
+    </div></div>
+    <div class="tip"><b>Do not check:</b> laptops, tablets, cameras, hard drives, prescription devices, or spare lithium batteries. Confirm your airline's current battery rules.</div>
+    <span class="footer">Overseas Packing Guide</span><span class="folio">05</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Life Off The Court</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Clothes + Comfort</p><h2>Bring Enough.<br />Leave Room To Live.</h2>
+    <div class="split">
+      <div class="panel"><h3>Clothing</h3><div class="checks">
+        <div class="check"><span class="box"></span><div>Climate-appropriate layers</div></div>
+        <div class="check"><span class="box"></span><div>Practice gear for several days</div></div>
+        <div class="check"><span class="box"></span><div>Two professional outfits</div></div>
+        <div class="check"><span class="box"></span><div>Comfortable travel clothes</div></div>
+        <div class="check"><span class="box"></span><div>Slides, walking shoes, rain gear</div></div>
+      </div></div>
+      <div class="panel"><h3>Comfort</h3><div class="checks">
+        <div class="check"><span class="box"></span><div>Favorite hoodie or small blanket</div></div>
+        <div class="check"><span class="box"></span><div>Pillowcase or compact pillow</div></div>
+        <div class="check"><span class="box"></span><div>Spices or shelf-stable snacks</div></div>
+        <div class="check"><span class="box"></span><div>Journal, devotional, books</div></div>
+        <div class="check"><span class="box"></span><div>A few photos from home</div></div>
+      </div></div>
+    </div>
+    <div class="callout">Comfort is not softness. Feeling settled helps you perform.</div>
+    <div class="section"><div class="section-head"><span class="section-num">3</span><h3>Do Not Overpack</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Do not pack a full season of toiletries or cleaning supplies.</div></div>
+      <div class="check"><span class="box"></span><div>Do not fill bags with cheap kitchen appliances that may not match local voltage.</div></div>
+      <div class="check"><span class="box"></span><div>Do not bring clothes you never wear at home.</div></div>
+      <div class="check"><span class="box"></span><div>Leave space for team gear, gifts, and purchases you will bring back.</div></div>
+    </div></div>
+    <span class="footer">Overseas Packing Guide</span><span class="folio">06</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Family Move</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Spouse + Kids</p><h2>Build A Home,<br />Not A Campsite.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">4</span><h3>Bring</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Passports, visas, marriage certificate, birth certificates, and several secure digital copies.</div></div>
+      <div class="check"><span class="box"></span><div>Medical records, prescriptions, vaccination records, and school documents.</div></div>
+      <div class="check"><span class="box"></span><div>A small set of favorite toys, books, comfort items, and familiar snacks.</div></div>
+      <div class="check"><span class="box"></span><div>Child car-seat plan confirmed before landing.</div></div>
+      <div class="check"><span class="box"></span><div>Essential baby supplies for the first several days, plus brand photos for replacements.</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">5</span><h3>Buy After Arrival</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Toys that are bulky, inexpensive, and easy to donate before the next move.</div></div>
+      <div class="check"><span class="box"></span><div>Kitchen appliances built for local plugs and voltage.</div></div>
+      <div class="check"><span class="box"></span><div>Laundry baskets, storage bins, cleaning products, basic dishes, and extra bedding.</div></div>
+      <div class="check"><span class="box"></span><div>Seasonal items after you understand the real climate and apartment.</div></div>
+    </div></div>
+    <div class="tip"><b>Budget honestly:</b> Some things will not come home with you. That does not make them wasted. If an item makes daily family life calmer for nine months, it did its job.</div>
+    <span class="footer">Overseas Packing Guide</span><span class="folio">07</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Travel Day</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Carry-On + Arrival</p><h2>Be Ready For<br />The First 48 Hours.</h2>
+    <div class="split">
+      <div class="panel"><h3>Carry-On</h3><div class="checks">
+        <div class="check"><span class="box"></span><div>Passport, visa, contract, team contact</div></div>
+        <div class="check"><span class="box"></span><div>Wallet, cards, and emergency cash</div></div>
+        <div class="check"><span class="box"></span><div>Prescription medication</div></div>
+        <div class="check"><span class="box"></span><div>One practice outfit and one casual outfit</div></div>
+        <div class="check"><span class="box"></span><div>Basketball shoes</div></div>
+        <div class="check"><span class="box"></span><div>Chargers, adapter, power bank</div></div>
+        <div class="check"><span class="box"></span><div>Toiletries within airline rules</div></div>
+        <div class="check"><span class="box"></span><div>Family essentials for two days</div></div>
+      </div></div>
+      <div class="panel"><h3>Arrival Day</h3><div class="checks">
+        <div class="check"><span class="box"></span><div>Confirm airport pickup name and number</div></div>
+        <div class="check"><span class="box"></span><div>Photograph every checked bag</div></div>
+        <div class="check"><span class="box"></span><div>Inspect apartment before unpacking</div></div>
+        <div class="check"><span class="box"></span><div>Test hot water, heat/AC, Wi-Fi, locks</div></div>
+        <div class="check"><span class="box"></span><div>Locate grocery store and pharmacy</div></div>
+        <div class="check"><span class="box"></span><div>Get local SIM/eSIM working</div></div>
+        <div class="check"><span class="box"></span><div>Confirm first practice and medical time</div></div>
+        <div class="check"><span class="box"></span><div>Buy only immediate household basics</div></div>
+      </div></div>
+    </div>
+    <div class="callout orange">If every checked bag disappears, you should still be able to practice tomorrow.</div>
+    <span class="footer">Overseas Packing Guide</span><span class="folio">08</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Final Check</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.34in">Screenshot This</p><h2>Before You Leave.</h2>
+    <div class="final-list">
+      <div class="check"><span class="box"></span><div>Passport and visa valid</div></div>
+      <div class="check"><span class="box"></span><div>Team pickup confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Contract saved offline</div></div>
+      <div class="check"><span class="box"></span><div>Emergency contacts saved</div></div>
+      <div class="check"><span class="box"></span><div>Prescriptions packed in carry-on</div></div>
+      <div class="check"><span class="box"></span><div>Medical records backed up</div></div>
+      <div class="check"><span class="box"></span><div>Basketball shoes in carry-on</div></div>
+      <div class="check"><span class="box"></span><div>Two days of clothes in carry-on</div></div>
+      <div class="check"><span class="box"></span><div>Adapters match destination</div></div>
+      <div class="check"><span class="box"></span><div>Device voltage checked</div></div>
+      <div class="check"><span class="box"></span><div>Phone unlocked or eSIM ready</div></div>
+      <div class="check"><span class="box"></span><div>Power bank charged</div></div>
+      <div class="check"><span class="box"></span><div>Recovery tools selected by routine</div></div>
+      <div class="check"><span class="box"></span><div>Family documents packed</div></div>
+      <div class="check"><span class="box"></span><div>Child travel setup confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Arrival budget set aside</div></div>
+      <div class="check"><span class="box"></span><div>Every checked bag photographed</div></div>
+      <div class="check"><span class="box"></span><div>Airline baggage limits verified</div></div>
+      <div class="check"><span class="box"></span><div>Room left for team gear</div></div>
+      <div class="check"><span class="box"></span><div>Ordinary items left to buy there</div></div>
+    </div>
+    <div class="callout">Pack your standards. Build your routine. Make the new city home.</div>
+    <p class="intro" style="font-size:10px">The game is a marathon. Daily maintenance, familiar routines, and a settled family life all help you stay available and ready for the next opportunity.</p>
+    <span class="footer">Overseas Packing Guide</span><span class="folio">09</span>
+  </section>
+</body>
+</html>

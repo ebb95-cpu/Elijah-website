@@ -4,6 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Elijah Bryant</title>
+  <meta name="description" content="Faith, consistency, basketball, and practical resources from Elijah Bryant." />
+  <link rel="canonical" href="https://elijahbryant.pro/" />
+  <link rel="icon" href="/favicon.ico?v=three-dots-2" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/three-dot-32.png?v=2" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/three-dot-apple.png" />
+
+  <!-- Social sharing preview -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Elijah Bryant" />
+  <meta property="og:title" content="Elijah Bryant | Faith + Consistency" />
+  <meta property="og:description" content="Faith, consistency, basketball, and practical resources from Elijah Bryant." />
+  <meta property="og:url" content="https://elijahbryant.pro/" />
+  <meta property="og:image" content="https://elijahbryant.pro/images/three-dot-logo.png" />
+  <meta property="og:image:secure_url" content="https://elijahbryant.pro/images/three-dot-logo.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:image:alt" content="Elijah Bryant three connected dots: Faith, Family, Purpose" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Elijah Bryant | Faith + Consistency" />
+  <meta name="twitter:description" content="Faith, consistency, basketball, and practical resources from Elijah Bryant." />
+  <meta name="twitter:image" content="https://elijahbryant.pro/images/three-dot-logo.png" />
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -13,16 +35,21 @@
 
   <!-- Styles (no old map.css, hub.css, or social.css) -->
   <link rel="stylesheet" href="css/main.css" />
-  <link rel="stylesheet" href="css/intro.css?v=20260502-mobile-only" />
-  <link rel="stylesheet" href="css/journey.css?v=20260502-mobile-only" />
-  <link rel="stylesheet" href="css/sections.css?v=20260428-mobile" />
+  <link rel="stylesheet" href="css/intro.css?v=20260923-readable" />
+  <link rel="stylesheet" href="css/journey.css?v=20260923-country-labels" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/sections.css?v=20260925-guide-orbit-layout" />
   <link rel="stylesheet" href="css/credibility.css" />
 </head>
 <body>
 
   <!-- ── SCREEN 1: Intro ── -->
-  <div id="intro-screen">
-    <div id="intro-inner">
+  <div id="intro-screen" class="videos-loading" aria-busy="true">
+    <p id="video-loading-status" role="status">Loading...</p>
+    <button id="video-loading-retry" type="button" hidden>Retry videos</button>
+    <div id="championship-window" inert hidden></div>
+    <button id="championship-toggle" type="button" hidden>Pause videos</button>
+    <div id="intro-inner" inert>
       <h1 id="intro-name">Elijah Bryant</h1>
       <p class="credibility-line">NBA · EuroLeague Champion · 3 Continents.</p>
 
@@ -119,27 +146,31 @@
   </div>
 
   <!-- ── MODAL: Ask Elijah (Beta) ── -->
-  <div id="ask-screen">
+  <div id="ask-screen" role="dialog" aria-modal="true" aria-labelledby="ask-title" inert>
     <div id="ask-card">
-      <button id="ask-close">&#x2715;</button>
+      <button id="ask-close" aria-label="Back to main menu">&larr;</button>
       <div class="ask-dot-row">
-        <span class="ask-dot">&#9679;</span>
-        <span class="ask-dash">&#x2015;&#x2015;&#x2015;</span>
-        <span class="ask-title">Ask Elijah</span>
+        <div class="ask-brand-copy">
+          <h1 class="ask-title" id="ask-title">Ask Elijah</h1>
+          <p class="ask-beta-tag">Join the waitlist</p>
+        </div>
+        <img class="ask-brain-logo" src="images/ask-elijah-brain.svg?v=20260923-synapse" alt="Ask Elijah brain logo" width="92" height="83" />
       </div>
-      <p class="ask-beta-tag">Currently in Beta</p>
-      <p id="ask-desc">This will soon be a place where you can ask me any question — about training, books, mindset, nutrition, tools I use, or anything else. I'll respond with answers based on my experience and what I've learned along the way.</p>
+      <h2 class="ask-headline">Years of experience.<br>One place to ask.</h2>
+      <p id="ask-desc">Ask Elijah is like having an NBA champion in your pocket. Get honest answers and practical advice from someone who’s been there.</p>
       <div id="ask-input-row">
-        <input type="email" id="ask-email" placeholder="Enter your email to get notified when Ask Elijah goes live." autocomplete="email" />
+        <label for="ask-email">Email address</label>
+        <input type="email" id="ask-email" placeholder="you@email.com" autocomplete="email" required />
       </div>
       <div id="ask-actions">
+        <div hidden aria-hidden="true"><label>Website<input id="ask-website" type="text" tabindex="-1" autocomplete="off" /></label></div>
         <button id="ask-submit" class="dot-btn">
           <span class="btn-dot">&#9679;</span>
           <span class="btn-dash">&#x2015;&#x2015;</span>
-          <span>Notify Me</span>
+          <span>Join Waitlist</span>
         </button>
       </div>
-      <div id="ask-response"></div>
+      <div id="ask-response" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -168,10 +199,10 @@
           <div id="lbl-social" class="dlabel"></div>
           <div id="lbl-news" class="dlabel"></div>
           <div id="lbl-res"  class="dlabel"></div>
+          <div id="lbl-contact" class="dlabel"></div>
           <div id="lbl-jour" class="dlabel"></div>
           <!-- Resources sub-level labels -->
           <div id="lbl-books"  class="dlabel"></div>
-          <div id="lbl-tools"  class="dlabel"></div>
           <div id="lbl-guides" class="dlabel"></div>
           <!-- Back dot label (shown on sub-levels) -->
           <div id="lbl-back" class="dlabel"></div>
@@ -180,23 +211,63 @@
         </div>
       </div>
       <div id="footer">
+        <p class="site-purpose">What basketball taught me about showing up for what matters.</p>
+        <a class="newsletter-invite" href="https://yourplaybook.beehiiv.com" data-dialog="newsletter-dialog">Faith, family, and consistency in your inbox &rarr;</a>
         <p id="instr">drag the dot · continue your journey</p>
         <div id="panel">
           <p id="ptitle"></p>
           <p id="pdesc"></p>
           <button id="rbtn">&larr; start over</button>
         </div>
+        <nav class="site-footer-links" aria-label="Contact and privacy">
+          <button type="button" data-dialog="contact-dialog">Contact &amp; partnerships</button>
+          <button type="button" data-dialog="privacy-dialog">Privacy</button>
+        </nav>
       </div>
     </div>
   </div>
 
+  <dialog id="contact-dialog" class="site-dialog" aria-labelledby="contact-title">
+    <button class="dialog-close" type="button" aria-label="Close contact form">&times;</button>
+    <h2 id="contact-title">Let's connect.</h2>
+    <p>Partnerships, speaking, or something worth building together.</p>
+    <form id="contact-form">
+      <label>Name<input name="name" autocomplete="name" maxlength="100" required></label>
+      <label>Company <span>(optional)</span><input name="company" autocomplete="organization" maxlength="120"></label>
+      <label>Email<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+      <label>Message<textarea name="message" rows="4" minlength="10" maxlength="5000" required></textarea></label>
+      <div hidden><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <p class="form-note">Your email app opens a draft addressed to Elijah's contact inbox. Nothing is sent until you send the email. This does not subscribe you to the newsletter.</p>
+      <button type="submit" class="contact-send">Open email draft &rarr;</button>
+      <p id="contact-status" role="status" aria-live="polite"></p>
+      <p class="form-note"><a href="mailto:crushedcrib19@gmail.com">Email directly</a></p>
+    </form>
+  </dialog>
+  <dialog id="newsletter-dialog" class="site-dialog" aria-labelledby="newsletter-title">
+    <button class="dialog-close" type="button" aria-label="Close newsletter">&times;</button>
+    <h2 id="newsletter-title">Keep showing up.</h2>
+    <p>Faith, family, and consistency in your inbox. Reflections from my life, with something you can bring into yours.</p>
+    <a class="contact-send" href="https://yourplaybook.beehiiv.com/subscribe">Join the newsletter &rarr;</a>
+    <p><a href="https://yourplaybook.beehiiv.com">Read past letters</a></p>
+  </dialog>
+  <dialog id="privacy-dialog" class="site-dialog" aria-labelledby="privacy-title">
+    <button class="dialog-close" type="button" aria-label="Close privacy notice">&times;</button>
+    <h2 id="privacy-title">Privacy</h2>
+    <p>The contact form prepares a draft in your email app. Your details are not submitted to this website. When you send the draft, your name, company, email, and message go to Elijah's Gmail contact inbox so he can respond. Please don't include sensitive personal information.</p>
+    <p>Newsletter and Ask Elijah waitlist signups are processed through Beehiiv. Newsletter emails include an unsubscribe link.</p>
+    <p>This website is hosted on Cloudflare. Links to YouTube, social platforms, and other sites are subject to those services' privacy policies.</p>
+    <p>For questions about your information or to request deletion, use the contact form.</p>
+  </dialog>
+  <link rel="stylesheet" href="css/contact.css?v=20260927">
+  <script src="js/contact.js?v=20260927"></script>
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <!-- App scripts -->
-  <script src="js/intro.js?v=20260428-faster-start"></script>
-  <script src="js/journey.js?v=20260430-map-polish"></script>
+  <script src="js/intro.js?v=20260502-drag-fallback"></script>
+  <script src="js/journey.js?v=20260923-country-labels"></script>
   <script src="js/books-data.js"></script>
-  <script src="js/sections.js?v=20260502-socials-right"></script>
+  <script src="js/sections.js?v=20260927-resources"></script>
+  <script src="js/native-background.js?v=20260926-rotation"></script>
 </body>
 </html>

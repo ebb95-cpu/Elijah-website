@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Money Overseas Guide | Consistency Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#090909; --paper:#f4f2ed; --muted:#77736b; --line:#c9c6be; --accent:#2f6e59; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; background:#292929; color:var(--ink); font-family:Inter,Arial,sans-serif; }
+    body { padding:24px 0; }
+    .page { position:relative; width:8.5in; min-height:11in; margin:0 auto 24px; padding:.62in .65in .58in; overflow:hidden; background:var(--paper); page-break-after:always; }
+    .page:last-child { page-break-after:auto; }
+    .dark { background:var(--ink); color:#fff; }
+    .page::after { content:""; position:absolute; left:.65in; right:.65in; bottom:.42in; height:1px; background:currentColor; opacity:.24; }
+    .brand { display:flex; align-items:center; justify-content:space-between; font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dots { display:inline-flex; align-items:center; justify-content:space-between; position:relative; width:68px; }
+    .dots::before { content:""; position:absolute; left:5px; right:5px; height:2px; background:currentColor; }
+    .dots i { z-index:1; width:10px; height:10px; border-radius:50%; background:currentColor; }
+    .dot-signature { display:flex; align-items:center; justify-content:space-between; position:relative; width:1.55in; height:.28in; color:var(--accent); }
+    .dot-signature::before { content:""; position:absolute; left:.13in; right:.13in; height:3px; background:currentColor; }
+    .dot-signature i { z-index:1; width:.25in; height:.25in; border-radius:50%; background:currentColor; }
+    .dot-signature.white { color:#fff; }
+    .dot-signature.center { margin:.22in auto; }
+    .dot-signature.cover-mark { margin:.34in 0 0; }
+    .eyebrow { margin:0; color:var(--muted); font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dark .eyebrow { color:#a7a39b; }
+    h1,h2,h3,p { margin-top:0; }
+    h1,h2,h3 { font-family:"Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    h1 { margin:1.12in 0 .22in; font-size:82px; font-weight:900; line-height:.81; }
+    h2 { margin:.2in 0 .27in; font-size:48px; font-weight:900; line-height:.88; }
+    h3 { margin:0; font-size:22px; font-weight:800; line-height:1; }
+    .cover-sub { max-width:5.2in; color:#c7c4bd; font-size:13px; line-height:1.5; }
+    .cover-rule { width:1.6in; height:5px; margin:.42in 0; background:var(--accent); }
+    .cover-note { position:absolute; left:.65in; bottom:1in; color:#9f9c95; font-size:10px; line-height:1.55; }
+    .footer,.folio { position:absolute; bottom:.2in; font-size:8px; font-weight:700; text-transform:uppercase; }
+    .footer { left:.65in; } .folio { right:.65in; }
+    .intro { max-width:6.75in; font-size:13px; line-height:1.65; }
+    .callout { margin:.26in 0; padding:.2in .23in; border:2px solid var(--ink); font:800 27px/1.05 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .accent { border-color:var(--accent); color:var(--accent); }
+    .three { display:grid; grid-template-columns:repeat(3,1fr); gap:.12in; margin:.25in 0; }
+    .three > div { min-height:1.35in; padding:.15in; border:1px solid var(--line); }
+    .three b { display:block; margin-bottom:.08in; font:800 21px/1 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .three p,.panel p { margin:0; color:#5d5a54; font-size:9px; line-height:1.5; }
+    .section { margin-bottom:.23in; }
+    .section-head { display:flex; align-items:center; gap:.15in; margin-bottom:.1in; }
+    .section-num { display:grid; place-content:center; flex:0 0 .38in; width:.38in; height:.38in; border-radius:50%; background:var(--accent); color:#fff; font:800 16px "Barlow Condensed",Impact,sans-serif; }
+    .checks { display:grid; gap:.06in; }
+    .check { display:grid; grid-template-columns:.21in 1fr; gap:.1in; align-items:start; padding:.085in 0; border-top:1px solid var(--line); font-size:10.5px; line-height:1.4; }
+    .box { width:.17in; height:.17in; margin-top:1px; border:1.5px solid var(--ink); }
+    .tip { margin:.17in 0; padding:.14in .17in; background:var(--ink); color:#fff; font-size:9px; line-height:1.5; }
+    .tip b { color:#9ccab8; text-transform:uppercase; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:.16in; margin:.18in 0; }
+    .panel { padding:.17in; border:1px solid var(--line); }
+    .panel h3 { margin-bottom:.1in; }
+    .table { border:2px solid var(--ink); }
+    .row { display:grid; grid-template-columns:1.2fr 1fr 2.3fr; border-top:1px solid var(--line); }
+    .row:first-child { border-top:0; background:var(--ink); color:#fff; font-size:8px; font-weight:700; text-transform:uppercase; }
+    .row > div { padding:.1in .12in; border-left:1px solid var(--line); font-size:8.7px; line-height:1.4; }
+    .row > div:first-child { border-left:0; font-weight:700; }
+    .legal { position:absolute; left:.65in; right:.65in; bottom:.62in; color:#777; font-size:7px; line-height:1.45; }
+    @page { size:Letter; margin:0; }
+    @media print { body { padding:0; background:#fff; } .page { margin:0; } }
+  </style>
+</head>
+<body>
+  <section class="page dark">
+    <div class="brand"><span>Consistency Club</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.7in">Player Toolkit / 04</p>
+    <h1>Money<br />Overseas<br />Guide</h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">A practical system for getting paid, moving money, paying taxes, saving, and living well during an overseas season.</p>
+    <span class="dot-signature white cover-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+    <p class="cover-note">A field guide by Elijah Bryant.<br />Know your number. Protect your work. Build beyond basketball.</p>
+    <span class="footer">Elijah Bryant</span><span class="folio">01</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Start Here</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">The Money Rule</p><h2>Salary Is Not The Same As Wealth.</h2>
+    <p class="intro">Playing overseas can create a real financial opportunity. It can also make money feel confusing: a contract in one currency, expenses in another, taxes in two countries, fees between banks, and payments that do not always arrive exactly when expected. Your goal is not to become a financial expert overnight. Your goal is to build a simple system you can follow every month.</p>
+    <div class="three">
+      <div><b>Know</b><p>Understand what you are owed, when it is due, and what should actually reach your account.</p></div>
+      <div><b>Protect</b><p>Keep records, maintain cash reserves, and respond quickly when something does not match the contract.</p></div>
+      <div><b>Build</b><p>Give every payment a purpose so a good season improves your life after the season ends.</p></div>
+    </div>
+    <span class="dot-signature center" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div class="callout accent">Do not let an unusual income create ordinary financial stress.</div>
+    <div class="tip"><b>Personal rule:</b> Keep the system simple enough to run after a road game, during travel, or when your family needs your attention.</div>
+    <p class="legal">Educational information only. This guide is not tax, legal, accounting, or investment advice. Rules vary by citizenship, residency, country, contract, and season. Work with qualified professionals who understand your specific situation.</p>
+    <span class="footer">Money Overseas Guide</span><span class="folio">02</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Your Real Number</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 01</p><h2>Know What Actually Hits Your Account.</h2>
+    <div class="split">
+      <div class="panel"><h3>Net Salary</h3><p>The contract states what should reach you after the agreed local taxes and deductions. Confirm what “net” includes and any exceptions.</p></div>
+      <div class="panel"><h3>Gross Salary</h3><p>Taxes and deductions come out of the stated number. The headline salary can be much higher than your true take-home pay.</p></div>
+    </div>
+    <div class="section"><div class="section-head"><span class="section-num">1</span><h3>Before You Sign</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Write the total guaranteed salary, currency, payment count, and every due date in one place.</div></div>
+      <div class="check"><span class="box"></span><div>Confirm whether salary, bonuses, housing, car, flights, and agent fees are net or gross.</div></div>
+      <div class="check"><span class="box"></span><div>Ask who absorbs transfer fees and exchange-rate costs.</div></div>
+      <div class="check"><span class="box"></span><div>Calculate the amount you expect to receive each month before making a budget.</div></div>
+      <div class="check"><span class="box"></span><div>Keep a signed contract and every amendment saved offline and in secure cloud storage.</div></div>
+    </div></div>
+    <div class="table">
+      <div class="row"><div>Write Down</div><div>Example</div><div>Why It Matters</div></div>
+      <div class="row"><div>Contract amount</div><div>Net or gross</div><div>You cannot compare offers until you compare real take-home value.</div></div>
+      <div class="row"><div>Payment currency</div><div>USD / EUR / local</div><div>Your spending and savings can change when exchange rates move.</div></div>
+      <div class="row"><div>Due dates</div><div>Monthly schedule</div><div>A clear calendar shows a late payment immediately.</div></div>
+    </div>
+    <span class="footer">Money Overseas Guide</span><span class="folio">03</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Banking Setup</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 02</p><h2>Build A Two-Country System.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">2</span><h3>Your Accounts</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Keep a reliable home-country account open for long-term bills, savings, and life after the season.</div></div>
+      <div class="check"><span class="box"></span><div>Open a local account only when it makes salary, rent, utilities, or daily spending easier.</div></div>
+      <div class="check"><span class="box"></span><div>Confirm IBAN, SWIFT/BIC, routing details, beneficiary name, and address before the first payment.</div></div>
+      <div class="check"><span class="box"></span><div>Test a small transfer before moving a large amount.</div></div>
+      <div class="check"><span class="box"></span><div>Keep two cards from different networks and a small amount of emergency cash.</div></div>
+      <div class="check"><span class="box"></span><div>Turn on transaction alerts and secure every financial account with strong two-factor authentication.</div></div>
+    </div></div>
+    <div class="three">
+      <div><b>Spend</b><p>Local account or card for rent, groceries, transportation, and normal life.</p></div>
+      <div><b>Move</b><p>A reputable transfer service or bank route with transparent fees and exchange rates.</p></div>
+      <div><b>Protect</b><p>Home account for reserves, taxes, savings, and obligations that continue while you are abroad.</p></div>
+    </div>
+    <div class="tip"><b>Before sending:</b> Verify the recipient details through a trusted channel. Never change payment instructions only because an email or message tells you to.</div>
+    <span class="footer">Money Overseas Guide</span><span class="folio">04</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Payment Tracker</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 03</p><h2>Track Every Dollar You Are Owed.</h2>
+    <div class="table">
+      <div class="row"><div>Track</div><div>Status</div><div>Record</div></div>
+      <div class="row"><div>Salary payment</div><div>Due / received</div><div>Contract amount, due date, arrival date, currency, and amount received.</div></div>
+      <div class="row"><div>Bonus</div><div>Earned / pending</div><div>Trigger, evidence, approval, due date, and payment confirmation.</div></div>
+      <div class="row"><div>Reimbursement</div><div>Submitted / paid</div><div>Receipt, date submitted, person responsible, and amount.</div></div>
+      <div class="row"><div>Team-paid bill</div><div>Current / overdue</div><div>Rent, utilities, car, insurance, flights, or other promised benefits.</div></div>
+    </div>
+    <div class="section" style="margin-top:.25in"><div class="section-head"><span class="section-num">3</span><h3>Monthly Money Check</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Match the bank deposit to the contract schedule.</div></div>
+      <div class="check"><span class="box"></span><div>Record transfer fees and the exchange rate actually used.</div></div>
+      <div class="check"><span class="box"></span><div>Save the payslip, bank confirmation, invoice, and relevant team messages.</div></div>
+      <div class="check"><span class="box"></span><div>Update the amount still owed for salary, bonuses, and reimbursements.</div></div>
+      <div class="check"><span class="box"></span><div>Move the planned amount to taxes, reserves, savings, and spending accounts.</div></div>
+    </div></div>
+    <div class="callout">If you do not track it, you are trusting memory during a long season.</div>
+    <span class="footer">Money Overseas Guide</span><span class="folio">05</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Season Budget</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 04</p><h2>Give Every Payment A Job.</h2>
+    <div class="three">
+      <div><b>Live</b><p>Food, transportation, family needs, travel, training, and a realistic amount of fun.</p></div>
+      <div><b>Protect</b><p>Taxes, emergency reserve, insurance gaps, medical needs, and late-payment buffer.</p></div>
+      <div><b>Build</b><p>Long-term savings, investing, debt reduction, education, business, and post-career goals.</p></div>
+    </div>
+    <div class="section"><div class="section-head"><span class="section-num">4</span><h3>Budget Questions</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>What does the team pay directly, and what comes out of your pocket?</div></div>
+      <div class="check"><span class="box"></span><div>What home-country bills continue during the season?</div></div>
+      <div class="check"><span class="box"></span><div>How much cash would cover your family if one or two payments arrived late?</div></div>
+      <div class="check"><span class="box"></span><div>What irregular costs are coming: flights, holidays, offseason housing, training, taxes, or agent fees?</div></div>
+      <div class="check"><span class="box"></span><div>What amount will move toward long-term goals immediately after every payment?</div></div>
+    </div></div>
+    <div class="tip"><b>Family rule:</b> Agree on the season plan before the season gets busy. A shared number creates more peace than vague promises to “save more.”</div>
+    <div class="callout accent">You are allowed to enjoy the money. Just decide what matters before the money arrives.</div>
+    <span class="footer">Money Overseas Guide</span><span class="folio">06</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Taxes + Records</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 05</p><h2>Keep Proof. Ask Early.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">5</span><h3>Documents To Save</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Signed contract, amendments, bonus agreements, and agent agreement.</div></div>
+      <div class="check"><span class="box"></span><div>Payslips, bank statements, transfer confirmations, and exchange-rate records.</div></div>
+      <div class="check"><span class="box"></span><div>Official local tax filings, payment receipts, certificates, and residency documents.</div></div>
+      <div class="check"><span class="box"></span><div>Receipts for professional expenses your qualified adviser tells you to retain.</div></div>
+      <div class="check"><span class="box"></span><div>Entry and exit dates for every country where you live, work, or spend substantial time.</div></div>
+    </div></div>
+    <div class="split">
+      <div class="panel"><h3>Ask The Team</h3><p>Who files locally? When? What proof will you receive? Which taxes or social contributions were paid in your name?</p></div>
+      <div class="panel"><h3>Ask Your Adviser</h3><p>Where must you file? How does residency affect you? Could foreign tax credits, reporting, or estimated payments apply?</p></div>
+    </div>
+    <div class="tip"><b>Do not wait:</b> Find a professional who understands athletes and international income before the filing deadline is close. Give them organized records, not a season of screenshots.</div>
+    <p class="legal">Tax obligations can apply in more than one country and may depend on facts not covered here. Never rely on a teammate's result as proof that your situation will be treated the same way.</p>
+    <span class="footer">Money Overseas Guide</span><span class="folio">07</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Late Payments</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 06</p><h2>Stay Calm. Document Everything.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">6</span><h3>When Money Is Late</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Confirm the exact amount and due date in the signed contract.</div></div>
+      <div class="check"><span class="box"></span><div>Check whether the transfer is pending, rejected, sent to incorrect details, or simply not initiated.</div></div>
+      <div class="check"><span class="box"></span><div>Notify your agent in writing and keep the message factual.</div></div>
+      <div class="check"><span class="box"></span><div>Ask for written confirmation, payment reference, and a specific resolution date.</div></div>
+      <div class="check"><span class="box"></span><div>Follow the notice and cure procedure in your contract before taking formal action.</div></div>
+      <div class="check"><span class="box"></span><div>Get qualified legal advice before refusing to practice, leaving, terminating, or posting publicly.</div></div>
+    </div></div>
+    <div class="three">
+      <div><b>First</b><p>Verify facts. A banking delay and a team refusing to pay are different problems.</p></div>
+      <div><b>Next</b><p>Create a written record with your agent, team contact, date, amount, and promised solution.</p></div>
+      <div><b>Then</b><p>Use the contract process and qualified support. Emotion should not choose the remedy.</p></div>
+    </div>
+    <div class="callout">An emergency fund buys you time to make a smart decision.</div>
+    <span class="footer">Money Overseas Guide</span><span class="folio">08</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Final Check</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Screenshot This</p><h2>Before The Season Ends.</h2>
+    <div class="split">
+      <div class="checks">
+        <div class="check"><span class="box"></span><div>Every salary payment received</div></div>
+        <div class="check"><span class="box"></span><div>Bonuses and reimbursements settled</div></div>
+        <div class="check"><span class="box"></span><div>Local bills and deposits closed</div></div>
+        <div class="check"><span class="box"></span><div>Tax proof requested and saved</div></div>
+        <div class="check"><span class="box"></span><div>Agent fee reconciled</div></div>
+      </div>
+      <div class="checks">
+        <div class="check"><span class="box"></span><div>Local bank closure plan confirmed</div></div>
+        <div class="check"><span class="box"></span><div>Transfer limits checked before departure</div></div>
+        <div class="check"><span class="box"></span><div>Emergency reserve replenished</div></div>
+        <div class="check"><span class="box"></span><div>Offseason budget funded</div></div>
+        <div class="check"><span class="box"></span><div>Records delivered to adviser</div></div>
+      </div>
+    </div>
+    <span class="dot-signature center" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div class="callout accent" style="margin-top:.24in">Do not judge the season only by what you earned. Judge it by what you kept, learned, and built.</div>
+    <p class="intro">A professional career can move fast. Teams change, countries change, currencies change, and your role can change. A simple financial system gives you something steady: you know what is owed, where your money goes, what your family needs, and what this season is building toward.</p>
+    <div class="tip"><b>Review together:</b> At the end of every season, sit down with your family and advisers. Keep what worked. Fix what created stress. Make the next contract easier to manage than the last one.</div>
+    <p class="legal">Educational information only. This guide is not tax, legal, accounting, or investment advice. Consult qualified professionals for decisions involving contracts, taxes, banking, residency, or investments.</p>
+    <span class="footer">Money Overseas Guide</span><span class="folio">09</span>
+  </section>
+</body>
+</html>

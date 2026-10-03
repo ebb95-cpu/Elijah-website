@@ -72,7 +72,7 @@
     center: [20, 0],
     zoom: 2,
     zoomControl: false,
-    attributionControl: false,
+    attributionControl: true,
     dragging: false,
     touchZoom: false,
     doubleClickZoom: false,
@@ -82,10 +82,46 @@
     tap: false
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd',
-    maxZoom: 19
-  }).addTo(map);
+  // Local country geometry keeps ocean and city labels out of the journey.
+  map.createPane('countryLabels');
+  map.getPane('countryLabels').style.zIndex = '450';
+  map.getPane('countryLabels').style.pointerEvents = 'none';
+  fetch('images/world-countries.geojson').then(function (response) {
+    if (!response.ok) throw new Error('Country map could not be loaded');
+    return response.json();
+  }).then(function (data) {
+    L.geoJSON(data, {
+      interactive: false,
+      style: { color: '#191919', weight: 0.7, fillColor: '#292929', fillOpacity: 1 },
+      attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a>'
+    }).addTo(map);
+    var labels = data.features.map(function (feature) {
+      var props = feature.properties;
+      var text = document.createElement('span');
+      text.textContent = props.NAME_EN === 'United States of America' ? 'United States' : props.NAME_EN;
+      return {
+        minimumZoom: Math.max(2, props.MIN_LABEL),
+        marker: L.marker([props.LABEL_Y, props.LABEL_X], {
+          pane: 'countryLabels', interactive: false, keyboard: false,
+          icon: L.divIcon({ className: 'journey-country-label', html: text, iconSize: [120, 16], iconAnchor: [60, 8] })
+        }).addTo(map)
+      };
+    });
+    function updateCountryLabels() {
+      var card = document.getElementById('location-card').getBoundingClientRect();
+      var mapRect = map.getContainer().getBoundingClientRect();
+      labels.forEach(function (label) {
+        var point = map.latLngToContainerPoint(label.marker.getLatLng());
+        var x = point.x + mapRect.left;
+        var y = point.y + mapRect.top;
+        var behindText = x + 60 > card.left - 16 && x - 60 < card.right + 16 &&
+          y + 8 > card.top - 20 && y - 8 < card.bottom + 20;
+        label.marker.setOpacity(map.getZoom() >= label.minimumZoom && !behindText ? 1 : 0);
+      });
+    }
+    map.on('move zoom resize', updateCountryLabels);
+    updateCountryLabels();
+  }).catch(function (error) { console.error(error); });
 
   // ─── DOM refs ─────────────────────────────────────────────────────────────
   var locationCard  = document.getElementById('location-card');
@@ -322,23 +358,57 @@
     });
   }
 
+  function showWorldOverview() {
+    return flyToView(
+      25,
+      -35,
+      isMobileViewport() ? 1 : 2,
+      isMobileViewport() ? 1.25 : 1.55
+    );
+  }
+
+  function showUnitedStatesOverview() {
+    return flyToView(
+      38,
+      -96,
+      isMobileViewport() ? 3 : 4,
+      isMobileViewport() ? 1.1 : 1.35
+    );
+  }
+
+  function isUnitedStatesStop(stop) {
+    return ['01', '02', '03', '04', '07'].indexOf(stop.num) !== -1;
+  }
+
   // ─── Main journey runner ──────────────────────────────────────────────────
 
   async function runJourney() {
     clearRouteLines();
     var prev = null;
     var activeMarker = null;
+
+    // Begin close enough to read the domestic chapter as one connected journey.
+    await showUnitedStatesOverview();
+    canDrawRoute = true;
+
     for (var i = 0; i < STOPS.length; i++) {
       var stop = STOPS[i];
-      // 1. Fly to location
-      if (i === 0) {
-        await flyToFirstStop(stop);
-      } else if (prev) {
-        await flyToSegment(prev, stop);
-      } else {
-        await flyTo(stop);
+      if (prev) {
+        var leavingUnitedStates = isUnitedStatesStop(prev) && !isUnitedStatesStop(stop);
+        var returningToUnitedStates = !isUnitedStatesStop(prev) && isUnitedStatesStop(stop);
+
+        if (leavingUnitedStates) {
+          await showWorldOverview();
+        }
+
+        await addLine(prev, stop, 120);
+
+        if (returningToUnitedStates) {
+          await showUnitedStatesOverview();
+        }
       }
-      // 2. Add dot
+
+      // Add each stop without leaving the world view.
       if (activeMarker) pulseMarker(activeMarker, false);
       activeMarker = addDot(stop);
       pulseMarker(activeMarker, true);
@@ -353,9 +423,7 @@
       prev = stop;
     }
     if (activeMarker) pulseMarker(activeMarker, false);
-    await showFullRoute();
-    await wait(350);
-    await drawFullRoute();
+    await showWorldOverview();
     await wait(750);
     // Final messages
     await showFinalMessages();

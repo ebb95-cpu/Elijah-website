@@ -9,6 +9,23 @@
   var askResponse    = document.getElementById('ask-response');
 
   var journeySkipped = false;
+  var requestedEntryLevel = new URLSearchParams(window.location.search).get('menu');
+  var directEntryHandled = false;
+  // History state survives both a cached Back navigation and a full page reload.
+  function handleDirectEntry() {
+    var returningToSections = window.history.state && window.history.state.returnToSections;
+    if ((!returningToSections && requestedEntryLevel !== 'resources') || directEntryHandled) return;
+    directEntryHandled = true;
+    ['intro-screen', 'reflection-screen', 'journey-screen'].forEach(function (id) {
+      document.getElementById(id).style.display = 'none';
+    });
+    showSections();
+    if (returningToSections && requestedEntryLevel !== 'resources') {
+      setTimeout(function () { document.getElementById('rbtn').click(); }, 140);
+    }
+  }
+  window.addEventListener('pageshow', handleDirectEntry);
+  handleDirectEntry();
 
   // ─── Core screen transitions ──────────────────────────────────────────────
 
@@ -22,25 +39,52 @@
 
   function openAsk() {
     askScreen.classList.add('visible');
+    askScreen.removeAttribute('inert');
+    sectionsScreen.inert = true;
+    askEmail.focus();
   }
 
   function closeAsk() {
     askScreen.classList.remove('visible');
+    askScreen.setAttribute('inert', '');
+    sectionsScreen.inert = false;
+    document.getElementById('rbtn').click();
   }
 
-  function handleNotify() {
+  async function handleNotify() {
+    if (askSubmit.disabled) return;
     var email = askEmail.value.trim();
-    if (!email || !email.includes('@')) {
-      askEmail.focus();
+    if (!email || !askEmail.reportValidity()) {
       return;
     }
-    try { localStorage.setItem('askElijahEmail', email); } catch (e) {}
-    askResponse.textContent = "You\u2019re on the list. I\u2019ll reach out when it\u2019s ready.";
+    askSubmit.disabled = true;
+    askSubmit.setAttribute('aria-busy', 'true');
+    askResponse.textContent = 'Joining the waitlist...';
     askResponse.style.display = 'block';
-    askEmail.value = '';
+    try {
+      const response = await fetch('/api/waitlist', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, website: document.getElementById('ask-website').value }),
+        signal: AbortSignal.timeout(35000)
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Unable to sign up. Please try again.');
+      askResponse.textContent = result.message;
+      askEmail.value = '';
+    } catch (error) {
+      askResponse.textContent = error instanceof TypeError || error.name === 'TimeoutError'
+        ? 'We could not reach the signup service. Please try again.'
+        : error.message || 'Unable to sign up. Please try again.';
+    } finally {
+      askSubmit.disabled = false;
+      askSubmit.removeAttribute('aria-busy');
+    }
   }
 
   askClose.addEventListener('click', closeAsk);
+  askScreen.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeAsk();
+  });
   askSubmit.addEventListener('click', handleNotify);
   askEmail.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') handleNotify();
@@ -90,21 +134,41 @@
       setTimeout(showSections, 650);
     }
 
-    skipHandle.addEventListener('pointerdown', function (event) {
-      skipDragging = true;
-      skipHandle.setPointerCapture(event.pointerId);
-      event.preventDefault();
-    });
+    function getSkipClientX(event) {
+      return event.touches && event.touches.length ? event.touches[0].clientX : event.clientX;
+    }
 
-    window.addEventListener('pointermove', function (event) {
+    function startSkipDrag(event) {
+      skipDragging = true;
+      if (event.pointerId !== undefined && event.currentTarget && event.currentTarget.setPointerCapture) {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }
+      var rect = skipTrack.getBoundingClientRect();
+      var inset = skipHandle.offsetWidth / 2;
+      setSkipProgress((getSkipClientX(event) - rect.left - inset) / (rect.width - inset * 2));
+      event.preventDefault();
+    }
+
+    skipHandle.addEventListener('pointerdown', startSkipDrag);
+    skipTrack.addEventListener('pointerdown', startSkipDrag);
+    skipHandle.addEventListener('mousedown', startSkipDrag);
+    skipTrack.addEventListener('mousedown', startSkipDrag);
+    skipHandle.addEventListener('touchstart', startSkipDrag, { passive: false });
+    skipTrack.addEventListener('touchstart', startSkipDrag, { passive: false });
+
+    function moveSkipDrag(event) {
       if (!skipDragging) return;
       var rect = skipTrack.getBoundingClientRect();
       var inset = skipHandle.offsetWidth / 2;
-      setSkipProgress((event.clientX - rect.left - inset) / (rect.width - inset * 2));
+      setSkipProgress((getSkipClientX(event) - rect.left - inset) / (rect.width - inset * 2));
       event.preventDefault();
-    });
+    }
 
-    window.addEventListener('pointerup', function () {
+    window.addEventListener('pointermove', moveSkipDrag);
+    window.addEventListener('mousemove', moveSkipDrag);
+    window.addEventListener('touchmove', moveSkipDrag, { passive: false });
+
+    function endSkipDrag() {
       if (!skipDragging) return;
       skipDragging = false;
       if (skipProgress >= 0.95) {
@@ -112,7 +176,11 @@
       } else {
         resetSkipSlider();
       }
-    });
+    }
+
+    window.addEventListener('pointerup', endSkipDrag);
+    window.addEventListener('mouseup', endSkipDrag);
+    window.addEventListener('touchend', endSkipDrag);
   }
 
   // ─── Journey complete → show sections ────────────────────────────────────
@@ -129,19 +197,31 @@
   // Level definitions (dot-based levels)
   var LEVELS = {
     main: [
-      { id:'ask',  label:'Ask Elijah', desc:'direct questions \u00b7 personal guidance', angle:-58 },
-      { id:'news', label:'Newsletter', desc:'one letter every Friday \u00b7 free',        angle:0  },
-      { id:'social', label:'Socials', desc:'links \u00b7 updates \u00b7 connect', angle:58 },
+      { id:'ask', label:'Ask Elijah', desc:'Advice from an NBA champion. Join the waitlist.', angle:-72 },
+      { id:'news', label:'Newsletter', desc:'Faith, family, and consistency in your inbox.', angle:0 },
+      { id:'social', label:'Socials', desc:'Life on and off the court.', angle:72 },
+      { id:'res', label:'Resources', desc:'Tools I use on and off the court.', angle:-144 },
+      { id:'contact', label:'Contact', desc:'Partnerships, speaking, and other inquiries.', angle:144 },
     ],
     resources: [
       { id:'back',   label:'Back',   desc:'', angle:180, isBack:true },
       { id:'books',  label:'Books',  desc:'reads \u00b7 recommendations \u00b7 growth',  angle:-52 },
-      { id:'tools',  label:'Tools',  desc:'gear \u00b7 apps \u00b7 recovery tech',       angle:0   },
       { id:'guides', label:'Guides', desc:'frameworks \u00b7 plans \u00b7 resources',    angle:52  },
     ]
   };
 
-  var ALL_LABELS = ['lbl-ask','lbl-social','lbl-news','lbl-res','lbl-jour','lbl-books','lbl-tools','lbl-guides','lbl-back'];
+  var GUIDE_RESOURCES = [
+    { id:'agent-questions', title:'Agent Questions Guide', author:'Available', genre:'career', cover:'resources/guides/agent-questions/agent-questions-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/agent-questions-guide' },
+    { id:'contract-checklist', title:'Contract Checklist Guide', author:'Available', genre:'career', cover:'resources/guides/contract-checklist/contract-checklist-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/contract-checklist-guide' },
+    { id:'packing-guide', title:'Packing Guide', author:'Coming soon', genre:'life' },
+    { id:'financial-guide', title:'Financial Guide', author:'Coming soon', genre:'life' },
+    { id:'film-study', title:'Film Study Guide', author:'Coming soon', genre:'basketball' },
+    { id:'body-tools', title:'Body Tools Guide', author:'Coming soon', genre:'performance' },
+    { id:'apps-overseas', title:'Apps for Overseas', author:'Coming soon', genre:'life' },
+    { id:'mental-game', title:'Mental Game Guide', author:'Coming soon', genre:'mindset' }
+  ];
+
+  var ALL_LABELS = ['lbl-ask','lbl-social','lbl-news','lbl-res','lbl-contact','lbl-jour','lbl-books','lbl-guides','lbl-back'];
 
   function initCanvas() {
     if (canvasInited) return;
@@ -152,9 +232,9 @@
     var wrap   = document.getElementById('wrap');
     var booksOrbit = document.getElementById('books-orbit');
 
-    var currentLevel = 'main';
+    var currentLevel = requestedEntryLevel === 'resources' ? 'resources' : 'main';
     var isBookMode = false;
-    var DESTS = LEVELS.main;
+    var DESTS = LEVELS[currentLevel];
     var W, H, cx, cy, sc, dests=[];
     var src = { x:0, y:0, r:10 };
     var dragging=false, dragPos=null, snapDest=null, revealed=null, lineP=0;
@@ -170,6 +250,7 @@
 
     // Book mode state
     var bookPositions = []; // {book, x, y, r, el}
+    var orbitMode = 'books';
     var snapBook = null;
     var revealedBook = null;
     var bookLineP = 0;
@@ -184,7 +265,7 @@
     function hideAllLabels() {
       ALL_LABELS.forEach(function(id) {
         var el = document.getElementById(id);
-        if (el) { el.style.opacity = '0'; el.textContent = ''; el.classList.remove('lit'); }
+        if (el) { el.style.opacity = '0'; el.textContent = ''; el.tabIndex = -1; el.removeAttribute('role'); el.removeAttribute('aria-label'); el.removeAttribute('title'); el.onclick = null; el.onkeydown = null; el.classList.remove('lit'); }
       });
     }
 
@@ -220,13 +301,25 @@
           var lbl = document.getElementById('lbl-'+d.id);
           if (lbl) {
             lbl.style.left = (d.x/W*100)+'%';
-            if (d.isBack) {
+            if (d.id === 'res' || d.id === 'contact') {
+              lbl.style.top = (d.y - d.r - 12) + 'px';
+            } else if (d.isBack) {
               lbl.style.top = ((d.y/H*100)-6)+'%';
             } else {
               lbl.style.top = ((d.y/H*100)+5.2)+'%';
             }
             lbl.textContent = d.label;
             lbl.style.opacity = '1';
+            lbl.setAttribute('role', 'button');
+            lbl.tabIndex = 0;
+            lbl.setAttribute('aria-label', d.label + ': ' + d.desc);
+            lbl.title = d.desc;
+            lbl.onclick = function () { activateDestination(d); };
+            lbl.onkeydown = function (event) {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault(); activateDestination(d);
+              }
+            };
           }
         });
       }
@@ -239,8 +332,8 @@
       hideAllLabels();
 
       // Use ALL books (no pagination)
-      var allBooks = BOOKS;
-      var bookR = 15 * sc; // small thumbnails that zoom on hover
+      var allBooks = orbitMode === 'guides' ? GUIDE_RESOURCES : BOOKS;
+      var bookR = (orbitMode === 'guides' ? 35 : 15) * sc;
 
       // Make the wrap area expand for book mode
       wrap.style.height = 'min(90vh, 700px)';
@@ -250,12 +343,12 @@
       canvas.height = Math.round(H * devicePixelRatio);
       ctx.setTransform(1,0,0,1,0,0);
       ctx.scale(devicePixelRatio, devicePixelRatio);
-      cx = W/2; cy = H*0.55; // push center down to make room for back dot above
+      cx = W/2; cy = H*(orbitMode === 'guides' ? 0.47 : 0.55);
       src.x = cx; src.y = cy; src.r = 10*sc;
 
       // Arrange ALL books in concentric rings — first ring well away from center
       var remaining = allBooks.slice();
-      var ringRadius = 120 * sc;
+      var ringRadius = (orbitMode === 'guides' ? 124 : 120) * sc;
       var ringGap = 42 * sc;
       var ringIndex = 0;
 
@@ -267,7 +360,12 @@
         var arcCenter = Math.PI / 2; // bottom center
         var spacing = (bookR * 2) + 6 * sc;
         var arcLength = arcSpan * ringRadius;
-        var count = Math.min(Math.floor(arcLength / spacing), remaining.length);
+        // The guide library is intentionally a single, evenly spaced orbit.
+        // Letting the generic book-packing calculation choose seven items
+        // pushed the eighth guide onto a second ring and caused overlap.
+        var count = orbitMode === 'guides' && ringIndex === 0
+          ? remaining.length
+          : Math.min(Math.floor(arcLength / spacing), remaining.length);
         if (count < 1) count = 1;
 
         var batch = remaining.splice(0, count);
@@ -278,11 +376,11 @@
           var by = cy + Math.sin(angle) * ringRadius;
 
           var el;
-          var coverUrl = getBookCover(book.isbn);
+          var coverUrl = book.cover || getBookCover(book.isbn);
 
           if (coverUrl) {
             el = document.createElement('img');
-            el.className = 'book-thumb' + (book.read ? ' read-badge' : '');
+            el.className = 'book-thumb' + (orbitMode === 'guides' ? ' guide-thumb' : '') + (book.read ? ' read-badge' : '');
             el.src = coverUrl;
             el.alt = book.title;
             el.onerror = function() {
@@ -308,6 +406,12 @@
           el.style.top = (by - bookR) + 'px';
           el.style.width = (bookR*2) + 'px';
           el.style.height = (bookR*2) + 'px';
+          // Keep enlarged previews inside the orbit with room for the title.
+          var previewSize = Math.min(280, W - 32, Math.max(80, H - 220));
+          var previewHalf = previewSize / 2;
+          var previewX = Math.max(previewHalf + 16, Math.min(W - previewHalf - 16, bx));
+          var previewY = Math.max(previewHalf + 24, Math.min(H - 170 - previewHalf, by));
+          el.style.setProperty('--preview-transform', 'translate(' + (previewX - bx) + 'px,' + (previewY - by) + 'px) scale(' + (previewSize / (bookR * 2)) + ')');
           booksOrbit.appendChild(el);
 
           // Stagger fade-in
@@ -332,7 +436,7 @@
       bookPositions.backDot = { x:cx, y:backY, r:8*sc };
 
       document.getElementById('books-back-link').classList.add('show');
-      document.getElementById('books-search').classList.add('show');
+      document.getElementById('books-search').classList.toggle('show', orbitMode === 'books');
     }
 
     function createPlaceholder(book) {
@@ -360,6 +464,10 @@
     }
 
     function navigateToBook(book) {
+      if (orbitMode === 'guides') {
+        if (book.url) window.location.href = book.url;
+        return;
+      }
       window.location.href = 'book.html?id=' + book.id;
     }
 
@@ -453,7 +561,7 @@
 
     // ─── Level switching ────────────────────────────────────────────────────
 
-    function enterBookMode() {
+    function enterBookMode(mode) {
       fading = true;
       var fadeOut = setInterval(function() {
         fadeAlpha -= 0.04;
@@ -461,16 +569,17 @@
           fadeAlpha = 0;
           clearInterval(fadeOut);
 
+          orbitMode = mode || 'books';
           isBookMode = true;
-          currentLevel = 'books';
+          currentLevel = orbitMode;
           revealed = null; lineP = 0; dragPos = null; snapDest = null;
           t0 = Date.now();
 
           document.getElementById('panel').classList.remove('show');
-          document.getElementById('instr').textContent = 'drag the dot \u00b7 connect to a book';
+          document.getElementById('instr').textContent = orbitMode === 'guides' ? 'drag the dot \u00b7 connect to a guide' : 'drag the dot \u00b7 connect to a book';
           document.getElementById('instr').style.opacity = '1';
           document.getElementById('rbtn').style.display = 'none';
-          document.getElementById('books-search').classList.add('show');
+          document.getElementById('books-search').classList.toggle('show', orbitMode === 'books');
 
           setup();
 
@@ -751,6 +860,10 @@
       if (!isBookMode && revealed) return;
 
       var p=pt(e); var dx=p.x-src.x,dy=p.y-src.y;
+      if (!isBookMode) {
+        var target = dests.find(function(d) { return Math.hypot(p.x-d.x, p.y-d.y) < Math.max(d.r+12, 22); });
+        if (target) { e.preventDefault(); activateDestination(target); return; }
+      }
       var grabRadius = isMobileCanvas() ? Math.max(src.r + 20 * sc, 44) : src.r + 20 * sc;
       if (Math.sqrt(dx*dx+dy*dy) < grabRadius) {
         dragging=true; dragPos=p; canvas.classList.add('drag');
@@ -811,17 +924,32 @@
           if (snapDest.id === 'back') {
             setTimeout(function() { switchLevel('main'); }, 600);
           } else if (snapDest.id === 'ask') {
-            setTimeout(function() { window.location.assign('https://elijahbryant.pro'); }, 600);
+            setTimeout(openAsk, 600);
           } else if (snapDest.id === 'social') {
-            setTimeout(function() { window.location.assign('https://link.me/elijahbryant3?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGn4StJs-aMI6c1m7wLFfG1iJIv6-E-qkXwkBYdV4T9Nnd-OuSwFz3bpvGt4Jk_aem_C8XrYEYpsrFCZt4MjA9sfg'); }, 600);
-          } else if (snapDest.id === 'news') {
-            setTimeout(function() { window.location.assign('https://yourplaybook.beehiiv.com'); }, 600);
+            setTimeout(function () {
+              window.history.replaceState(Object.assign({}, window.history.state, { returnToSections: true }), '');
+              window.location.assign('https://link.me/elijahbryant3');
+            }, 600);
+          } else if (snapDest.id === 'news' || snapDest.id === 'contact') {
+            var dialogId = snapDest.id === 'news' ? 'newsletter-dialog' : 'contact-dialog';
+            setTimeout(function() { window.openSiteDialog(dialogId); }, 600);
           } else if (snapDest.id === 'books') {
-            setTimeout(enterBookMode, 800);
+            setTimeout(function() { enterBookMode('books'); }, 800);
+          } else if (snapDest.id === 'guides') {
+            setTimeout(function() { enterBookMode('guides'); }, 800);
+          } else if (snapDest.id === 'res') {
+            setTimeout(function() { switchLevel('resources'); }, 600);
           }
         }
         snapDest=null; dragPos=null;
       }
+    }
+
+    function activateDestination(destination) {
+      if (fading || isBookMode || revealed) return;
+      dragging = true;
+      snapDest = destination;
+      onUp();
     }
 
     canvas.addEventListener('mousedown',onDown);
@@ -850,6 +978,11 @@
 
     canvas.style.cursor='grab';
     setup();
+    if (requestedEntryLevel === 'resources') {
+      requestedEntryLevel = '';
+      document.getElementById('instr').textContent = 'drag the dot \u00b7 explore resources';
+      document.getElementById('rbtn').style.display = 'none';
+    }
     window.addEventListener('resize', function() {
       setup();
     });

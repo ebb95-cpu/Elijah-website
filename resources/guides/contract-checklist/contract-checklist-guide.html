@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/favicon.ico?v=three-dots-2" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/three-dot-32.png?v=2" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/three-dot-apple.png" />
+  <meta property="og:image" content="https://elijahbryant.pro/images/three-dot-logo.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:image:alt" content="Elijah Bryant three connected dots: Faith, Family, Purpose" />
+  <meta name="twitter:image" content="https://elijahbryant.pro/images/three-dot-logo.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contract Checklist Guide | Consistency Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#090909; --paper:#f4f2ed; --muted:#77736b; --line:#c9c6be; --gold:#b6a375; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; background:#2a2a2a; color:var(--ink); font-family:Inter,Arial,sans-serif; }
+    body { padding:24px 0; }
+    .page { position:relative; width:8.5in; min-height:11in; margin:0 auto 24px; padding:.62in .65in .58in; overflow:hidden; background:var(--paper); page-break-after:always; }
+    .page:last-child { page-break-after:auto; }
+    .page.dark { background:var(--ink); color:#fff; }
+    .page::after { content:""; position:absolute; left:.65in; right:.65in; bottom:.42in; height:1px; background:currentColor; opacity:.25; }
+    .folio { position:absolute; right:.65in; bottom:.2in; font-size:8px; font-weight:700; }
+    .footer { position:absolute; left:.65in; bottom:.2in; font-size:8px; font-weight:700; text-transform:uppercase; }
+    .brand { display:flex; align-items:center; justify-content:space-between; font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dots { display:inline-flex; align-items:center; gap:14px; position:relative; width:68px; }
+    .dots::before { content:""; position:absolute; left:5px; right:5px; height:2px; background:currentColor; }
+    .dots i { z-index:1; width:10px; height:10px; border-radius:50%; background:currentColor; }
+    .eyebrow { margin:0; color:var(--muted); font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dark .eyebrow { color:#aaa69c; }
+    h1, h2, h3, p { margin-top:0; }
+    h1, h2, h3 { font-family:"Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    h1 { margin:1.25in 0 .24in; max-width:6.5in; font-size:74px; font-weight:900; line-height:.82; }
+    h2 { margin:.2in 0 .28in; font-size:46px; font-weight:900; line-height:.88; }
+    h3 { margin:0; font-size:23px; font-weight:800; line-height:1; }
+    .cover-sub { max-width:4.9in; color:#c7c4bd; font-size:13px; line-height:1.5; }
+    .cover-rule { width:1.5in; height:5px; margin:.45in 0; background:var(--gold); }
+    .cover-note { position:absolute; left:.65in; bottom:1in; max-width:4.6in; color:#9f9c95; font-size:10px; line-height:1.55; }
+    .intro { max-width:6.6in; font-size:14px; line-height:1.65; }
+    .callout { margin:.3in 0; padding:.22in .25in; border:2px solid var(--ink); font-family:"Barlow Condensed",Impact,sans-serif; font-size:27px; font-weight:800; line-height:1.05; text-transform:uppercase; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:.14in; }
+    .field { min-height:.62in; padding:.14in; border:1px solid var(--line); }
+    .field strong { display:block; margin-bottom:.12in; font-size:8px; text-transform:uppercase; }
+    .write-line { display:block; height:.18in; border-bottom:1px solid #777; }
+    .section { margin-bottom:.25in; }
+    .section-head { display:flex; align-items:center; gap:.16in; margin-bottom:.11in; }
+    .section-num { display:grid; place-content:center; flex:0 0 .38in; width:.38in; height:.38in; border-radius:50%; background:var(--ink); color:#fff; font:800 16px "Barlow Condensed",Impact,sans-serif; }
+    .checks { display:grid; gap:.08in; }
+    .check { display:grid; grid-template-columns:.22in 1fr; gap:.1in; align-items:start; padding:.09in 0; border-top:1px solid var(--line); font-size:11px; line-height:1.4; }
+    .box { width:.18in; height:.18in; margin-top:1px; border:1.5px solid var(--ink); }
+    .check b { font-weight:700; }
+    .note { color:#666; font-size:9px; line-height:1.45; }
+    .compare { display:grid; grid-template-columns:1fr 1fr; margin:.22in 0; border:2px solid var(--ink); }
+    .compare > div { padding:.18in; }
+    .compare > div + div { border-left:2px solid var(--ink); }
+    .compare strong { display:block; margin-bottom:.09in; font:800 24px/1 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .compare p { margin:0; font-size:10px; line-height:1.45; }
+    .red-flags { display:grid; grid-template-columns:1fr 1fr; gap:.12in; }
+    .flag { padding:.15in; background:var(--ink); color:#fff; }
+    .flag b { display:block; margin-bottom:.05in; font:800 18px/1 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .flag p { margin:0; color:#c9c6be; font-size:9px; line-height:1.4; }
+    .final-list { display:grid; grid-template-columns:1fr 1fr; gap:0 .25in; }
+    .final-list .check { min-height:.46in; }
+    .signature { display:grid; grid-template-columns:1fr 1fr; gap:.25in; margin-top:.28in; }
+    .signature div { padding-top:.28in; border-bottom:1px solid var(--ink); font-size:8px; text-transform:uppercase; }
+    .legal { position:absolute; left:.65in; right:.65in; bottom:.62in; color:#777; font-size:7px; line-height:1.45; }
+    .snapshot .grid { gap:.08in .14in; }
+    .snapshot .field { min-height:.48in; padding:.1in .14in; }
+    .snapshot .field strong { margin-bottom:.05in; }
+    .snapshot h2 { margin-bottom:.18in; }
+    .snapshot .callout { margin:.16in 0 0; padding:.14in .2in; font-size:23px; }
+    @page { size:Letter; margin:0; }
+    @media print { body { padding:0; background:#fff; } .page { margin:0; } }
+    @media screen and (max-width:850px) { body { padding:0; } .page { width:100%; min-height:auto; margin:0; padding:8vw; } .legal,.folio,.footer { position:static; display:block; margin-top:30px; } }
+  </style>
+</head>
+<body>
+  <section class="page dark">
+    <div class="brand"><span>Consistency Club</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.7in">Player Toolkit / 02</p>
+    <h1>Contract<br />Checklist<br />Guide</h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">What every player should confirm before signing a professional basketball contract.</p>
+    <p class="cover-note">A practical field guide by Elijah Bryant.<br />Read every word. Ask every question. Keep the final say.</p>
+    <span class="footer">Elijah Bryant</span><span class="folio">01</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Before You Sign</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.45in">Start Here</p>
+    <h2>A Promise Is Not<br />A Contract.</h2>
+    <p class="intro">The headline salary is only one part of the deal. Your contract should clearly explain what you earn, what the team provides, what happens if you are injured or released, and how disagreements are handled.</p>
+    <div class="callout">If it matters to you, get it in writing.</div>
+    <div class="checks">
+      <div class="check"><span class="box"></span><div>Read the entire contract yourself. Do not rely only on a summary from your agent.</div></div>
+      <div class="check"><span class="box"></span><div>Compare the final contract against the offer you accepted in messages or email.</div></div>
+      <div class="check"><span class="box"></span><div>Ask questions until you understand every clause. Confusion is a reason to pause.</div></div>
+      <div class="check"><span class="box"></span><div>Have an independent lawyer review the agreement when possible.</div></div>
+      <div class="check"><span class="box"></span><div>Have a qualified tax professional explain your obligations in every relevant country.</div></div>
+    </div>
+    <p class="legal">Educational information only. This guide is not legal, tax, financial, medical, or immigration advice. Laws, taxes, league rules, and contract standards vary by country and change over time. Use qualified professionals for your situation.</p>
+    <span class="footer">Contract Checklist Guide</span><span class="folio">02</span>
+  </section>
+
+  <section class="page snapshot">
+    <div class="brand"><span>Deal Snapshot</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.4in">Write It Down</p><h2>Know The Whole Deal.</h2>
+    <div class="grid">
+      <div class="field"><strong>Team / Country</strong><span class="write-line"></span></div>
+      <div class="field"><strong>League / Competition</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Contract Start Date</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Contract End Date</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Base Salary</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Net or Gross?</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Currency</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Number of Payments</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Monthly Payment Date</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Guaranteed Amount</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Bonuses</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Agent Fee / Who Pays?</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Housing</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Car / Transportation</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Flights</strong><span class="write-line"></span></div>
+      <div class="field"><strong>Insurance</strong><span class="write-line"></span></div>
+    </div>
+    <div class="callout">Do not compare contracts until you compare what you actually take home.</div>
+    <span class="footer">Contract Checklist Guide</span><span class="folio">03</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Money + Taxes</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 01</p><h2>Follow Every Dollar.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">1</span><h3>Salary Language</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Is the salary explicitly written as <b>net</b> or <b>gross</b>?</div></div>
+      <div class="check"><span class="box"></span><div>What exact amount should reach your account after local deductions?</div></div>
+      <div class="check"><span class="box"></span><div>Which currency will you be paid in, and who carries exchange-rate risk?</div></div>
+      <div class="check"><span class="box"></span><div>Are bonuses objective, measurable, and tied to clear payment dates?</div></div>
+    </div></div>
+    <div class="compare"><div><strong>Net Salary</strong><p>The contract states what reaches you after agreed local taxes and deductions. Confirm the definition and exceptions.</p></div><div><strong>Gross Salary</strong><p>Taxes and other deductions come out of the stated amount. Your actual take-home can be much lower.</p></div></div>
+    <div class="section"><div class="section-head"><span class="section-num">2</span><h3>Taxes + Fees</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Who files and pays local taxes? Will you receive official proof of payment?</div></div>
+      <div class="check"><span class="box"></span><div>Could wealth, residency, social-security, or other local taxes apply?</div></div>
+      <div class="check"><span class="box"></span><div>What may still be owed in your home country? Americans should ask about foreign tax credits and filing obligations.</div></div>
+      <div class="check"><span class="box"></span><div>Who pays the agent fee? Do not assume the custom is identical in every league.</div></div>
+      <div class="check"><span class="box"></span><div>Are ELPA, union, licensing, federation, or registration fees deducted?</div></div>
+    </div></div>
+    <p class="note">Spain, Turkey, Dubai, and every other market can treat compensation differently. Never use one country's tax experience to estimate another deal.</p>
+    <span class="footer">Contract Checklist Guide</span><span class="folio">04</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Payment Protection</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 02</p><h2>Know When You Get Paid.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">3</span><h3>Schedule + Method</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Are every payment amount and due date written into the contract?</div></div>
+      <div class="check"><span class="box"></span><div>When is the first payment? Is any signing bonus due before travel?</div></div>
+      <div class="check"><span class="box"></span><div>Who pays bank fees, transfer charges, and currency-conversion costs?</div></div>
+      <div class="check"><span class="box"></span><div>What documentation proves a payment was sent and received?</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">4</span><h3>Late Or Missing Money</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>How many days late can a payment be before the team is in breach?</div></div>
+      <div class="check"><span class="box"></span><div>Is there written notice and a cure period before you can take action?</div></div>
+      <div class="check"><span class="box"></span><div>Can you stop playing or terminate if nonpayment continues?</div></div>
+      <div class="check"><span class="box"></span><div>Are penalties or interest owed on late payments?</div></div>
+      <div class="check"><span class="box"></span><div>Where are disputes filed: BAT, federation arbitration, league process, or local court?</div></div>
+    </div></div>
+    <div class="callout">A payment date without a remedy is not enough protection.</div>
+    <span class="footer">Contract Checklist Guide</span><span class="folio">05</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Life Outside The Gym</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 03</p><h2>Put The Lifestyle In Writing.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">5</span><h3>Housing + Transportation</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Is housing furnished, private, safe, and available when you arrive?</div></div>
+      <div class="check"><span class="box"></span><div>Who pays rent, utilities, internet, deposits, repairs, and cleaning?</div></div>
+      <div class="check"><span class="box"></span><div>Is a car provided? Who pays fuel, insurance, maintenance, tolls, and tickets?</div></div>
+      <div class="check"><span class="box"></span><div>If there is no car, what transportation is guaranteed?</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">6</span><h3>Flights + Family</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>How many flights are included, for whom, and at what baggage allowance?</div></div>
+      <div class="check"><span class="box"></span><div>Are preseason arrival, holiday, emergency, and end-of-season flights covered?</div></div>
+      <div class="check"><span class="box"></span><div>Who handles and pays for visas, permits, translations, and renewals?</div></div>
+      <div class="check"><span class="box"></span><div>Are spouse and child visas, insurance, school, or childcare addressed?</div></div>
+      <div class="check"><span class="box"></span><div>Are hotel arrangements and single rooms on road trips clear?</div></div>
+    </div></div>
+    <p class="note">Families will buy toys, kitchen appliances, and everyday items they may later give away. You are living, not camping. Budget for a real life, then clarify what the team provides.</p>
+    <span class="footer">Contract Checklist Guide</span><span class="folio">06</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Health + Availability</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 04</p><h2>Protect Your Body.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">7</span><h3>Medical Coverage</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Does insurance cover practice, games, travel, rehabilitation, surgery, and off-court emergencies?</div></div>
+      <div class="check"><span class="box"></span><div>When does coverage begin and end?</div></div>
+      <div class="check"><span class="box"></span><div>Who chooses the doctor, and do you have a written right to an independent second opinion?</div></div>
+      <div class="check"><span class="box"></span><div>Will you receive copies of imaging, bloodwork, diagnoses, and treatment records?</div></div>
+      <div class="check"><span class="box"></span><div>Who pays for treatment if care continues after release or after the season?</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">8</span><h3>Injury + Salary</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Is salary guaranteed if you are injured during team activity?</div></div>
+      <div class="check"><span class="box"></span><div>Can the team reduce salary, suspend you, or terminate for injury?</div></div>
+      <div class="check"><span class="box"></span><div>What happens if the preseason physical identifies a prior condition?</div></div>
+      <div class="check"><span class="box"></span><div>Is there a clear return-to-play process and who makes the final decision?</div></div>
+    </div></div>
+    <div class="callout">The team doctor works for the team. Keep your own records.</div>
+    <span class="footer">Contract Checklist Guide</span><span class="folio">07</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Exit + Control</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Section 05</p><h2>Know How The Deal Ends.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">9</span><h3>Release + Termination</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Is there a tryout or cut window where the team can release you and owe little or nothing?</div></div>
+      <div class="check"><span class="box"></span><div>What counts as "cause," and is there a warning or cure period?</div></div>
+      <div class="check"><span class="box"></span><div>If released without cause, what salary remains guaranteed and when is it due?</div></div>
+      <div class="check"><span class="box"></span><div>Can the team replace you but delay your release paperwork or transfer clearance?</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">10</span><h3>Buyout + Options</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>What does it cost you or a new team to leave early?</div></div>
+      <div class="check"><span class="box"></span><div>Who holds each option, what is the deadline, and how must notice be delivered?</div></div>
+      <div class="check"><span class="box"></span><div>Does an NBA, EuroLeague, or higher-league out clause exist?</div></div>
+      <div class="check"><span class="box"></span><div>Can you terminate for nonpayment, unsafe conditions, visa failure, or material breach?</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">11</span><h3>Disputes</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Which law governs the contract, and what is the official contract language?</div></div>
+      <div class="check"><span class="box"></span><div>Where will a dispute be heard, who pays costs, and can the decision be enforced?</div></div>
+    </div></div>
+    <span class="footer">Contract Checklist Guide</span><span class="folio">08</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Red Flags</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Pause Before Signing</p><h2>Pressure Is Information.</h2>
+    <div class="red-flags">
+      <div class="flag"><b>"That Is Standard."</b><p>Standard does not mean good for you. Ask where it is written and what it means.</p></div>
+      <div class="flag"><b>"We Will Fix It Later."</b><p>If the promise matters, change the contract before signing.</p></div>
+      <div class="flag"><b>Missing Translation</b><p>Never sign a version you cannot fully read and compare.</p></div>
+      <div class="flag"><b>Blank Spaces</b><p>No missing numbers, dates, exhibits, schedules, or attachments.</p></div>
+      <div class="flag"><b>Different Copies</b><p>Every signed language version should match on the terms that matter.</p></div>
+      <div class="flag"><b>Unclear Guarantees</b><p>"Guaranteed" should state the amount, conditions, and payment timing.</p></div>
+      <div class="flag"><b>One-Sided Exit</b><p>Pay attention when the team has many ways out and you have none.</p></div>
+      <div class="flag"><b>No Outside Review</b><p>Anyone discouraging independent advice deserves extra scrutiny.</p></div>
+    </div>
+    <div class="callout">Your agent advises you. You make the decision.</div>
+    <p class="intro" style="font-size:11px">An agent may be balancing several clients, team relationships, or referral arrangements. That does not automatically make the recommendation wrong, but it means you should verify the situation independently and understand every incentive around the deal.</p>
+    <span class="footer">Contract Checklist Guide</span><span class="folio">09</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Final Review</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.35in">Screenshot This</p><h2>Before You Sign Anything.</h2>
+    <div class="final-list">
+      <div class="check"><span class="box"></span><div>Net or gross salary confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Taxes and proof of payment confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Currency and exchange risk confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Agent fee and payer confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Payment dates confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Late-payment remedy confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Guaranteed salary confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Bonuses written clearly</div></div>
+      <div class="check"><span class="box"></span><div>Housing and utilities confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Car or transportation confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Flights and baggage confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Family visas and support confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Insurance coverage confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Injury protection confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Second-opinion right confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Release language confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Buyout and options confirmed</div></div>
+      <div class="check"><span class="box"></span><div>Dispute process confirmed</div></div>
+      <div class="check"><span class="box"></span><div>All promises are in writing</div></div>
+      <div class="check"><span class="box"></span><div>Final signed copy saved offline</div></div>
+    </div>
+    <div class="signature"><div>Reviewed With</div><div>Date</div></div>
+    <div class="callout">Understand the deal. Keep your records. Keep the final say.</div>
+    <p class="legal">© 2026 Elijah Bryant / Consistency Club. Personal, non-commercial use only. You may save and share designated social graphics with credit. You may not reproduce, redistribute, sell, modify, rebrand, or use the complete guide in another product without prior written permission.</p>
+    <span class="footer">Contract Checklist Guide</span><span class="folio">10</span>
+  </section>
+</body>
+</html>

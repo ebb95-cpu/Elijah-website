@@ -1,4 +1,11 @@
 /* ─── Intro Screen ─── */
+#video-loading-status { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; padding: 24px; text-align: center; z-index: 3; background: #000; color: #eee; font-size: 14px; }
+#video-loading-retry { position: absolute; z-index: 4; top: calc(50% + 40px); padding: 12px 18px; background: #111; color: #fff; border: 1px solid #777; border-radius: 4px; cursor: pointer; }
+#intro-screen:not(.videos-loading) #video-loading-status { display: none; }
+#intro-screen.videos-loading #intro-inner,
+#intro-screen.videos-loading #championship-toggle { visibility: hidden; }
+#intro-screen.videos-loading #championship-window { opacity: .18; }
+#intro-screen.videos-loading #intro-inner * { animation-play-state: paused; }
 #intro-screen {
   position: fixed;
   inset: 0;
@@ -17,6 +24,8 @@
 }
 
 #intro-inner {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -26,7 +35,7 @@
 
 #intro-name {
   font-family: 'Cormorant Garamond', serif;
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(2.1rem, 6.5vw, 4.4rem);
   letter-spacing: 0.18em;
   color: #fff;
@@ -41,9 +50,24 @@
   font-size: 0.65rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.25);
+  color: #e6e6e6;
+  font-weight: 500;
   opacity: 0;
   animation: fadeIn 0.8s ease 1.8s forwards;
+}
+
+#intro-inner {
+  text-shadow: 0 2px 5px #000, 0 0 18px #000;
+  pointer-events: none;
+}
+#intro-slider { pointer-events: auto; }
+#intro-inner .credibility-line {
+  color: #ededed;
+  font-weight: 500;
+}
+#intro-slider .slider-labels span {
+  color: #fff;
+  font-weight: 500;
 }
 
 /* ─── Dot Slider ─── */
@@ -71,6 +95,16 @@
   top: 50%;
   height: 1px;
   background: rgba(255,255,255,0.35);
+  transform: translateY(-50%);
+}
+
+.slider-track::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 44px;
   transform: translateY(-50%);
 }
 

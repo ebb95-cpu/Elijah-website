@@ -21,10 +21,25 @@
   background: #000;
 }
 
-/* Remove Leaflet default UI artifacts */
-.leaflet-control-zoom,
-.leaflet-control-attribution {
+/* Keep the map quiet while preserving the tile provider attribution. */
+.leaflet-control-zoom {
   display: none !important;
+}
+
+.leaflet-tile-pane {
+  filter: grayscale(1) brightness(0.82) contrast(1.15);
+  opacity: 1;
+}
+
+.leaflet-control-attribution {
+  padding: 2px 5px !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  color: rgba(255, 255, 255, 0.38) !important;
+  font: 9px/1.2 Inter, sans-serif !important;
+}
+
+.leaflet-control-attribution a {
+  color: rgba(255, 255, 255, 0.52) !important;
 }
 
 /* Skip slider — top-right */
@@ -264,6 +279,15 @@
 }
 
 /* Custom Leaflet markers */
+.journey-country-label {
+  color: #858585;
+  font: 9px/16px Inter, sans-serif;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
 .journey-dot-icon {
   background: transparent;
   border-radius: 50%;

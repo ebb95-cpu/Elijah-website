@@ -17,32 +17,58 @@
     var dragging = false;
     var currentX = 0;
 
-    handle.addEventListener('pointerdown', function (e) {
-      dragging = true;
-      handle.setPointerCapture(e.pointerId);
-      e.preventDefault();
-    });
+    function getClientX(e) {
+      return e.touches && e.touches.length ? e.touches[0].clientX : e.clientX;
+    }
 
-    window.addEventListener('pointerup', function () {
+    function setSliderPosition(e) {
+      var rect = track.getBoundingClientRect();
+      var x = getClientX(e) - rect.left;
+      if (x < 0) x = 0;
+      if (x > rect.width) x = rect.width;
+      currentX = x;
+      handle.style.left = x + 'px';
+      fill.style.width = x + 'px';
+    }
+
+    function startDrag(e) {
+      dragging = true;
+      if (e.pointerId !== undefined && e.currentTarget && e.currentTarget.setPointerCapture) {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
+      setSliderPosition(e);
+      e.preventDefault();
+    }
+
+    handle.addEventListener('pointerdown', startDrag);
+    track.addEventListener('pointerdown', startDrag);
+    handle.addEventListener('mousedown', startDrag);
+    track.addEventListener('mousedown', startDrag);
+    handle.addEventListener('touchstart', startDrag, { passive: false });
+    track.addEventListener('touchstart', startDrag, { passive: false });
+
+    function endDrag() {
       if (!dragging) return;
       dragging = false;
       var progress = currentX / track.offsetWidth;
       if (progress > 0.75) {
         startJourney(sliderWrap, screen, beforeStart);
       }
-    });
+    }
 
-    window.addEventListener('pointermove', function (e) {
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchend', endDrag);
+
+    function moveDrag(e) {
       if (!dragging) return;
-      var rect = track.getBoundingClientRect();
-      var x = e.clientX - rect.left;
-      if (x < 0) x = 0;
-      if (x > rect.width) x = rect.width;
-      currentX = x;
-      handle.style.left = x + 'px';
-      fill.style.width = x + 'px';
+      setSliderPosition(e);
       e.preventDefault();
-    });
+    }
+
+    window.addEventListener('pointermove', moveDrag);
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('touchmove', moveDrag, { passive: false });
   }
 
   function startJourney(sliderWrap, screen, beforeStart) {

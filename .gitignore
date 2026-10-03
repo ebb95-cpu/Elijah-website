@@ -1,4 +1,9 @@
 node_modules/
+.next/
+elijah-v2/.next/
 .env
 .env.local
 .netlify/
+.wrangler/
+.DS_Store
+tmp/
