@@ -7,3 +7,4 @@ elijah-v2/.next/
 .wrangler/
 .DS_Store
 tmp/
+dist/
