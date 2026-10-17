@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Film Study Guide | Consistency Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#090909; --paper:#f4f2ed; --muted:#77736b; --line:#c9c6be; --accent:#315f8e; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; background:#292929; color:var(--ink); font-family:Inter,Arial,sans-serif; }
+    body { padding:24px 0; }
+    .page { position:relative; width:8.5in; min-height:11in; margin:0 auto 24px; padding:.62in .65in .58in; overflow:hidden; background:var(--paper); page-break-after:always; }
+    .page:last-child { page-break-after:auto; }
+    .dark { background:var(--ink); color:#fff; }
+    .page::after { content:""; position:absolute; left:.65in; right:.65in; bottom:.42in; height:1px; background:currentColor; opacity:.24; }
+    .brand { display:flex; align-items:center; justify-content:space-between; font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dots,.dot-signature { display:inline-flex; align-items:center; justify-content:space-between; position:relative; }
+    .dots { width:68px; }
+    .dots::before,.dot-signature::before { content:""; position:absolute; left:5px; right:5px; height:2px; background:currentColor; }
+    .dots i { z-index:1; width:10px; height:10px; border-radius:50%; background:currentColor; }
+    .dot-signature { width:1.55in; height:.28in; color:var(--accent); }
+    .dot-signature::before { left:.13in; right:.13in; height:3px; }
+    .dot-signature i { z-index:1; width:.25in; height:.25in; border-radius:50%; background:currentColor; }
+    .dot-signature.white { color:#fff; }
+    .dot-signature.center { display:flex; margin:.22in auto; }
+    .eyebrow { margin:0; color:var(--muted); font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dark .eyebrow { color:#a7a39b; }
+    h1,h2,h3,p { margin-top:0; }
+    h1,h2,h3 { font-family:"Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    h1 { margin:1.12in 0 .22in; font-size:90px; font-weight:900; line-height:.8; }
+    h2 { margin:.2in 0 .27in; font-size:48px; font-weight:900; line-height:.88; }
+    h3 { margin:0; font-size:22px; font-weight:800; line-height:1; }
+    .cover-sub { max-width:5.4in; color:#c7c4bd; font-size:13px; line-height:1.5; }
+    .cover-rule { width:1.6in; height:5px; margin:.42in 0; background:var(--accent); }
+    .cover-note { position:absolute; left:.65in; bottom:1in; color:#9f9c95; font-size:10px; line-height:1.55; }
+    .footer,.folio { position:absolute; bottom:.2in; font-size:8px; font-weight:700; text-transform:uppercase; }
+    .footer { left:.65in; } .folio { right:.65in; }
+    .intro { max-width:6.75in; font-size:13px; line-height:1.65; }
+    .callout { margin:.26in 0; padding:.2in .23in; border:2px solid var(--ink); font:800 27px/1.05 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .accent { border-color:var(--accent); color:var(--accent); }
+    .three { display:grid; grid-template-columns:repeat(3,1fr); gap:.12in; margin:.25in 0; }
+    .three > div,.panel { padding:.15in; border:1px solid var(--line); }
+    .three > div { min-height:1.3in; }
+    .three b { display:block; margin-bottom:.08in; font:800 21px/1 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .three p,.panel p { margin:0; color:#5d5a54; font-size:9px; line-height:1.5; }
+    .section { margin-bottom:.23in; }
+    .section-head { display:flex; align-items:center; gap:.15in; margin-bottom:.1in; }
+    .section-num { display:grid; place-content:center; flex:0 0 .38in; width:.38in; height:.38in; border-radius:50%; background:var(--accent); color:#fff; font:800 16px "Barlow Condensed",Impact,sans-serif; }
+    .checks { display:grid; gap:.06in; }
+    .check { display:grid; grid-template-columns:.21in 1fr; gap:.1in; align-items:start; padding:.085in 0; border-top:1px solid var(--line); font-size:10.5px; line-height:1.4; }
+    .box { width:.17in; height:.17in; margin-top:1px; border:1.5px solid var(--ink); }
+    .tip { margin:.17in 0; padding:.14in .17in; background:var(--ink); color:#fff; font-size:9px; line-height:1.5; }
+    .tip b { color:#9fc5e8; text-transform:uppercase; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:.16in; margin:.18in 0; }
+    .panel h3 { margin-bottom:.1in; }
+    .table { border:2px solid var(--ink); }
+    .row { display:grid; grid-template-columns:1.15fr 1.1fr 2.4fr; border-top:1px solid var(--line); }
+    .row:first-child { border-top:0; background:var(--ink); color:#fff; font-size:8px; font-weight:700; text-transform:uppercase; }
+    .row > div { padding:.1in .12in; border-left:1px solid var(--line); font-size:8.7px; line-height:1.4; }
+    .row > div:first-child { border-left:0; font-weight:700; }
+    @page { size:Letter; margin:0; }
+    @media print { body { padding:0; background:#fff; } .page { margin:0; } }
+  </style>
+</head>
+<body>
+  <section class="page dark">
+    <div class="brand"><span>Consistency Club</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.7in">Player Toolkit / 05</p>
+    <h1>Film<br />Study<br />Guide</h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">A repeatable system for seeing the game earlier, learning your role, preparing for opponents, and turning film into better decisions.</p>
+    <span class="dot-signature white" aria-hidden="true"><i></i><i></i><i></i></span>
+    <p class="cover-note">A field guide by Elijah Bryant.<br />Do not just watch the game. Learn to read it.</p>
+    <span class="footer">Elijah Bryant</span><span class="folio">01</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Start Here</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Why Film Matters</p><h2>Improve Without Taxing Your Body.</h2>
+    <p class="intro">Film study is one of the best ways to gain skill without taxing your body. You only get so many hours on the court before fatigue or injury sets in, but with film, you can improve your game while sitting still.</p>
+    <p class="intro">The hardest part is watching objectively. Most players only see the highlights or beat themselves up over mistakes. Learn to see the reality of what happened without ego and you will grow faster.</p>
+    <div class="three">
+      <div><b>Objective</b><p>Separate what actually happened from how the result made you feel.</p></div>
+      <div><b>Detailed</b><p>Look beyond points and highlights at habits that directly affect winning.</p></div>
+      <div><b>Actionable</b><p>Finish with a clear plan you can carry into the next practice.</p></div>
+    </div>
+    <span class="dot-signature center" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div class="callout accent">Watch film like a pro. Find the details that impact winning.</div>
+    <div class="tip"><b>Process mindset:</b> This worksheet is not a highlight review or a punishment. It is a repeatable way to identify your next one-percent improvement.</div>
+    <span class="footer">Film Study Guide</span><span class="folio">02</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Game Information</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Film Session</p><h2>Start With The Facts.</h2>
+    <div class="callout">Date of game: ______________________________</div>
+    <div class="callout">Opponent / team: __________________________</div>
+    <div class="section"><div class="section-head"><span class="section-num">1</span><h3>Set The Session</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Watch after your emotions from the game have settled.</div></div>
+      <div class="check"><span class="box"></span><div>Keep a pen nearby and answer based on the film, not your memory.</div></div>
+      <div class="check"><span class="box"></span><div>Review the entire game, including possessions where you did not touch the ball.</div></div>
+      <div class="check"><span class="box"></span><div>Look for habits you can repeat or correct, not proof that you played well or poorly.</div></div>
+    </div></div>
+    <div class="tip"><b>Your standard:</b> The purpose is accuracy. Do not protect your ego and do not attack yourself.</div>
+    <span class="footer">Film Study Guide</span><span class="folio">03</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Impact On Winning</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Objective Questions</p><h2>Grade The Habits That Win Games.</h2>
+    <div class="checks">
+      <div class="check"><span class="box"></span><div>Did I miss any box outs? &nbsp;&nbsp; Yes / No</div></div>
+      <div class="check"><span class="box"></span><div>Did I miss any play calls? &nbsp;&nbsp; Yes / No</div></div>
+      <div class="check"><span class="box"></span><div>Did I miss any help-side rotations on defense? &nbsp;&nbsp; Yes / No</div></div>
+      <div class="check"><span class="box"></span><div>Did my player blow past me one-on-one? &nbsp;&nbsp; Yes / No</div></div>
+      <div class="check"><span class="box"></span><div>Did I fail to use my fouls wisely when I had fouls to give? &nbsp;&nbsp; Yes / No</div></div>
+    </div>
+    <div class="callout accent">This is not about stats. It is about habits that impact winning.</div>
+    <div class="tip"><b>Follow the possession:</b> When the answer is yes, write down the time and watch what created the mistake before it happened.</div>
+    <span class="footer">Film Study Guide</span><span class="folio">04</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Game Stats</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Objective Record</p><h2>Record The Numbers. Do Not Hide In Them.</h2>
+    <div class="split"><div class="checks">
+      <div class="check"><span class="box"></span><div>Points: __________</div></div>
+      <div class="check"><span class="box"></span><div>Assists: __________</div></div>
+      <div class="check"><span class="box"></span><div>Rebounds: ________</div></div>
+      <div class="check"><span class="box"></span><div>Turnovers: ________</div></div>
+    </div><div class="checks">
+      <div class="check"><span class="box"></span><div>Fouls: ____________</div></div>
+      <div class="check"><span class="box"></span><div>Fouls drawn: ______</div></div>
+      <div class="check"><span class="box"></span><div>FG% (2PT): ________</div></div>
+      <div class="check"><span class="box"></span><div>3PT%: _____ &nbsp; FT%: _____</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">2</span><h3>Shot Selection</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Were the shots I took shots I feel comfortable with? &nbsp;&nbsp; Yes / No</div></div>
+      <div class="check"><span class="box"></span><div>Do I practice those shots regularly? &nbsp;&nbsp; Yes / No</div></div>
+    </div></div>
+    <div class="tip"><b>Remember:</b> The box score shows outcomes. Film shows the decisions and habits that produced them.</div>
+    <span class="footer">Film Study Guide</span><span class="folio">05</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Growth Opportunities</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Look For Solutions</p><h2>Find The Next One Percent.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">1</span><h3>Limit Turnovers</h3></div>
+      <p class="intro">Did I see ways I could limit my turnovers?</p>
+      <div class="callout">________________________________________________</div>
+      <div class="callout">________________________________________________</div>
+    </div>
+    <div class="section"><div class="section-head"><span class="section-num">2</span><h3>Grab More Rebounds</h3></div>
+      <p class="intro">Did I see ways I could grab more rebounds?</p>
+      <div class="callout">________________________________________________</div>
+      <div class="callout">________________________________________________</div>
+    </div>
+    <div class="tip"><b>Make it specific:</b> Write the position, timing, read, or physical action you can practice. Avoid answers such as “try harder.”</div>
+    <span class="footer">Film Study Guide</span><span class="folio">06</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Reflection</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">The 2-1 Method</p><h2>Keep Two. Improve One.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">2</span><h3>Two Things I Did Well</h3></div>
+      <div class="callout">1. _____________________________________________</div>
+      <div class="callout">2. _____________________________________________</div>
+    </div>
+    <div class="section"><div class="section-head"><span class="section-num">1</span><h3>One Thing I Can Work On</h3></div>
+      <div class="callout">________________________________________________</div>
+      <div class="callout">________________________________________________</div>
+    </div>
+    <div class="tip"><b>Balanced review:</b> Improvement requires honesty about mistakes and awareness of what is already working.</div>
+    <span class="footer">Film Study Guide</span><span class="folio">07</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Accountability</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Commit To The Work</p><h2>Write The Plan. Sign It.</h2>
+    <p class="intro">If you cannot hold yourself accountable, then what coach can? Turn what you learned into a plan for your next practice.</p>
+    <div class="callout">My plan: ________________________________________</div>
+    <div class="callout">________________________________________________</div>
+    <div class="callout">________________________________________________</div>
+    <div class="split">
+      <div class="panel"><h3>Signature</h3><p>________________________________</p></div>
+      <div class="panel"><h3>Date</h3><p>________________________________</p></div>
+    </div>
+    <span class="dot-signature center" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div class="callout accent">Winning or losing never changes your ability to learn.</div>
+    <p class="intro">There will never be a game you play perfectly. There is always room to grow. Review honestly, commit to the next action, and keep showing up.</p>
+    <div class="tip"><b>Sign-off:</b> Faith + Consistency.</div>
+    <span class="footer">Film Study Guide</span><span class="folio">08</span>
+  </section>
+</body>
+</html>

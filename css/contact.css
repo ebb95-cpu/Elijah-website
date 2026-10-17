@@ -1,6 +1,6 @@
 .dlabel[role="button"] { pointer-events: auto; cursor: pointer; color: #aaa; min-height: 44px; padding: 8px 2px; letter-spacing: 0; }
 .dlabel:empty { pointer-events: none; }
-#lbl-contact { transform: translate(-50%, -100%); }
+#lbl-contact, #lbl-merch { transform: translate(-50%, -100%); }
 .dlabel:focus-visible, .site-footer-links button:focus-visible { outline: 2px solid white; outline-offset: 4px; }
 .site-purpose { max-width: 420px; margin: 0; text-align: center; color: #bdbdbd; font-size: 14px; line-height: 1.6; letter-spacing: 0; }
 .newsletter-invite { color: #eee; font-size: 14px; line-height: 1.6; text-align: center; letter-spacing: 0; }

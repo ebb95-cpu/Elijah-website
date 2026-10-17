@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ask Elijah: An NBA and EuroLeague champion in your pocket</title>
+  <meta name="description" content="Ask Elijah Bryant anything, any time: nerves, slumps, minutes, consistency. Join the waitlist for early access." />
+  <link rel="canonical" href="https://www.elijahbryant.pro/waitlist" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Ask Elijah: An NBA and EuroLeague champion in your pocket" />
+  <meta property="og:description" content="Ask me anything, any time. Join the waitlist for early access." />
+  <meta property="og:url" content="https://www.elijahbryant.pro/waitlist" />
+  <meta property="og:image" content="https://www.elijahbryant.pro/images/waitlist/euroleague-champion.jpg" />
+  <meta name="theme-color" content="#12171d" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="/images/waitlist/hero.webp" type="image/webp" fetchpriority="high" />
+  <style>
+    :root { --accent: #20e294; --cream: #f3ead8; --bg: #12171d; --card: #1a1f24; --line: #2c333a; --muted: #b9bec2; --dim: #8c9298; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: #fff; font-family: 'Geist', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    img { max-width: 100%; display: block; }
+    main { width: min(1080px, 100%); margin: 0 auto; padding: 20px 22px 48px; }
+    .back { color: var(--muted); text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; min-height: 44px; }
+    .serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; }
+    .eyebrow { font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); font-size: 13px; margin: 0; }
+    .hero { display: grid; gap: 14px; padding: 6px 0 8px; }
+    .hero-top { display: flex; align-items: center; gap: 14px; }
+    .portrait { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 2px solid var(--cream); flex: 0 0 auto; background: #fff; }
+    h1 { font-size: 38px; line-height: 1.06; margin: 4px 0 0; color: var(--cream); }
+    .sub { color: var(--muted); font-size: 16px; line-height: 1.55; margin: 0; }
+    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    input[type=email] { width: 100%; padding: 14px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; color: #fff; font-family: inherit; font-size: 16px; }
+    input[type=email]::placeholder { color: var(--dim); }
+    input[type=email]:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+    input[aria-invalid=true] { border-color: #e8573a; }
+    .btn { margin-top: 10px; width: 100%; min-height: 50px; background: var(--accent); color: #0a0a0a; border: 0; border-radius: 8px; font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+    .btn[disabled] { opacity: .6; cursor: wait; }
+    .micro { color: var(--dim); font-size: 12.5px; margin: 8px 0 0; line-height: 1.5; }
+    .msg { min-height: 1.2em; margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+    .msg.error { color: #ff8a73; }
+    .success { display: none; padding: 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+    .success h2 { font-size: 28px; margin: 0 0 8px; color: var(--cream); }
+    .success p { margin: 0 0 12px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+    .share { display: flex; flex-wrap: wrap; gap: 8px; }
+    .share button, .share a { flex: 1 1 auto; min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: #fff; font: 600 14px 'Geist', Arial, sans-serif; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+    .done form { display: none; } .done .success { display: block; }
+    section { padding: 40px 0 0; }
+    h2.sec { font-size: 32px; line-height: 1.12; margin: 0 0 18px; color: var(--cream); }
+    .proof { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { margin: 0; border-radius: 14px; overflow: hidden; background: var(--card); border: 1px solid var(--line); }
+    .card img { width: 100%; aspect-ratio: 4/5; object-fit: cover; background: #fff; }
+    .card figcaption { padding: 12px 12px 14px; }
+    .card strong { display: block; color: var(--cream); font-size: 16px; line-height: 1.25; }
+    .card span { color: var(--dim); font-size: 13px; }
+    .body { color: var(--muted); font-size: 16px; line-height: 1.6; margin: 16px 0 0; }
+    ol.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; counter-reset: s; }
+    ol.steps li { counter-increment: s; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 16px 16px 58px; position: relative; color: var(--muted); line-height: 1.5; }
+    ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 30px; height: 30px; border-radius: 50%; background: var(--cream); color: var(--bg); font-weight: 700; display: grid; place-items: center; }
+    ol.steps b { color: #fff; }
+    .label { color: var(--dim); font-size: 13px; font-style: italic; margin: -8px 0 16px; }
+    .chats { display: grid; gap: 14px; }
+    .chat { background: #0d1115; border: 1px solid var(--line); border-radius: 20px; padding: 16px; display: grid; gap: 10px; }
+    .q, .a { max-width: 88%; padding: 11px 14px; border-radius: 16px; font-size: 15px; line-height: 1.5; }
+    .q { justify-self: end; background: #2a3a4a; border-bottom-right-radius: 4px; }
+    .a { justify-self: start; background: var(--cream); color: #1b1b1b; border-bottom-left-radius: 4px; }
+    .a p { margin: 0 0 10px; } .fine { margin: 0; color: var(--dim); font-size: 12.5px; }
+    .a em { display: block; margin-top: 8px; font-style: normal; font-weight: 600; color: #0b6b46; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chips span { border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-size: 14px; color: #e7eaec; }
+    .chips.topics span { border-color: transparent; background: var(--card); color: var(--muted); font-size: 13px; }
+    .perk { background: var(--cream); color: var(--bg); border-radius: 16px; padding: 22px; }
+    .perk h2 { margin: 0 0 6px; font-size: 28px; line-height: 1.15; }
+    .perk p { margin: 0; font-size: 16px; line-height: 1.5; }
+    details { border-bottom: 1px solid var(--line); padding: 14px 0; }
+    summary { cursor: pointer; font-weight: 600; font-size: 16px; list-style: none; min-height: 28px; }
+    summary::after { content: '+'; float: right; color: var(--accent); }
+    details[open] summary::after { content: '–'; }
+    details p { color: var(--muted); line-height: 1.6; margin: 10px 0 0; }
+    .final { text-align: left; }
+    footer { margin-top: 44px; padding-top: 20px; border-top: 1px solid #232a31; color: var(--dim); font-size: 12.5px; line-height: 1.7; }
+    footer a { color: var(--muted); }
+    @media (min-width: 900px) {
+      main { padding-top: 32px; }
+      .hero { grid-template-columns: 1.2fr .8fr; gap: 48px; align-items: center; padding-top: 24px; }
+      .hero-photo { order: 2; }
+      .portrait.lg { width: 100%; height: auto; aspect-ratio: 1; border-radius: 24px; border-width: 3px; }
+      .hero-top .portrait { display: none; }
+      h1 { font-size: 64px; }
+      .sub { font-size: 18px; max-width: 34em; }
+      .formbox { max-width: 460px; }
+      section { padding-top: 72px; }
+      h2.sec { font-size: 44px; }
+      .proof { max-width: 760px; gap: 20px; }
+      .chats { grid-template-columns: 1fr; } .chats.one { max-width: 560px; }
+      ol.steps { grid-template-columns: repeat(3, 1fr); }
+      .narrow { max-width: 760px; }
+    }
+    @media (max-width: 899px) { .hero-photo { display: none; } }
+  </style>
+</head>
+<body>
+<main>
+  <a class="back" href="/">&larr; elijahbryant.pro</a>
+
+  <div class="hero">
+    <div class="hero-photo">
+      <picture>
+        <source srcset="/images/waitlist/hero.webp" type="image/webp" />
+        <img class="portrait lg" src="/images/waitlist/hero.jpg" width="600" height="600" alt="Elijah Bryant smiling and pointing at the EuroLeague trophy" loading="eager" fetchpriority="high" />
+      </picture>
+    </div>
+    <div>
+      <div class="hero-top">
+        <picture>
+          <source srcset="/images/waitlist/hero.webp" type="image/webp" />
+          <img class="portrait" src="/images/waitlist/hero.jpg" width="96" height="96" alt="Elijah Bryant smiling and pointing at the EuroLeague trophy" loading="eager" />
+        </picture>
+        <p class="eyebrow">Ask Elijah · Coming soon</p>
+      </div>
+      <h1 class="serif">An NBA and EuroLeague champion in your pocket.</h1>
+      <p class="sub" style="margin-top:12px">Ask me anything: nerves before a big game, a slump, a coach who won't play you, staying consistent when you don't feel like it. Get a real answer from what I've lived, any time, day or night.</p>
+      <div class="formbox signup" style="margin-top:18px">
+        <form novalidate>
+          <label class="hp" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" /></label>
+          <input type="email" name="email" placeholder="your@email.com" autocomplete="email" inputmode="email" aria-label="Email address" required />
+          <button class="btn" type="submit">Get early access</button>
+          <p class="msg" role="status" aria-live="polite"></p>
+          <p class="micro">Free to join. Waitlist gets in first. No spam, unsubscribe anytime.</p>
+        </form>
+        <div class="success"></div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <h2 class="sec serif">I've been in the moments you're nervous about.</h2>
+    <div class="proof">
+      <figure class="card">
+        <picture><source srcset="/images/waitlist/nba-champion.webp" type="image/webp" />
+        <img src="/images/waitlist/nba-champion.jpg" width="640" height="800" loading="lazy" decoding="async" alt="Elijah Bryant holding the 2021 NBA championship trophy in the Bucks locker room" /></picture>
+        <figcaption><strong>2021 NBA Champion</strong><span>Milwaukee Bucks</span></figcaption>
+      </figure>
+      <figure class="card">
+        <picture><source srcset="/images/waitlist/euroleague-champion.webp" type="image/webp" />
+        <img src="/images/waitlist/euroleague-champion.jpg" width="640" height="800" loading="lazy" decoding="async" alt="Elijah Bryant with the 2022 EuroLeague trophy on his shoulder" /></picture>
+        <figcaption><strong>2022 EuroLeague Champion</strong><span>Anadolu Efes</span></figcaption>
+      </figure>
+    </div>
+    <p class="body narrow">Undrafted. Went overseas. Won the NBA title and the EuroLeague title in back-to-back seasons, only the second player ever to do it. Everything that got me through is going into this app.</p>
+  </section>
+
+  <section>
+    <h2 class="sec serif">How it works</h2>
+    <ol class="steps">
+      <li><b>Ask.</b> Bring a real question: pressure, confidence, the next possession.</li>
+      <li><b>Get my answer.</b> Instant guidance from what I've said, learned, and lived, with the video or post it came from.</li>
+      <li><b>Take the rep.</b> One move for the next 24 hours. And yes, I still read every card.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2 class="sec serif">What it feels like</h2>
+    <div class="chats one">
+      <div class="chat"><div class="q">i play good in practice but i choke in games when it matters. how do i stop being scared to mess up?</div><div class="a"><p>Being scared to mess up means you care. That's not the problem. The problem is when the fear makes you play not to lose.</p><p>I went undrafted out of BYU. I got cut. I went to Israel and had to earn everything. On the Bucks I'd go in for a few minutes in the playoffs. When you only get four minutes, you can't play scared. You play the next possession.</p><p>So stop playing the whole game in your head. Pick one thing you control: sprint back on D, box out, talk. Do that on the first possession and your body calms down. Mistakes will happen. Next play. Before every game I take a breath and remind myself who I play for. Then I go.</p><em>Today's rep: In your next practice, every time you mess up, clap once, say "next play," and sprint to your spot. Count how many times you do it.</em></div>
+      <p class="fine">This is a short answer. In the app, I go deeper.</p></div>
+  </section>
+
+  <section class="narrow">
+    <h2 class="sec serif">Who it's for</h2>
+    <div class="chips"><span>Youth</span><span>High school</span><span>College</span><span>Pro</span><span>Overseas</span><span>Parents &amp; coaches</span></div>
+    <p class="body">If you've ever had a question about the game, or life around it, and no one to ask, this is for you.</p>
+    <div class="chips topics" style="margin-top:14px"><span>Confidence &amp; pressure</span><span>Slumps</span><span>Routine &amp; training</span><span>Nutrition</span><span>Coaches &amp; minutes</span><span>Playing overseas</span><span>Faith &amp; family</span><span>Staying consistent</span></div>
+  </section>
+
+  <section class="narrow">
+    <div class="perk">
+      <h2 class="serif">Join now and you're a founding member.</h2>
+      <p>First access, and founding members lock in a founding price.</p>
+    </div>
+  </section>
+
+  <section class="narrow">
+    <h2 class="sec serif">Questions</h2>
+    <details><summary>Is it actually you?</summary><p>It's built from my real words: my videos, posts, interviews, and the lessons from my career. It answers instantly, I read the cards, and when a question needs me, it comes straight to me.</p></details>
+    <details><summary>What does it cost?</summary><p>Joining the waitlist is free. Founding members lock in a founding price.</p></details>
+    <details><summary>When does it launch?</summary><p>Coming soon. You'll be the first to know by email.</p></details>
+    <details><summary>Is it only for basketball?</summary><p>Basketball is my world, but most questions, like pressure, consistency, confidence, and faith, apply to any athlete.</p></details>
+    <details><summary>What will you email me?</summary><p>Launch news and early access. Nothing else unless you also join the Consistency Club newsletter.</p></details>
+  </section>
+
+  <section class="final narrow">
+    <h2 class="sec serif">The next time you have a question, I'll be right there.</h2>
+    <div class="formbox signup">
+      <form novalidate>
+        <label class="hp" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" /></label>
+        <input type="email" name="email" placeholder="your@email.com" autocomplete="email" inputmode="email" aria-label="Email address" required />
+        <button class="btn" type="submit">Get early access</button>
+        <p class="msg" role="status" aria-live="polite"></p>
+      </form>
+      <div class="success"></div>
+    </div>
+  </section>
+
+  <footer>
+    Faith + Consistency · <a href="/">elijahbryant.pro</a><br>
+    Signups are handled by Beehiiv. Unsubscribe anytime.
+  </footer>
+</main>
+<script>
+(function () {
+  var qs = new URLSearchParams(location.search), extra = {};
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','ref'].forEach(function (k) { var v = qs.get(k); if (v) extra[k] = v.slice(0, 200); });
+  var shareUrl = 'https://www.elijahbryant.pro/waitlist?ref=share';
+  var successHTML = '<h2 class="serif">You\u2019re in. Welcome to the founding team.</h2>' +
+    '<p>Watch your inbox. You\u2019ll hear from me first when Ask Elijah opens. While you wait: what\u2019s the one question you\u2019d ask me today? Reply to the welcome email with it. I read them, and they help shape the app.</p>' +
+    '<p style="color:#fff;font-weight:600">Know a teammate who needs this?</p>' +
+    '<div class="share"><button type="button" data-a="copy">Copy link</button><button type="button" data-a="share">Share</button><a href="sms:?&body=' + encodeURIComponent('Check this out: ' + shareUrl) + '">Text a friend</a></div>' +
+    '<p style="margin-top:12px">Follow along on Instagram <a style="color:#20e294" href="https://www.instagram.com/elijahbryant3/">@elijahbryant3</a>.</p>';
+  function copy(btn) { (navigator.clipboard ? navigator.clipboard.writeText(shareUrl) : Promise.reject()).then(function () { btn.textContent = 'Copied'; }, function () { prompt('Copy this link:', shareUrl); }); }
+  document.querySelectorAll('.signup').forEach(function (wrap) {
+    var form = wrap.querySelector('form'), email = form.querySelector('[name=email]'), hp = form.querySelector('[name=website]'),
+        btn = form.querySelector('button'), msg = form.querySelector('.msg');
+    function show(t, err) { msg.textContent = t; msg.className = 'msg' + (err ? ' error' : ''); email.setAttribute('aria-invalid', err ? 'true' : 'false'); }
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var value = email.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { show('Please enter a valid email address.', true); email.focus(); return; }
+      btn.disabled = true; btn.textContent = 'Joining...'; show('', false);
+      try {
+        var payload = Object.assign({ email: value, website: hp.value }, extra);
+        var res = await fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+          signal: AbortSignal.timeout ? AbortSignal.timeout(35000) : undefined });
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok || !data.success) throw new Error(data.message || 'Unable to sign up. Please try again.');
+        var s = wrap.querySelector('.success'); s.innerHTML = successHTML;
+        s.querySelector('[data-a=copy]').onclick = function () { copy(this); };
+        s.querySelector('[data-a=share]').onclick = function () { var b = this; if (navigator.share) navigator.share({ title: 'Ask Elijah', text: 'An NBA and EuroLeague champion in your pocket.', url: shareUrl }).catch(function(){}); else copy(b); };
+        wrap.classList.add('done');
+      } catch (err) {
+        show(err instanceof TypeError || err.name === 'TimeoutError' ? 'We could not reach the signup service. Please try again.' : (err.message || 'Unable to sign up. Please try again.'), true);
+      } finally { btn.disabled = false; btn.textContent = 'Get early access'; }
+    });
+  });
+})();
+</script>
+</body>
+</html>

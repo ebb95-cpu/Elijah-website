@@ -274,6 +274,20 @@
   height: min(66vh, 500px);
 }
 
+/* Guides orbit: JS also sets inline width/height from the viewport; this is the fallback. */
+#wrap.guides-orbit {
+  width: min(980px, 96vw, 90vh);
+  height: min(980px, 96vw, 90vh);
+}
+@media (max-width: 768px) {
+  #wrap.guides-orbit {
+    width: 100vw;
+    max-width: 100vw;
+    height: min(100vw, 78vh);
+    min-height: 0;
+  }
+}
+
 #wrap canvas {
   position: absolute;
   top: 0; left: 0;
@@ -472,21 +486,42 @@
   object-fit: cover;
   object-position: center;
   background: #080808;
+  /* Magnifier dock: scale around the circle's own center; stay circular. */
+  transform: scale(var(--mag-scale, 1));
+  transform-origin: center center;
+  z-index: var(--mag-z, 1);
+  transition: opacity 0.4s ease, transform 0.18s cubic-bezier(0.16,1,0.3,1), border-color 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
+}
+.book-thumb.guide-thumb.visible {
+  transform: scale(var(--mag-scale, 1));
 }
 .book-thumb.guide-thumb.hovered,
+.book-thumb.guide-thumb.snapped,
+.book-thumb.guide-thumb.magnified {
+  object-fit: cover;
+  border-radius: 50%;
+  border-color: rgba(232,224,208,0.75);
+  box-shadow: 0 0 0 2px rgba(232,224,208,0.18), 0 0 28px rgba(232,224,208,0.28), 0 12px 36px rgba(0,0,0,0.55);
+}
+.book-thumb.guide-thumb.mag-near {
+  border-color: rgba(232,224,208,0.4);
+  box-shadow: 0 0 16px rgba(232,224,208,0.12);
+}
+/* Guides never use the books-style translate-to-center preview. */
+.book-thumb.guide-thumb.hovered,
 .book-thumb.guide-thumb.snapped {
-  object-fit: contain;
-  border-radius: 3px;
+  transform: scale(var(--mag-scale, 1));
 }
 
-.book-thumb.hovered {
+.book-thumb.hovered:not(.guide-thumb) {
   transform: var(--preview-transform, scale(2));
   border-color: rgba(232,224,208,0.6);
   box-shadow: 0 0 30px rgba(232,224,208,0.2);
   z-index: 15;
 }
 
-.book-thumb.snapped {
+.book-thumb.snapped:not(.guide-thumb) {
   border-color: #e8e0d0;
   transform: var(--preview-transform, scale(2));
   box-shadow: 0 0 24px rgba(232,224,208,0.2);

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Body Tools Guide | Consistency Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#090909; --paper:#f4f2ed; --muted:#77736b; --line:#c9c6be; --accent:#a44831; --soft:#e8dfd6; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; background:#292929; color:var(--ink); font-family:Inter,Arial,sans-serif; }
+    body { padding:24px 0; }
+    .page { position:relative; width:8.5in; min-height:11in; margin:0 auto 24px; padding:.62in .65in .58in; overflow:hidden; background:var(--paper); page-break-after:always; }
+    .page:last-child { page-break-after:auto; }
+    .dark { background:var(--ink); color:#fff; }
+    .page::after { content:""; position:absolute; left:.65in; right:.65in; bottom:.42in; height:1px; background:currentColor; opacity:.24; }
+    .brand { display:flex; align-items:center; justify-content:space-between; font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dots,.dot-signature { display:inline-flex; align-items:center; justify-content:space-between; position:relative; }
+    .dots { width:68px; }
+    .dots::before,.dot-signature::before { content:""; position:absolute; left:5px; right:5px; height:2px; background:currentColor; }
+    .dots i { z-index:1; width:10px; height:10px; border-radius:50%; background:currentColor; }
+    .dot-signature { width:1.55in; height:.28in; color:var(--accent); }
+    .dot-signature::before { left:.13in; right:.13in; height:3px; }
+    .dot-signature i { z-index:1; width:.25in; height:.25in; border-radius:50%; background:currentColor; }
+    .dot-signature.white { color:#fff; }
+    .dot-signature.center { display:flex; margin:.22in auto; }
+    .eyebrow { margin:0; color:var(--muted); font-size:9px; font-weight:700; text-transform:uppercase; }
+    .dark .eyebrow { color:#aaa69e; }
+    h1,h2,h3,p { margin-top:0; }
+    h1,h2,h3 { font-family:"Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    h1 { margin:1.05in 0 .22in; font-size:90px; font-weight:900; line-height:.8; }
+    h2 { margin:.2in 0 .27in; font-size:48px; font-weight:900; line-height:.88; }
+    h3 { margin:0; font-size:21px; font-weight:800; line-height:1; }
+    .cover-sub { max-width:5.55in; color:#c7c4bd; font-size:13px; line-height:1.5; }
+    .cover-rule { width:1.6in; height:5px; margin:.42in 0; background:var(--accent); }
+    .cover-note { position:absolute; left:.65in; bottom:1in; color:#9f9c95; font-size:10px; line-height:1.55; }
+    .footer,.folio { position:absolute; bottom:.2in; font-size:8px; font-weight:700; text-transform:uppercase; }
+    .footer { left:.65in; } .folio { right:.65in; }
+    .intro { max-width:6.75in; font-size:12.5px; line-height:1.62; }
+    .callout { margin:.22in 0; padding:.18in .22in; border:2px solid var(--ink); font:800 25px/1.05 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .accent { border-color:var(--accent); color:var(--accent); }
+    .three { display:grid; grid-template-columns:repeat(3,1fr); gap:.12in; margin:.23in 0; }
+    .three > div,.panel { padding:.15in; border:1px solid var(--line); }
+    .three > div { min-height:1.26in; }
+    .three b { display:block; margin-bottom:.08in; font:800 20px/1 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .three p,.panel p { margin:0; color:#5d5a54; font-size:8.8px; line-height:1.48; }
+    .section { margin-bottom:.2in; }
+    .section-head { display:flex; align-items:center; gap:.15in; margin-bottom:.09in; }
+    .section-num { display:grid; place-content:center; flex:0 0 .38in; width:.38in; height:.38in; border-radius:50%; background:var(--accent); color:#fff; font:800 16px "Barlow Condensed",Impact,sans-serif; }
+    .checks { display:grid; gap:.04in; }
+    .check { display:grid; grid-template-columns:.21in 1fr; gap:.1in; align-items:start; padding:.075in 0; border-top:1px solid var(--line); font-size:9.7px; line-height:1.38; }
+    .box { width:.16in; height:.16in; margin-top:1px; border:1.5px solid var(--ink); }
+    .tip { margin:.15in 0; padding:.13in .17in; background:var(--ink); color:#fff; font-size:8.8px; line-height:1.48; }
+    .tip b { color:#e8a38f; text-transform:uppercase; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:.14in; margin:.16in 0; }
+    .panel h3 { margin-bottom:.09in; }
+    .table { border:2px solid var(--ink); }
+    .row { display:grid; grid-template-columns:1.18fr 1.28fr 2.25fr; border-top:1px solid var(--line); }
+    .row:first-child { border-top:0; background:var(--ink); color:#fff; font-size:7.8px; font-weight:700; text-transform:uppercase; }
+    .row > div { padding:.085in .1in; border-left:1px solid var(--line); font-size:8px; line-height:1.32; }
+    .row > div:first-child { border-left:0; font-weight:700; }
+    .stack { display:grid; grid-template-columns:1fr 1fr; gap:.12in; }
+    .tool { min-height:1.05in; padding:.13in; border:1px solid var(--line); }
+    .tool b { display:block; margin-bottom:.05in; font:800 18px/1 "Barlow Condensed",Impact,sans-serif; text-transform:uppercase; }
+    .tool p { margin:0; color:#5d5a54; font-size:8.6px; line-height:1.4; }
+    .resource-link { display:flex; align-items:center; justify-content:space-between; gap:.18in; margin:.14in 0; padding:.13in .17in; border:2px solid var(--accent); color:var(--accent); font-size:8px; font-weight:700; text-decoration:none; text-transform:uppercase; }
+    .resource-link strong { font:800 17px/1 "Barlow Condensed",Impact,sans-serif; }
+    .resource-link span:last-child { text-align:right; text-transform:none; }
+    .write-line { height:.36in; border-bottom:1px solid var(--line); }
+    a { color:inherit; }
+    @page { size:Letter; margin:0; }
+    @media print { body { padding:0; background:#fff; } .page { margin:0; } }
+  </style>
+</head>
+<body>
+  <section class="page dark">
+    <div class="brand"><span>Consistency Club</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.7in">Player Toolkit / 06</p>
+    <h1>Body<br />Tools<br />Guide</h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">The recovery tools, supplements, and routines I use to support performance through a long professional season.</p>
+    <span class="dot-signature white" aria-hidden="true"><i></i><i></i><i></i></span>
+    <p class="cover-note">A field guide by Elijah Bryant.<br />Build the foundation before buying the tools.</p>
+    <span class="footer">Elijah Bryant</span><span class="folio">01</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Start Here</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">The Recovery Hierarchy</p><h2>No Gadget Can Replace The Basics.</h2>
+    <p class="intro">The best recovery tools are still the simplest ones: whole foods, quality sleep, hydration, and a training plan your body can recover from. If those are missing, no supplement or machine will save you.</p>
+    <p class="intro">I still believe in looking for a one-percent edge. Over a long season, small advantages can add up. The key is to use tools as support for a strong routine, not as a substitute for one.</p>
+    <div class="three">
+      <div><b>1. Foundation</b><p>Sleep, food, hydration, movement, and an honest workload.</p></div>
+      <div><b>2. Target</b><p>Choose a tool for a specific need, not because it looks professional.</p></div>
+      <div><b>3. Repeat</b><p>The useful routine is the one you can follow through travel and games.</p></div>
+    </div>
+    <span class="dot-signature center" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div class="callout accent">Master the ninety-nine percent. Then earn the one-percent edge.</div>
+    <div class="tip"><b>My rule:</b> Start with the smallest stack that solves the problem. Add only what you can explain, afford, travel with, and use consistently.</div>
+    <span class="footer">Body Tools Guide</span><span class="folio">02</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Morning Stack</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Personal Routine</p><h2>Support The Day Before It Gets Busy.</h2>
+    <div class="table">
+      <div class="row"><div>What I Use</div><div>My Purpose</div><div>How It Fits My Routine</div></div>
+      <div class="row"><div>FloraSport 20B</div><div>Gut + immune support</div><div>A probiotic I use on an empty stomach, especially when travel disrupts food and routine.</div></div>
+      <div class="row"><div>Kion Flex</div><div>Joint support</div><div>Part of my morning routine during long stretches of practices, flights, and games.</div></div>
+      <div class="row"><div>Kion Aminos or EAAs</div><div>Protein support</div><div>A convenient option when my schedule makes it harder to get a full meal immediately.</div></div>
+      <div class="row"><div>Mitopure</div><div>Cellular-energy support</div><div>A longevity-focused supplement I take with breakfast.</div></div>
+      <div class="row"><div>Omega-3</div><div>General health support</div><div>I take it with food as part of a broader nutrition plan.</div></div>
+      <div class="row"><div>Creatine</div><div>Power + training support</div><div>A simple daily habit. Consistency matters more than perfect timing.</div></div>
+      <div class="row"><div>Redmond Re-Lyte</div><div>Hydration</div><div>Useful when I sweat heavily, travel, or need help replacing electrolytes.</div></div>
+    </div>
+    <div class="callout">Food first. Supplements fill a specific gap.</div>
+    <div class="tip"><b>Important:</b> This is my personal routine, not a prescription. Your needs, health history, medications, team rules, and league testing requirements may be different.</div>
+    <span class="footer">Body Tools Guide</span><span class="folio">03</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Training Window</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Before Practice Or Games</p><h2>Use Timing To Support The Work.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">1</span><h3>Two To Three Hours Before</h3></div>
+      <div class="panel"><h3>Beetroot / Nitric-Oxide Support</h3><p>I use a beet product early enough for it to fit the training window. It is not a replacement for conditioning, hydration, or a pre-game meal.</p></div>
+    </div>
+    <div class="section"><div class="section-head"><span class="section-num">2</span><h3>Thirty To Sixty Minutes Before</h3></div>
+      <div class="split">
+        <div class="panel"><h3>Aminos / EAAs</h3><p>An optional extra serving when food timing or total protein intake needs support.</p></div>
+        <div class="panel"><h3>Legion Pulse</h3><p>A caffeinated pre-workout I may use for energy and focus. Know your tolerance and avoid letting caffeine damage sleep.</p></div>
+      </div>
+    </div>
+    <div class="checks">
+      <div class="check"><span class="box"></span><div>I ate a real meal that supports the session.</div></div>
+      <div class="check"><span class="box"></span><div>I know how much caffeine I am taking.</div></div>
+      <div class="check"><span class="box"></span><div>I checked this exact product and batch for sport-testing risk.</div></div>
+      <div class="check"><span class="box"></span><div>I have used this before and know how my body responds.</div></div>
+    </div>
+    <div class="tip"><b>Do not experiment on game day:</b> Introduce only one new product at a time and test it during a lower-stakes training day.</div>
+    <span class="footer">Body Tools Guide</span><span class="folio">04</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Evening Stack</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Protect Sleep</p><h2>Recovery Starts Before Your Head Hits The Pillow.</h2>
+    <div class="table">
+      <div class="row"><div>What I Use</div><div>My Purpose</div><div>How It Fits My Routine</div></div>
+      <div class="row"><div>Apple Cider Vinegar</div><div>Meal routine</div><div>Something I may use before dinner. It is optional, not a substitute for food quality.</div></div>
+      <div class="row"><div>Aminos / EAAs</div><div>Protein support</div><div>An option when my daily intake or late schedule leaves a gap.</div></div>
+      <div class="row"><div>Kion Sleep</div><div>Wind-down support</div><div>Part of a broader routine that starts with light, temperature, timing, and a consistent bedtime.</div></div>
+      <div class="row"><div>Magnesium</div><div>Relaxation support</div><div>I use it as one part of my nighttime routine after checking the dose and product.</div></div>
+      <div class="row"><div>Apigenin</div><div>Wind-down support</div><div>An optional tool I have used. It should be reviewed with a qualified professional.</div></div>
+      <div class="row"><div>Glycine</div><div>Sleep routine support</div><div>Another optional piece. The routine matters more than the number of supplements.</div></div>
+    </div>
+    <div class="three">
+      <div><b>Dark</b><p>Lower lights and screens before bed.</p></div>
+      <div><b>Cool</b><p>Make the room comfortable enough to stay asleep.</p></div>
+      <div><b>Consistent</b><p>Protect the same sleep window whenever the schedule allows.</p></div>
+    </div>
+    <div class="tip"><b>Priority:</b> Do not use a supplement to cover a bedtime, caffeine, or screen habit that keeps working against you.</div>
+    <span class="footer">Body Tools Guide</span><span class="folio">05</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Body Care Tools</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Choose By Need</p><h2>Every Tool Needs A Job.</h2>
+    <div class="stack">
+      <div class="tool"><b>Normatec Boots</b><p>Compression for heavy legs, travel days, and congested schedules.</p></div>
+      <div class="tool"><b>Game Ready</b><p>Cold plus compression when it is already part of a clinician-led injury or swelling plan.</p></div>
+      <div class="tool"><b>Massage Gun</b><p>A convenient option for short bouts of muscle tension work and warm-up.</p></div>
+      <div class="tool"><b>HBOT</b><p>A high-cost modality that belongs under qualified medical guidance, not casual self-treatment.</p></div>
+      <div class="tool"><b>Red Light</b><p>A recovery modality I may use when access, time, and a clear purpose justify it.</p></div>
+      <div class="tool"><b>Mini / Long Bands</b><p>Portable tools for activation, mobility, strength, and returning to movement.</p></div>
+      <div class="tool"><b>Scrapers</b><p>Targeted tissue work. Technique and pressure matter more than the tool itself.</p></div>
+      <div class="tool"><b>Balance Tools</b><p>Foot, ankle, and trunk control work that can fit into a warm-up or rehab plan.</p></div>
+      <div class="tool"><b>Yoga Toes</b><p>A simple option for foot comfort and recovery after long days in basketball shoes.</p></div>
+      <div class="tool"><b>Weekly Massage</b><p>Hands-on recovery, relaxation, and a consistent check-in with how the body feels.</p></div>
+    </div>
+    <a class="resource-link" href="https://www.amazon.com/shop/elijahself-improvementjunkie" target="_blank" rel="noopener noreferrer"><strong>Shop My Recovery + Body Tools &rarr;</strong><span>amazon.com/shop/elijahself-improvementjunkie</span></a>
+    <div class="tip"><b>Travel test:</b> Before buying, ask whether the tool is portable, durable, replaceable overseas, and useful enough to earn space in your bag.</div>
+    <span class="footer">Body Tools Guide</span><span class="folio">06</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Decision Ladder</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Match The Tool To The Problem</p><h2>Do Not Recover On Autopilot.</h2>
+    <div class="section"><div class="section-head"><span class="section-num">1</span><h3>Name The Need</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>General fatigue or poor sleep</div></div>
+      <div class="check"><span class="box"></span><div>Heavy legs after travel or multiple games</div></div>
+      <div class="check"><span class="box"></span><div>Local soreness, swelling, or an active injury</div></div>
+      <div class="check"><span class="box"></span><div>Warm-up, activation, or range-of-motion work</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">2</span><h3>Use The Lowest-Cost Effective Move</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>Sleep, meal, water, walk, or easy mobility first.</div></div>
+      <div class="check"><span class="box"></span><div>Add one targeted tool only if it fits the need.</div></div>
+      <div class="check"><span class="box"></span><div>Escalate pain, swelling, or injury questions to medical staff.</div></div>
+    </div></div>
+    <div class="section"><div class="section-head"><span class="section-num">3</span><h3>Check The Result</h3></div>
+      <p class="intro">What changed after using the tool?</p><div class="write-line"></div><div class="write-line"></div>
+      <p class="intro" style="margin-top:.16in">Is it worth repeating?</p><div class="write-line"></div>
+    </div>
+    <div class="callout accent">A recovery tool should solve a problem, not become a ritual you never question.</div>
+    <span class="footer">Body Tools Guide</span><span class="folio">07</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Build Your Stack</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Personal Worksheet</p><h2>Start Small. Track What Works.</h2>
+    <div class="split">
+      <div class="panel"><h3>My Foundation Habit</h3><p>Sleep, food, hydration, or movement:</p><div class="write-line"></div><div class="write-line"></div></div>
+      <div class="panel"><h3>My Main Recovery Need</h3><p>The problem I am trying to solve:</p><div class="write-line"></div><div class="write-line"></div></div>
+    </div>
+    <div class="split">
+      <div class="panel"><h3>One Supplement</h3><p>Purpose, timing, dose, and professional approval:</p><div class="write-line"></div><div class="write-line"></div></div>
+      <div class="panel"><h3>One Body Tool</h3><p>When I will use it and what result I expect:</p><div class="write-line"></div><div class="write-line"></div></div>
+    </div>
+    <div class="section"><div class="section-head"><span class="section-num">7</span><h3>Seven-Day Check</h3></div><div class="checks">
+      <div class="check"><span class="box"></span><div>I followed the routine consistently.</div></div>
+      <div class="check"><span class="box"></span><div>I noticed a useful change in sleep, readiness, soreness, or energy.</div></div>
+      <div class="check"><span class="box"></span><div>The routine was practical during travel and team responsibilities.</div></div>
+      <div class="check"><span class="box"></span><div>I can explain why each item is in my stack.</div></div>
+    </div></div>
+    <div class="callout">Keep / change / remove: __________________________</div>
+    <div class="tip"><b>Consistency test:</b> A smaller routine you follow is more valuable than a perfect routine that disappears after three days.</div>
+    <span class="footer">Body Tools Guide</span><span class="folio">08</span>
+  </section>
+
+  <section class="page">
+    <div class="brand"><span>Athlete Safety</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <p class="eyebrow" style="margin-top:.38in">Protect Your Health And Career</p><h2>You Are Responsible For What Enters Your Body.</h2>
+    <p class="intro">These are my personal experiences, not medical advice. Before adding a supplement or recovery modality, speak with a qualified physician, sports dietitian, athletic trainer, or your team’s performance staff.</p>
+    <div class="checks">
+      <div class="check"><span class="box"></span><div>Check the current prohibited list and the rules that apply to your league.</div></div>
+      <div class="check"><span class="box"></span><div>Use independent sport-testing directories such as <a href="https://www.nsfsport.com/certified-products/">NSF Certified for Sport</a> or <a href="https://sport.wetestyoutrust.com/certified-brands">Informed Sport</a>.</div></div>
+      <div class="check"><span class="box"></span><div>Verify the exact product and, when available, the exact batch or lot number.</div></div>
+      <div class="check"><span class="box"></span><div>Keep packaging, receipts, lot numbers, and a written record of what you take.</div></div>
+      <div class="check"><span class="box"></span><div>Review possible interactions, side effects, doses, and timing with qualified staff.</div></div>
+      <div class="check"><span class="box"></span><div>Remember that third-party testing can reduce risk, but it cannot make supplement use risk-free.</div></div>
+    </div>
+    <div class="callout accent">WADA does not approve or certify supplements.</div>
+    <p class="intro">Anti-doping rules apply strict liability: the athlete is responsible for prohibited substances found in their body. Protect your availability, reputation, and career by treating every supplement decision seriously.</p>
+    <span class="dot-signature center" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div class="tip"><b>Sign-off:</b> Build the foundation. Choose with purpose. Keep showing up. Faith + Consistency.</div>
+    <span class="footer">Body Tools Guide</span><span class="folio">09</span>
+  </section>
+</body>
+</html>

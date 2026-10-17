@@ -197,11 +197,12 @@
   // Level definitions (dot-based levels)
   var LEVELS = {
     main: [
-      { id:'ask', label:'Ask Elijah', desc:'Advice from an NBA champion. Join the waitlist.', angle:-72 },
+      { id:'ask', label:'Ask Elijah', desc:'Advice from an NBA champion. Join the waitlist.', angle:-60 },
       { id:'news', label:'Newsletter', desc:'Faith, family, and consistency in your inbox.', angle:0 },
-      { id:'social', label:'Socials', desc:'Life on and off the court.', angle:72 },
-      { id:'res', label:'Resources', desc:'Tools I use on and off the court.', angle:-144 },
-      { id:'contact', label:'Contact', desc:'Partnerships, speaking, and other inquiries.', angle:144 },
+      { id:'social', label:'Socials', desc:'Life on and off the court.', angle:60 },
+      { id:'res', label:'Player Tool Kit', desc:'Tools I use on and off the court.', angle:-120 },
+      { id:'contact', label:'Contact', desc:'Partnerships, speaking, and other inquiries.', angle:120 },
+      { id:'merch', label:'Merch', desc:'Consistency Club merch. Opens in a new tab.', angle:180, url:'/merch' },
     ],
     resources: [
       { id:'back',   label:'Back',   desc:'', angle:180, isBack:true },
@@ -211,17 +212,23 @@
   };
 
   var GUIDE_RESOURCES = [
-    { id:'agent-questions', title:'Agent Questions Guide', author:'Available', genre:'career', cover:'resources/guides/agent-questions/agent-questions-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/agent-questions-guide' },
-    { id:'contract-checklist', title:'Contract Checklist Guide', author:'Available', genre:'career', cover:'resources/guides/contract-checklist/contract-checklist-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/contract-checklist-guide' },
-    { id:'packing-guide', title:'Packing Guide', author:'Coming soon', genre:'life' },
-    { id:'financial-guide', title:'Financial Guide', author:'Coming soon', genre:'life' },
-    { id:'film-study', title:'Film Study Guide', author:'Available', genre:'basketball', cover:'resources/guides/film-study/assets/film-study-circle-thumbnail.jpg?v=2', url:'https://yourplaybook.beehiiv.com/products/film-study-guide' },
-    { id:'body-tools', title:'Body Tools Guide', author:'Coming soon', genre:'performance' },
-    { id:'apps-overseas', title:'Apps for Overseas', author:'Coming soon', genre:'life' },
-    { id:'mental-game', title:'Mental Game Guide', author:'Coming soon', genre:'mindset' }
+    { id:'agent-questions', title:'Agent Questions Guide', author:'Available', genre:'career', cover:'resources/guides/agent-questions/agent-questions-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/agent-questions-guide-2026' },
+    { id:'contract-checklist', title:'Contract Checklist Guide', author:'Available', genre:'career', cover:'resources/guides/contract-checklist/contract-checklist-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/contract-checklist-guide-2026' },
+    { id:'packing-guide', title:'Packing Guide', author:'Available', genre:'life', cover:'resources/guides/packing-guide/packing-guide-circle-thumbnail.png', url:'https://yourplaybook.beehiiv.com/products/overseas-packing-guide-2026' },
+    { id:'financial-guide', title:'Financial Guide', author:'Available', genre:'life', cover:'resources/guides/money-overseas/money-overseas-circle-thumbnail.png?v=2', url:'https://yourplaybook.beehiiv.com/products/money-overseas-guide-2026' },
+    { id:'film-study', title:'Film Study Guide', author:'Available', genre:'basketball', cover:'resources/guides/film-study/assets/film-study-circle-thumbnail.jpg?v=2', url:'https://yourplaybook.beehiiv.com/products/film-study-guide-2026' },
+    { id:'body-tools', title:'Body Tools Guide', author:'Available', genre:'performance', cover:'resources/guides/body-tools/body-tools-circle-thumbnail.jpg', url:'https://yourplaybook.beehiiv.com/products/body-tools-guide-2026' },
+    { id:'tools-and-apps', title:'Tools and Apps Guide', author:'Available', genre:'life', cover:'resources/guides/tools-and-apps-guide/tools-and-apps-guide-circle-thumbnail.jpg', url:'https://yourplaybook.beehiiv.com/products/tools-and-apps-guide-2026' },
+    { id:'mental-health', title:'Mental Health Guide', author:'Available', genre:'mindset', cover:'resources/guides/mental-health-guide/mental-health-guide-circle-thumbnail.jpg', url:'https://yourplaybook.beehiiv.com/products/mental-health-guide-2026' },
+    { id:'reading-guide', title:'Reading Guide', author:'Available', genre:'mindset', cover:'resources/guides/reading-guide/reading-guide-circle-thumbnail.jpg', url:'https://yourplaybook.beehiiv.com/products/reading-guide-2026' },
+    { id:'consistency-club-tracker', title:'Consistency Club Tracker', author:'Available', genre:'performance', cover:'resources/guides/consistency-club-tracker/consistency-club-tracker-circle-thumbnail.jpg', url:'https://yourplaybook.beehiiv.com/products/consistency-club-tracker-2026' },
+    { id:'in-season-weight-room', title:'In-Season Weight Room Plan', author:'Available', genre:'performance', cover:'resources/guides/in-season-weight-room-plan/in-season-weight-room-plan-circle-thumbnail.jpg', url:'https://yourplaybook.beehiiv.com/products/in-season-weight-room-plan-2026' },
+    { id:'survival-guide', title:'Overseas Basketball Survival Guide', author:'Available', genre:'career', cover:'resources/guides/overseas-basketball-survival-guide/overseas-basketball-survival-guide-circle-thumbnail.jpg', url:'https://yourplaybook.beehiiv.com/products/overseas-basketball-survival-guide-2026' },
+    { id:'confidence-course', title:'How to Build Confidence On and Off the Court', author:'Free Video Course', genre:'mindset', cover:'resources/guides/confidence-course/confidence-course-circle-thumbnail.jpg', url:'https://www.youtube.com/watch?v=sAl5mZHsR6s', newTab:true },
+    { id:'full-recovery-day', title:'Full Recovery Day', author:'Available', genre:'performance', cover:'resources/guides/full-recovery-day/full-recovery-day-circle-thumbnail.jpg', url:'https://yourplaybook.beehiiv.com/products/full-recovery-day' }
   ];
 
-  var ALL_LABELS = ['lbl-ask','lbl-social','lbl-news','lbl-res','lbl-contact','lbl-jour','lbl-books','lbl-guides','lbl-back'];
+  var ALL_LABELS = ['lbl-ask','lbl-social','lbl-news','lbl-res','lbl-contact','lbl-merch','lbl-jour','lbl-books','lbl-guides','lbl-back'];
 
   function initCanvas() {
     if (canvasInited) return;
@@ -251,6 +258,7 @@
     // Book mode state
     var bookPositions = []; // {book, x, y, r, el}
     var orbitMode = 'books';
+    var guideBaseR = 0;
     var snapBook = null;
     var revealedBook = null;
     var bookLineP = 0;
@@ -294,14 +302,14 @@
         var arm = currentLevel === 'main' ? Math.min(W*0.43, H*0.39, 225) : Math.min(W*0.37, H*0.34, 180);
         dests = DESTS.map(function(d) {
           var rad = d.angle * Math.PI / 180;
-          return { id:d.id, label:d.label, desc:d.desc, angle:d.angle, isBack:!!d.isBack, x:cx+Math.sin(rad)*arm, y:cy+Math.cos(rad)*arm*0.82, r:isMobileCanvas() ? Math.max(6*sc, 7) : 6*sc };
+          return { id:d.id, label:d.label, desc:d.desc, angle:d.angle, url:d.url, isBack:!!d.isBack, x:cx+Math.sin(rad)*arm, y:cy+Math.cos(rad)*arm*0.82, r:isMobileCanvas() ? Math.max(6*sc, 7) : 6*sc };
         });
         hideAllLabels();
         dests.forEach(function(d) {
           var lbl = document.getElementById('lbl-'+d.id);
           if (lbl) {
             lbl.style.left = (d.x/W*100)+'%';
-            if (d.id === 'res' || d.id === 'contact') {
+            if (d.id === 'res' || d.id === 'contact' || d.id === 'merch') {
               lbl.style.top = (d.y - d.r - 12) + 'px';
             } else if (d.isBack) {
               lbl.style.top = ((d.y/H*100)-6)+'%';
@@ -333,37 +341,94 @@
 
       // Use ALL books (no pagination)
       var allBooks = orbitMode === 'guides' ? GUIDE_RESOURCES : BOOKS;
-      var bookR = (orbitMode === 'guides' ? 35 : 15) * sc;
+      var bookR = 15 * sc;
+      guideBaseR = 0;
 
-      // Make the wrap area expand for book mode
-      wrap.style.height = 'min(90vh, 700px)';
+      // Size the orbit stage from the real viewport so the ring fills the available room.
+      wrap.classList.toggle('guides-orbit', orbitMode === 'guides');
+      if (orbitMode === 'guides') {
+        // Largest near-square that fits under header/footer — orbit then fills that square.
+        var vw = window.innerWidth || document.documentElement.clientWidth;
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        if (isMobileCanvas()) {
+          // Phone: full width; square stage so the ring can reach the side edges.
+          var side = Math.floor(Math.min(vw, Math.max(360, Math.min(vh * 0.78, vw * 1.02))));
+          wrap.style.width = vw + 'px';
+          wrap.style.maxWidth = '100vw';
+          wrap.style.height = side + 'px';
+          wrap.style.minHeight = '';
+        } else {
+          // Desktop: largest square that fits the viewport (use most of the height).
+          var side = Math.floor(Math.min(vw * 0.96, vh * 0.90, 980));
+          wrap.style.width = side + 'px';
+          wrap.style.maxWidth = '96vw';
+          wrap.style.height = side + 'px';
+          wrap.style.minHeight = '';
+        }
+      } else {
+        wrap.style.width = '';
+        wrap.style.maxWidth = '';
+        wrap.style.height = 'min(90vh, 700px)';
+        wrap.style.minHeight = '';
+      }
       var r = wrap.getBoundingClientRect();
       W = r.width; H = r.height;
       canvas.width = Math.round(W * devicePixelRatio);
       canvas.height = Math.round(H * devicePixelRatio);
       ctx.setTransform(1,0,0,1,0,0);
       ctx.scale(devicePixelRatio, devicePixelRatio);
-      cx = W/2; cy = H*(orbitMode === 'guides' ? 0.47 : 0.55);
+      // Guides: center slightly below mid so Back clears a large ring.
+      cx = W/2; cy = H*(orbitMode === 'guides' ? 0.54 : 0.55);
       src.x = cx; src.y = cy; src.r = 10*sc;
 
-      // Arrange ALL books in concentric rings — first ring well away from center
       var remaining = allBooks.slice();
-      var ringRadius = (orbitMode === 'guides' ? 124 : 120) * sc;
+      var ringRadius = 120 * sc;
       var ringGap = 42 * sc;
-      var ringIndex = 0;
+      var gapHalf = 0.55; // radians (~31°) on each side of straight-up to keep clear
+      var arcSpan = (2 * Math.PI) - (2 * gapHalf);
+      var arcCenter = Math.PI / 2; // bottom center
+
+      if (orbitMode === 'guides') {
+        // SINGLE RING + MAGNIFIER from measured W×H.
+        // Fill the inscribed circle of the stage: ringRadius + bookR ≈ maxOuter.
+        var guideCount = Math.max(1, allBooks.length);
+        var edgePad = Math.max(6, Math.min(14, Math.min(W, H) * 0.018));
+        var backReserve = Math.max(28, Math.min(42, H * 0.055));
+        var maxOuter = Math.min(
+          W / 2 - edgePad,
+          cy - backReserve - edgePad,
+          H - cy - edgePad
+        );
+        var fillOuter = maxOuter * 0.98;
+        var gapPx = Math.max(2, Math.min(6, Math.min(W, H) * 0.006));
+        // R + r = fillOuter; r = (arcSpan*R/n - gap)/2
+        var denom = 1 + arcSpan / (2 * guideCount);
+        ringRadius = (fillOuter + gapPx / 2) / denom;
+        bookR = fillOuter - ringRadius;
+        // Soft floor only — never force bigger than arc/edges allow.
+        var minR = isMobileCanvas() ? Math.max(16, W * 0.055) : Math.max(28, W * 0.048);
+        if (bookR < minR) {
+          bookR = minR;
+          ringRadius = Math.max(48, fillOuter - bookR);
+          var fitR = (arcSpan * ringRadius / guideCount - gapPx) / 2;
+          if (fitR > 0 && fitR < bookR) bookR = fitR;
+        }
+        // No small artificial maxR — viewport + arc packing set the rest size.
+        var maxByWidth = W / 2 - bookR - edgePad;
+        var maxByTop = cy - bookR - backReserve - edgePad;
+        var maxByBottom = H - cy - bookR - edgePad;
+        ringRadius = Math.min(ringRadius, maxByWidth, maxByTop, maxByBottom);
+        var arcFit = (arcSpan * ringRadius / guideCount - gapPx) / 2;
+        if (arcFit > 0) bookR = Math.min(bookR, arcFit);
+        guideBaseR = bookR;
+        remaining = allBooks.slice();
+      }
 
       while (remaining.length > 0) {
-        // Skip the top zone where Back dot lives, distribute symmetrically
-        // PI/2 is straight down. We center the arc on the bottom and spread evenly.
-        var gapHalf = 0.55; // radians (~31°) on each side of straight-up to keep clear
-        var arcSpan = (2 * Math.PI) - (2 * gapHalf);
-        var arcCenter = Math.PI / 2; // bottom center
         var spacing = (bookR * 2) + 6 * sc;
         var arcLength = arcSpan * ringRadius;
-        // The guide library is intentionally a single, evenly spaced orbit.
-        // Letting the generic book-packing calculation choose seven items
-        // pushed the eighth guide onto a second ring and caused overlap.
-        var count = orbitMode === 'guides' && ringIndex === 0
+        // Guides: force entire library onto this single ring. Books: spill to outer rings.
+        var count = orbitMode === 'guides'
           ? remaining.length
           : Math.min(Math.floor(arcLength / spacing), remaining.length);
         if (count < 1) count = 1;
@@ -406,12 +471,17 @@
           el.style.top = (by - bookR) + 'px';
           el.style.width = (bookR*2) + 'px';
           el.style.height = (bookR*2) + 'px';
-          // Keep enlarged previews inside the orbit with room for the title.
-          var previewSize = Math.min(280, W - 32, Math.max(80, H - 220));
-          var previewHalf = previewSize / 2;
-          var previewX = Math.max(previewHalf + 16, Math.min(W - previewHalf - 16, bx));
-          var previewY = Math.max(previewHalf + 24, Math.min(H - 170 - previewHalf, by));
-          el.style.setProperty('--preview-transform', 'translate(' + (previewX - bx) + 'px,' + (previewY - by) + 'px) scale(' + (previewSize / (bookR * 2)) + ')');
+          if (orbitMode === 'guides') {
+            el.style.setProperty('--mag-scale', '1');
+            el.style.setProperty('--mag-z', '1');
+          } else {
+            // Books keep the centered enlarge-on-hover preview.
+            var previewSize = Math.min(280, W - 32, Math.max(80, H - 220));
+            var previewHalf = previewSize / 2;
+            var previewX = Math.max(previewHalf + 16, Math.min(W - previewHalf - 16, bx));
+            var previewY = Math.max(previewHalf + 24, Math.min(H - 170 - previewHalf, by));
+            el.style.setProperty('--preview-transform', 'translate(' + (previewX - bx) + 'px,' + (previewY - by) + 'px) scale(' + (previewSize / (bookR * 2)) + ')');
+          }
           booksOrbit.appendChild(el);
 
           // Stagger fade-in
@@ -419,11 +489,11 @@
             setTimeout(function(){ elem.classList.add('visible'); }, delay);
           })(el, 30 + bookPositions.length * 8);
 
-          bookPositions.push({ book:book, x:bx, y:by, r:bookR, el:el });
+          bookPositions.push({ book:book, x:bx, y:by, r:bookR, el:el, angle:angle });
         });
 
+        if (orbitMode === 'guides') break; // never spill to a second ring
         ringRadius += ringGap;
-        ringIndex++;
       }
 
       // Back dot — halfway between top of canvas and center, totally isolated
@@ -448,24 +518,106 @@
     }
 
     function getSnapBook(pos) {
+      // Check back dot first
+      if (bookPositions.backDot) {
+        var bd = bookPositions.backDot;
+        var ddx = pos.x - bd.x, ddy = pos.y - bd.y;
+        if (Math.sqrt(ddx*ddx+ddy*ddy) < 44*sc) return { isBack:true, x:bd.x, y:bd.y, r:bd.r };
+      }
+      if (orbitMode === 'guides') {
+        // Snap by angle once the drag leaves the center — works with tiny rest circles.
+        var gdx = pos.x - src.x, gdy = pos.y - src.y;
+        var gdist = Math.sqrt(gdx*gdx + gdy*gdy);
+        if (gdist < 36*sc) return null;
+        var gang = Math.atan2(gdy, gdx);
+        var best = null, bestDiff = Infinity;
+        for (var gi = 0; gi < bookPositions.length; gi++) {
+          var gbp = bookPositions[gi];
+          if (!gbp.book || gbp.filtered) continue;
+          var bang = gbp.angle != null ? gbp.angle : Math.atan2(gbp.y - src.y, gbp.x - src.x);
+          var diff = Math.abs(gang - bang) % (Math.PI * 2);
+          if (diff > Math.PI) diff = Math.PI * 2 - diff;
+          if (diff < bestDiff) { bestDiff = diff; best = gbp; }
+        }
+        // ~22° window, or near the guide center once magnified
+        if (best && (bestDiff < 0.40 || Math.hypot(pos.x - best.x, pos.y - best.y) < Math.max(best.r * 3, 36*sc))) {
+          return best;
+        }
+        return null;
+      }
       for (var i = 0; i < bookPositions.length; i++) {
         var bp = bookPositions[i];
         if (bp.filtered) continue;
         var dx = pos.x - bp.x, dy = pos.y - bp.y;
         if (Math.sqrt(dx*dx+dy*dy) < bp.r + 15*sc) return bp;
       }
-      // Check back dot
-      if (bookPositions.backDot) {
-        var bd = bookPositions.backDot;
-        var ddx = pos.x - bd.x, ddy = pos.y - bd.y;
-        if (Math.sqrt(ddx*ddx+ddy*ddy) < 44*sc) return { isBack:true, x:bd.x, y:bd.y, r:bd.r };
-      }
       return null;
+    }
+
+    function clearGuideMagnifier() {
+      bookPositions.forEach(function(bp) {
+        if (!bp.el) return;
+        bp.el.style.setProperty('--mag-scale', '1');
+        bp.el.style.setProperty('--mag-z', '1');
+        bp.el.classList.remove('magnified', 'mag-near');
+      });
+    }
+
+    function applyGuideMagnifier(focusX, focusY, active) {
+      if (orbitMode !== 'guides') return;
+      if (!active) { clearGuideMagnifier(); return; }
+      var base = guideBaseR || 14;
+      // Focused guide ~1.8–2.6× rest size, capped so it stays on-screen.
+      var targetDiam = Math.min(Math.min(W, H) * 0.34, Math.max(130, base * 2 * 2.2));
+      var maxScale = Math.max(1.7, Math.min(3.2, targetDiam / (base * 2)));
+      var influence = Math.max(70, ringInfluence());
+      var nearest = null, nearestDist = Infinity;
+      bookPositions.forEach(function(bp) {
+        if (!bp.book || !bp.el) return;
+        var dist = Math.hypot(focusX - bp.x, focusY - bp.y);
+        if (dist < nearestDist) { nearestDist = dist; nearest = bp; }
+        var t = Math.max(0, 1 - dist / influence);
+        t = t * t; // ease — sharp center, soft neighbors
+        var scale = 1 + (maxScale - 1) * t;
+        // Neighbors get a milder bump even if slightly outside core influence
+        if (scale < 1.15 && dist < influence * 1.35) {
+          var t2 = Math.max(0, 1 - dist / (influence * 1.35));
+          scale = Math.max(scale, 1 + 0.55 * t2 * t2);
+        }
+        bp.el.style.setProperty('--mag-scale', scale.toFixed(3));
+        bp.el.style.setProperty('--mag-z', String(Math.round(scale * 20)));
+        bp.el.classList.toggle('magnified', scale > maxScale * 0.72);
+        bp.el.classList.toggle('mag-near', scale > 1.25 && scale <= maxScale * 0.72);
+      });
+      return nearest;
+    }
+
+    function ringInfluence() {
+      // About 1.1× the arc spacing between neighbors so 1–2 neighbors swell.
+      if (!bookPositions.length) return 80 * sc;
+      var n = 0;
+      for (var i = 0; i < bookPositions.length; i++) if (bookPositions[i].book) n++;
+      if (n < 2) return 80 * sc;
+      // Approximate chord length between adjacent guides on the ring.
+      var sample = bookPositions.find(function(bp){ return bp.book; });
+      var rr = sample ? Math.hypot(sample.x - src.x, sample.y - src.y) : 120 * sc;
+      var chord = 2 * rr * Math.sin(arcSpanSafe() / (2 * n));
+      return Math.max(55 * sc, chord * 1.15);
+    }
+
+    function arcSpanSafe() {
+      return (2 * Math.PI) - (2 * 0.55);
     }
 
     function navigateToBook(book) {
       if (orbitMode === 'guides') {
-        if (book.url) window.location.href = book.url;
+        if (book.url && book.newTab) {
+          var win = window.open(book.url, '_blank');
+          if (win) { try { win.opener = null; } catch (e) {} }
+          else window.location.href = book.url;
+        } else if (book.url) {
+          window.location.href = book.url;
+        }
         return;
       }
       window.location.href = 'book.html?id=' + book.id;
@@ -487,29 +639,52 @@
         clearHover();
         return;
       }
-      var closest = null;
-      var closestDist = Infinity;
-      for (var i = 0; i < bookPositions.length; i++) {
-        var bp = bookPositions[i];
-        if (!bp.book) continue;
-        var dx = mousePos.x - bp.x, dy = mousePos.y - bp.y;
-        var dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < bp.r + 25*sc && dist < closestDist) {
-          closest = bp;
-          closestDist = dist;
+      if (orbitMode === 'guides') {
+        // Magnifier follows the pointer; widen hit radius so small rest circles are easy to find.
+        var closest = null;
+        var closestDist = Infinity;
+        var hitR = Math.max((guideBaseR || 14) * 3.5, 36 * sc);
+        for (var i = 0; i < bookPositions.length; i++) {
+          var bp = bookPositions[i];
+          if (!bp.book) continue;
+          var dist = Math.hypot(mousePos.x - bp.x, mousePos.y - bp.y);
+          if (dist < closestDist) { closestDist = dist; closest = bp; }
+        }
+        if (closest && closestDist < hitR) {
+          applyGuideMagnifier(closest.x, closest.y, true);
+          if (closest !== lastHoveredBp) {
+            if (lastHoveredBp && lastHoveredBp.el) lastHoveredBp.el.classList.remove('hovered');
+            lastHoveredBp = closest;
+            if (closest.el) closest.el.classList.add('hovered');
+          }
+        } else {
+          clearHover();
+        }
+        return;
+      }
+      var closestB = null;
+      var closestDistB = Infinity;
+      for (var j = 0; j < bookPositions.length; j++) {
+        var bp2 = bookPositions[j];
+        if (!bp2.book) continue;
+        var dx = mousePos.x - bp2.x, dy = mousePos.y - bp2.y;
+        var dist2 = Math.sqrt(dx*dx + dy*dy);
+        if (dist2 < bp2.r + 25*sc && dist2 < closestDistB) {
+          closestB = bp2;
+          closestDistB = dist2;
         }
       }
-      if (closest && closest !== lastHoveredBp) {
+      if (closestB && closestB !== lastHoveredBp) {
         clearHover();
-        lastHoveredBp = closest;
-        if (closest.el) closest.el.classList.add('hovered');
+        lastHoveredBp = closestB;
+        if (closestB.el) closestB.el.classList.add('hovered');
         if (!hoverTitleEl) createHoverTitle();
-        hoverTitleEl.innerHTML = '<span class="bth-title">' + closest.book.title + '</span>' +
-          (closest.book.author ? '<span class="bth-author">' + closest.book.author + '</span>' : '');
-        hoverTitleEl.style.left = closest.x + 'px';
-        hoverTitleEl.style.top = (closest.y + closest.r*7 + 8*sc) + 'px';
+        hoverTitleEl.innerHTML = '<span class="bth-title">' + closestB.book.title + '</span>' +
+          (closestB.book.author ? '<span class="bth-author">' + closestB.book.author + '</span>' : '');
+        hoverTitleEl.style.left = closestB.x + 'px';
+        hoverTitleEl.style.top = (closestB.y + closestB.r*7 + 8*sc) + 'px';
         hoverTitleEl.classList.add('visible');
-      } else if (!closest && lastHoveredBp) {
+      } else if (!closestB && lastHoveredBp) {
         clearHover();
       }
     }
@@ -520,6 +695,7 @@
       }
       lastHoveredBp = null;
       if (hoverTitleEl) hoverTitleEl.classList.remove('visible');
+      if (orbitMode === 'guides') clearGuideMagnifier();
     }
 
     // Track mouse position for hover even when not dragging
@@ -610,12 +786,16 @@
           revealed = null; lineP = 0; dragPos = null; snapDest = null;
           t0 = Date.now();
 
-          // Reset wrap height, search, and back link
+          // Reset wrap size, search, and back link
+          wrap.classList.remove('guides-orbit');
+          wrap.style.width = '';
+          wrap.style.maxWidth = '';
           wrap.style.height = '';
+          wrap.style.minHeight = '';
           document.getElementById('books-search-input').value = '';
           document.getElementById('books-back-link').classList.remove('show');
           document.getElementById('panel').classList.remove('show');
-          document.getElementById('instr').textContent = 'drag the dot \u00b7 explore resources';
+          document.getElementById('instr').textContent = 'drag the dot \u00b7 explore the player tool kit';
           document.getElementById('instr').style.opacity = '1';
           document.getElementById('rbtn').style.display = 'none';
           document.getElementById('books-search').classList.remove('show');
@@ -652,7 +832,7 @@
             document.getElementById('instr').textContent = 'drag the dot \u00b7 continue your journey';
             document.getElementById('rbtn').style.display = '';
           } else {
-            document.getElementById('instr').textContent = 'drag the dot \u00b7 explore resources';
+            document.getElementById('instr').textContent = 'drag the dot \u00b7 explore the player tool kit';
             document.getElementById('rbtn').style.display = 'none';
           }
           document.getElementById('instr').style.opacity = '1';
@@ -809,21 +989,40 @@
         ctx.beginPath(); ctx.moveTo(src.x,src.y); ctx.lineTo(tx,ty);
         ctx.strokeStyle=g; ctx.lineWidth=1.8; ctx.stroke();
 
-        // Highlight snapped book thumbnail + show title card
-        bookPositions.forEach(function(bp) {
-          if (bp.el) bp.el.classList.toggle('snapped', !!(snap && !snap.isBack && snap.book && snap.book.id === bp.book.id));
-        });
-        if (snap && !snap.isBack && snap.book) {
-          if (!hoverTitleEl) createHoverTitle();
-          hoverTitleEl.innerHTML = '<span class="bth-title">' + snap.book.title + '</span>' +
-            (snap.book.author ? '<span class="bth-author">' + snap.book.author + '</span>' : '');
-          hoverTitleEl.classList.add('visible');
-        } else {
+        if (orbitMode === 'guides') {
+          // Continuous magnifier toward the drag tip (or snapped guide).
+          var focusX = snap && !snap.isBack ? snap.x : dragPos.x;
+          var focusY = snap && !snap.isBack ? snap.y : dragPos.y;
+          // If still near center, ease magnifier off
+          if (Math.hypot(dragPos.x - src.x, dragPos.y - src.y) < 34*sc) {
+            clearGuideMagnifier();
+          } else {
+            applyGuideMagnifier(focusX, focusY, true);
+          }
+          bookPositions.forEach(function(bp) {
+            if (bp.el) bp.el.classList.toggle('snapped', !!(snap && !snap.isBack && snap.book && snap.book.id === bp.book.id));
+          });
+          // Guides: titles are baked into the magnified cover — skip the floating title card.
           if (hoverTitleEl) hoverTitleEl.classList.remove('visible');
+        } else {
+          // Highlight snapped book thumbnail + show title card
+          bookPositions.forEach(function(bp) {
+            if (bp.el) bp.el.classList.toggle('snapped', !!(snap && !snap.isBack && snap.book && snap.book.id === bp.book.id));
+          });
+          if (snap && !snap.isBack && snap.book) {
+            if (!hoverTitleEl) createHoverTitle();
+            hoverTitleEl.innerHTML = '<span class="bth-title">' + snap.book.title + '</span>' +
+              (snap.book.author ? '<span class="bth-author">' + snap.book.author + '</span>' : '');
+            hoverTitleEl.classList.add('visible');
+          } else {
+            if (hoverTitleEl) hoverTitleEl.classList.remove('visible');
+          }
         }
         // Back dot label highlight
         var backLbl = document.getElementById('lbl-back');
         if (backLbl) backLbl.classList.toggle('lit', !!(snap && snap.isBack));
+      } else if (orbitMode === 'guides' && !lastHoveredBp) {
+        // Rest state: no magnifier while idle and not hovering
       }
 
       // Revealed book line animation
@@ -862,6 +1061,10 @@
       var p=pt(e); var dx=p.x-src.x,dy=p.y-src.y;
       if (!isBookMode) {
         var target = dests.find(function(d) { return Math.hypot(p.x-d.x, p.y-d.y) < Math.max(d.r+12, 22); });
+        if (target && target.id === 'merch' && e.type === 'touchstart') {
+          // Open the store on touchend so the browser treats it as a user tap (new tab is not blocked).
+          e.preventDefault(); pendingTapDest = target; return;
+        }
         if (target) { e.preventDefault(); activateDestination(target); return; }
       }
       var grabRadius = isMobileCanvas() ? Math.max(src.r + 20 * sc, 44) : src.r + 20 * sc;
@@ -888,6 +1091,7 @@
     }
 
     function onUp() {
+      if (pendingTapDest) { var tapped = pendingTapDest; pendingTapDest = null; activateDestination(tapped); return; }
       if (!dragging) return;
       dragging=false; canvas.classList.remove('drag');
 
@@ -905,6 +1109,7 @@
         bookPositions.forEach(function(bp) {
           if (bp.el) bp.el.classList.remove('snapped');
         });
+        if (orbitMode === 'guides' && !revealedBook) clearGuideMagnifier();
         var backLbl = document.getElementById('lbl-back');
         if (backLbl) backLbl.classList.remove('lit');
       } else {
@@ -939,11 +1144,23 @@
             setTimeout(function() { enterBookMode('guides'); }, 800);
           } else if (snapDest.id === 'res') {
             setTimeout(function() { switchLevel('resources'); }, 600);
+          } else if (snapDest.id === 'merch' && snapDest.url) {
+            // Opened right away (inside the tap/drop) so it lands in a new tab; the menu resets after.
+            var merchWin = window.open(snapDest.url, '_blank');
+            if (merchWin) {
+              try { merchWin.opener = null; } catch (err) {}
+              setTimeout(function() { if (revealed && revealed.id === 'merch') document.getElementById('rbtn').click(); }, 1600);
+            } else {
+              var merchUrl = snapDest.url;
+              setTimeout(function() { window.location.assign(merchUrl); }, 600);
+            }
           }
         }
         snapDest=null; dragPos=null;
       }
     }
+
+    var pendingTapDest = null;
 
     function activateDestination(destination) {
       if (fading || isBookMode || revealed) return;
@@ -980,7 +1197,7 @@
     setup();
     if (requestedEntryLevel === 'resources') {
       requestedEntryLevel = '';
-      document.getElementById('instr').textContent = 'drag the dot \u00b7 explore resources';
+      document.getElementById('instr').textContent = 'drag the dot \u00b7 explore the player tool kit';
       document.getElementById('rbtn').style.display = 'none';
     }
     window.addEventListener('resize', function() {

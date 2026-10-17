@@ -69,7 +69,7 @@ h1, h2, .resource-copy strong, .guide-cover strong { font-family: 'Cormorant Gar
 .orbit-line { position: absolute; z-index: 0; left: 50%; top: 50%; width: 32%; height: 1px; transform-origin: 0 50%; background: rgba(255,255,255,.1); }
 .line-1 { transform: rotate(-90deg); } .line-2 { transform: rotate(-45deg); } .line-3 { transform: rotate(0deg); } .line-4 { transform: rotate(45deg); }
 .line-5 { transform: rotate(90deg); } .line-6 { transform: rotate(135deg); } .line-7 { transform: rotate(180deg); } .line-8 { transform: rotate(225deg); }
-.guide-node { appearance: none; position: absolute; z-index: 2; width: 150px; aspect-ratio: 1; transform: translate(-50%, -50%); padding: 0; overflow: hidden; border: 2px solid rgba(255,255,255,.2); border-radius: 50%; background: #111; color: rgba(255,255,255,.58); cursor: default; transition: transform .28s cubic-bezier(.16,1,.3,1), border-color .25s, box-shadow .25s, color .25s; }
+.guide-node { appearance: none; position: absolute; z-index: 2; width: clamp(72px, 12vw, 118px); aspect-ratio: 1; transform: translate(-50%, -50%); padding: 0; overflow: hidden; border: 2px solid rgba(255,255,255,.2); border-radius: 50%; background: #111; color: rgba(255,255,255,.58); cursor: default; transition: transform .28s cubic-bezier(.16,1,.3,1), border-color .25s, box-shadow .25s, color .25s; }
 .guide-node[href] { cursor: pointer; }
 .guide-node::before { content: attr(data-status); position: absolute; z-index: 3; top: 17px; left: 50%; transform: translateX(-50%); padding: 5px 7px; white-space: nowrap; background: rgba(0,0,0,.78); color: rgba(255,255,255,.65); font: 400 6px/1 Montserrat, Arial, sans-serif; letter-spacing: .12em; }
 .guide-node[href]::before { color: #e8e0d0; }
@@ -158,3 +158,47 @@ h1, h2, .resource-copy strong, .guide-cover strong { font-family: 'Cormorant Gar
   .resource-action { font-size: 18px; }
   .question-list li { grid-template-columns: 34px 1fr; gap: 10px; }
 }
+
+/* Center dot: heartbeat + drag onto a guide to open it */
+.orbit-center span { position: relative; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; animation: orbit-heartbeat 1.1s ease-in-out infinite; }
+.orbit-center span::before { content: ""; position: absolute; inset: -18px; border-radius: 50%; }
+@keyframes orbit-heartbeat {
+  0%, 8%, 16%, 100% { scale: 1; box-shadow: 0 0 0 8px rgba(232,224,208,.05); }
+  4% { scale: 1.42; box-shadow: 0 0 0 10px rgba(232,224,208,.1), 0 0 18px rgba(232,224,208,.45); }
+  12% { scale: 1.2; box-shadow: 0 0 0 9px rgba(232,224,208,.08), 0 0 12px rgba(232,224,208,.3); }
+}
+.guide-orbit.is-dragging .orbit-center { z-index: 7; }
+.orbit-center span.is-dragging { cursor: grabbing; animation: none; scale: 1.3; box-shadow: 0 0 0 2px rgba(8,8,8,.6), 0 0 0 8px rgba(232,224,208,.16), 0 0 22px rgba(232,224,208,.6); }
+.orbit-center span.is-returning { transition: translate .55s cubic-bezier(.34,1.56,.64,1); }
+.guide-node.is-drop-target { z-index: 6; transform: translate(-50%, -50%) scale(1.2); border-color: #e8e0d0; box-shadow: 0 0 0 6px rgba(232,224,208,.14), 0 0 46px rgba(232,224,208,.38), 0 18px 45px rgba(0,0,0,.55); }
+@media (max-width: 760px) { .guide-node.is-drop-target { transform: translate(-50%, -50%) scale(1.12); } }
+@media (prefers-reduced-motion: reduce) {
+  .orbit-center span { animation: none; }
+  .orbit-center span.is-returning { transition: none; }
+  .guide-node.is-drop-target { transition: none; }
+}
+
+/* 2026-10-04b: center is just the heartbeat dot (no label, no ring, no disc); dot travels along the spoke lines */
+.orbit-center { width: 40px; height: 40px; border: 0; background: transparent; gap: 0; }
+.orbit-center strong { display: none; }
+@keyframes orbit-heartbeat {
+  0%, 8%, 16%, 100% { scale: 1; box-shadow: 0 0 0 0 rgba(232,224,208,0); }
+  4% { scale: 1.42; box-shadow: 0 0 16px rgba(232,224,208,.5); }
+  12% { scale: 1.2; box-shadow: 0 0 10px rgba(232,224,208,.32); }
+}
+.orbit-center span { box-shadow: none; }
+.orbit-center span.is-dragging { box-shadow: 0 0 0 2px rgba(8,8,8,.6), 0 0 20px rgba(232,224,208,.6); }
+.orbit-center span.is-returning { transition: translate .42s cubic-bezier(.22,.8,.3,1); }
+.orbit-line { transition: background-color .18s ease; }
+.orbit-line.is-drag-line { background: rgba(232,224,208,.42); }
+.guide-node.is-drop-near { border-color: rgba(232,224,208,.6); box-shadow: 0 0 0 3px rgba(232,224,208,.08), 0 0 26px rgba(232,224,208,.2), 0 18px 45px rgba(0,0,0,.55); }
+@media (max-width: 760px) { .orbit-center { width: 32px; height: 32px; } }
+@media (prefers-reduced-motion: reduce) { .orbit-line { transition: none; } }
+
+/* 2026-10-04c: slightly bigger heartbeat dot (~45%); hit area stays >= 44px via span::before inset -18px */
+.orbit-center span { width: 19px; height: 19px; }
+@media (max-width: 760px) { .orbit-center span { width: 15px; height: 15px; } }
+
+
+/* Available list removed — guides live only in the orbit. */
+.all-resources, .all-resource-grid { display: none !important; }

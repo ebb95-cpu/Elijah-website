@@ -27,6 +27,7 @@ export default async function waitlist(request, context, environment) {
   const base = `https://api.beehiiv.com/v2/publications/${publication}/subscriptions`;
   const headers = { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' };
   const custom_fields = [{ name: LIST, value: 'yes' }];
+  const utm = (k, d) => (typeof body[k] === 'string' && /^[\w.\-+%: ]{1,100}$/.test(body[k].trim()) ? body[k].trim() : d);
   async function api(url, method = 'GET', data) {
     const response = await fetch(url, { method, headers, body: data ? JSON.stringify(data) : undefined, signal: AbortSignal.timeout(10000) });
     const json = await response.json().catch(() => ({}));
@@ -44,7 +45,7 @@ export default async function waitlist(request, context, environment) {
       result = await api(base, 'POST', {
         email, reactivate_existing: false, send_welcome_email: false,
         skip_newsletter_list_auto_subscribe: true,
-        utm_source: 'elijahbryant.pro', utm_medium: 'website', utm_campaign: 'ask_elijah_waitlist',
+        utm_source: utm('utm_source', 'elijahbryant.pro'), utm_medium: utm('utm_medium', 'website'), utm_campaign: utm('utm_campaign', 'ask_elijah_waitlist'),
         custom_fields,
       });
     } else {
