@@ -6,7 +6,7 @@
 # Deploy:  sh scripts/build-dist.sh && npx --yes wrangler@latest pages deploy dist --project-name elijah-bryant --branch <branch> --commit-dirty=true
 set -e
 cd "$(dirname "$0")/.."
-PUBLIC="index.html book.html 404.html favicon.ico _redirects _routes.json js css images videos resources guides waitlist ask-elijah"
+PUBLIC="index.html book.html 404.html favicon.ico _redirects _routes.json js css images videos resources guides waitlist ask-elijah privacy terms"
 rm -rf dist && mkdir dist
 for p in $PUBLIC; do
   [ -e "$p" ] || { echo "missing: $p" >&2; exit 1; }

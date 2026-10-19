@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Ask Elijah: An NBA and EuroLeague champion in your pocket</title>
   <meta name="description" content="Ask Elijah Bryant anything, any time: nerves, slumps, minutes, consistency. Join the waitlist for early access." />
   <link rel="canonical" href="https://www.elijahbryant.pro/waitlist" />
@@ -12,23 +12,36 @@
   <meta property="og:url" content="https://www.elijahbryant.pro/waitlist" />
   <meta property="og:image" content="https://www.elijahbryant.pro/images/waitlist/euroleague-champion.jpg" />
   <meta name="theme-color" content="#12171d" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Ask Elijah" />
+  <link rel="apple-touch-icon" href="/images/three-dot-32.png?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet" />
-  <link rel="preload" as="image" href="/images/waitlist/hero.webp" type="image/webp" fetchpriority="high" />
+  <link rel="preload" as="image" type="image/webp" fetchpriority="high" imagesrcset="/images/waitlist/hero-200.webp 200w, /images/waitlist/hero-400.webp 400w, /images/waitlist/hero.webp 600w" imagesizes="(min-width: 900px) 400px, 96px" />
   <style>
     :root { --accent: #20e294; --cream: #f3ead8; --bg: #12171d; --card: #1a1f24; --line: #2c333a; --muted: #b9bec2; --dim: #8c9298; }
     * { box-sizing: border-box; }
-    html, body { margin: 0; background: var(--bg); color: #fff; font-family: 'Geist', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-    img { max-width: 100%; display: block; }
-    main { width: min(1080px, 100%); margin: 0 auto; padding: 20px 22px 48px; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 16px; }
+    html, body { margin: 0; background: var(--bg); color: #fff; font-family: 'Geist', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+    @supports (overflow: clip) { html, body { overflow-x: clip; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    h1, h2, .vs-close { text-wrap: balance; }
+    p, li, summary { text-wrap: pretty; }
+    a, button, summary, input { touch-action: manipulation; }
+    img { max-width: 100%; height: auto; display: block; }
+    main { width: min(1080px, 100%); margin: 0 auto; padding: max(12px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); }
     .back { color: var(--muted); text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; min-height: 44px; }
     .serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; }
     .eyebrow { font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); font-size: 13px; margin: 0; }
     .hero { display: grid; gap: 14px; padding: 6px 0 8px; }
     .hero-top { display: flex; align-items: center; gap: 14px; }
-    .portrait { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 2px solid var(--cream); flex: 0 0 auto; background: #fff; }
-    h1 { font-size: 38px; line-height: 1.06; margin: 4px 0 0; color: var(--cream); }
+    .portrait { width: 96px; height: 96px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; border: 2px solid var(--cream); flex: 0 0 auto; background: #fff; }
+    h1 { font-size: clamp(34px, 9.6vw, 42px); line-height: 1.04; letter-spacing: -.005em; margin: 4px 0 0; color: var(--cream); }
     .sub { color: var(--muted); font-size: 16px; line-height: 1.55; margin: 0; }
     .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
     input[type=email] { width: 100%; padding: 14px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; color: #fff; font-family: inherit; font-size: 16px; }
@@ -46,13 +59,14 @@
     .share { display: flex; flex-wrap: wrap; gap: 8px; }
     .share button, .share a { flex: 1 1 auto; min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: #fff; font: 600 14px 'Geist', Arial, sans-serif; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
     .done form { display: none; } .done .success { display: block; }
-    section { padding: 40px 0 0; }
-    h2.sec { font-size: 32px; line-height: 1.12; margin: 0 0 18px; color: var(--cream); }
+    section { padding: 44px 0 0; }
+    h2.sec { font-size: clamp(28px, 7.6vw, 34px); line-height: 1.1; margin: 0 0 16px; color: var(--cream); }
     .proof { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .card { margin: 0; border-radius: 14px; overflow: hidden; background: var(--card); border: 1px solid var(--line); }
-    .card img { width: 100%; aspect-ratio: 4/5; object-fit: cover; background: #fff; }
-    .card figcaption { padding: 12px 12px 14px; }
-    .card strong { display: block; color: var(--cream); font-size: 16px; line-height: 1.25; }
+    .card img { width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; object-position: 50% 20%; background: #fff; }
+    .card img.nba { object-position: 50% 12%; }
+    .card figcaption { padding: 10px 12px 12px; }
+    .card strong { display: block; color: var(--cream); font-size: 15px; line-height: 1.25; font-weight: 600; }
     .card span { color: var(--dim); font-size: 13px; }
     .body { color: var(--muted); font-size: 16px; line-height: 1.6; margin: 16px 0 0; }
     ol.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; counter-reset: s; }
@@ -73,14 +87,30 @@
     .perk { background: var(--cream); color: var(--bg); border-radius: 16px; padding: 22px; }
     .perk h2 { margin: 0 0 6px; font-size: 28px; line-height: 1.15; }
     .perk p { margin: 0; font-size: 16px; line-height: 1.5; }
-    details { border-bottom: 1px solid var(--line); padding: 14px 0; }
-    summary { cursor: pointer; font-weight: 600; font-size: 16px; list-style: none; min-height: 28px; }
-    summary::after { content: '+'; float: right; color: var(--accent); }
+    details { border-bottom: 1px solid var(--line); padding: 6px 0; }
+    details p { padding-bottom: 8px; }
+    summary { cursor: pointer; font-weight: 600; font-size: 16px; list-style: none; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '+'; flex: 0 0 auto; color: var(--accent); font-size: 20px; font-weight: 400; }
     details[open] summary::after { content: '–'; }
     details p { color: var(--muted); line-height: 1.6; margin: 10px 0 0; }
     .final { text-align: left; }
     footer { margin-top: 44px; padding-top: 20px; border-top: 1px solid #232a31; color: var(--dim); font-size: 12.5px; line-height: 1.7; }
-    footer a { color: var(--muted); }
+    footer a { color: var(--muted); display: inline-block; padding: 12px 4px; margin: -12px -4px; }
+    .sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 10px max(16px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: rgba(18,23,29,.92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid var(--line); transform: translateY(110%); transition: transform .25s ease; }
+    .sticky-cta.show { transform: none; }
+    .sticky-cta .btn { margin: 0; }
+    @media (prefers-reduced-motion: reduce) { .sticky-cta { transition: none; } }
+    @media (max-width: 899px) {
+      .proof { gap: 10px; }
+      .card { border-radius: 12px; }
+      .card img { aspect-ratio: 1 / 1.08; }
+      .chat { padding: 12px; border-radius: 18px; }
+      .q, .a { max-width: 92%; }
+      .vs-card { padding: 4px 16px 20px; }
+    }
+    @media (max-width: 360px) { .card strong { font-size: 14px; } .vs-rows li { grid-template-columns: 24px 1fr auto; gap: 10px; } .vs-price { font-size: 17px; } }
+    @media (min-width: 900px) { .sticky-cta { display: none; } }
     @media (min-width: 900px) {
       main { padding-top: 32px; }
       .hero { grid-template-columns: 1.2fr .8fr; gap: 48px; align-items: center; padding-top: 24px; }
@@ -98,6 +128,22 @@
       .narrow { max-width: 760px; }
     }
     @media (max-width: 899px) { .hero-photo { display: none; } }
+    .vs-sub { margin: -4px 0 20px; }
+    .vs-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 8px 18px 22px; }
+    .vs-rows { list-style: none; margin: 0; padding: 0; }
+    .vs-rows li { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .vs-emoji { font-size: 20px; line-height: 1.3; }
+    .vs-label { display: block; color: #fff; font-size: 15.5px; line-height: 1.4; font-weight: 500; }
+    .vs-instead { display: block; color: var(--dim); font-size: 13px; line-height: 1.4; margin-top: 3px; }
+    .vs-price { color: #fff; font-size: 19px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; line-height: 1.2; }
+    .vs-total { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 20px 0 4px; }
+    .vs-total-label { color: var(--muted); font-size: 15px; }
+    .vs-total-amt { color: var(--cream); font-family: 'Instrument Serif', Georgia, serif; font-size: 48px; line-height: 1; text-decoration: line-through; text-decoration-thickness: 4px; text-decoration-color: #ff8a73; white-space: nowrap; }
+    .vs-price.inc { color: var(--accent); font-weight: 500; font-size: 14px; }
+    .vs-founding { margin: 8px 0 14px; color: #fff; font-size: 16px; line-height: 1.5; font-weight: 500; }
+    .vs-close { margin: 18px 0 0; font-size: 22px; line-height: 1.3; color: var(--cream); }
+    .vs-fine { color: var(--dim); font-size: 12px; line-height: 1.55; margin: 14px 2px 0; }
+    @media (min-width: 900px) { .vs-card { padding: 10px 28px 28px; } .vs-label { font-size: 16.5px; } .vs-price { font-size: 21px; } .vs-total-amt { font-size: 56px; } }
   </style>
 </head>
 <body>
@@ -107,15 +153,15 @@
   <div class="hero">
     <div class="hero-photo">
       <picture>
-        <source srcset="/images/waitlist/hero.webp" type="image/webp" />
-        <img class="portrait lg" src="/images/waitlist/hero.jpg" width="600" height="600" alt="Elijah Bryant smiling and pointing at the EuroLeague trophy" loading="eager" fetchpriority="high" />
+        <source srcset="/images/waitlist/hero-400.webp 400w, /images/waitlist/hero.webp 600w" sizes="400px" type="image/webp" />
+        <img class="portrait lg" src="/images/waitlist/hero.jpg" srcset="/images/waitlist/hero-400.jpg 400w, /images/waitlist/hero.jpg 600w" sizes="400px" width="600" height="600" alt="Elijah Bryant smiling and pointing at the EuroLeague trophy" loading="eager" fetchpriority="high" />
       </picture>
     </div>
     <div>
       <div class="hero-top">
         <picture>
-          <source srcset="/images/waitlist/hero.webp" type="image/webp" />
-          <img class="portrait" src="/images/waitlist/hero.jpg" width="96" height="96" alt="Elijah Bryant smiling and pointing at the EuroLeague trophy" loading="eager" />
+          <source srcset="/images/waitlist/hero-200.webp 200w, /images/waitlist/hero-400.webp 400w" sizes="96px" type="image/webp" />
+          <img class="portrait" src="/images/waitlist/hero-200.jpg" srcset="/images/waitlist/hero-200.jpg 200w, /images/waitlist/hero-400.jpg 400w" sizes="96px" width="96" height="96" alt="Elijah Bryant smiling and pointing at the EuroLeague trophy" loading="eager" />
         </picture>
         <p class="eyebrow">Ask Elijah · Coming soon</p>
       </div>
@@ -124,7 +170,7 @@
       <div class="formbox signup" style="margin-top:18px">
         <form novalidate>
           <label class="hp" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" /></label>
-          <input type="email" name="email" placeholder="your@email.com" autocomplete="email" inputmode="email" aria-label="Email address" required />
+          <input type="email" name="email" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Email address" required />
           <button class="btn" type="submit">Get early access</button>
           <p class="msg" role="status" aria-live="polite"></p>
           <p class="micro">Free to join. Waitlist gets in first. No spam, unsubscribe anytime.</p>
@@ -138,13 +184,13 @@
     <h2 class="sec serif">I've been in the moments you're nervous about.</h2>
     <div class="proof">
       <figure class="card">
-        <picture><source srcset="/images/waitlist/nba-champion.webp" type="image/webp" />
-        <img src="/images/waitlist/nba-champion.jpg" width="640" height="800" loading="lazy" decoding="async" alt="Elijah Bryant holding the 2021 NBA championship trophy in the Bucks locker room" /></picture>
+        <picture><source srcset="/images/waitlist/nba-champion-400.webp 400w, /images/waitlist/nba-champion.webp 640w" sizes="(min-width: 900px) 370px, 46vw" type="image/webp" />
+        <img class="nba" src="/images/waitlist/nba-champion.jpg" srcset="/images/waitlist/nba-champion-400.jpg 400w, /images/waitlist/nba-champion.jpg 640w" sizes="(min-width: 900px) 370px, 46vw" width="640" height="800" loading="lazy" decoding="async" alt="Elijah Bryant holding the 2021 NBA championship trophy in the Bucks locker room" /></picture>
         <figcaption><strong>2021 NBA Champion</strong><span>Milwaukee Bucks</span></figcaption>
       </figure>
       <figure class="card">
-        <picture><source srcset="/images/waitlist/euroleague-champion.webp" type="image/webp" />
-        <img src="/images/waitlist/euroleague-champion.jpg" width="640" height="800" loading="lazy" decoding="async" alt="Elijah Bryant with the 2022 EuroLeague trophy on his shoulder" /></picture>
+        <picture><source srcset="/images/waitlist/euroleague-champion-400.webp 400w, /images/waitlist/euroleague-champion.webp 640w" sizes="(min-width: 900px) 370px, 46vw" type="image/webp" />
+        <img src="/images/waitlist/euroleague-champion.jpg" srcset="/images/waitlist/euroleague-champion-400.jpg 400w, /images/waitlist/euroleague-champion.jpg 640w" sizes="(min-width: 900px) 370px, 46vw" width="640" height="800" loading="lazy" decoding="async" alt="Elijah Bryant with the 2022 EuroLeague trophy on his shoulder" /></picture>
         <figcaption><strong>2022 EuroLeague Champion</strong><span>Anadolu Efes</span></figcaption>
       </figure>
     </div>
@@ -165,7 +211,37 @@
     <div class="chats one">
       <div class="chat"><div class="q">i play good in practice but i choke in games when it matters. how do i stop being scared to mess up?</div><div class="a"><p>Being scared to mess up means you care. That's not the problem. The problem is when the fear makes you play not to lose.</p><p>I went undrafted out of BYU. I got cut. I went to Israel and had to earn everything. On the Bucks I'd go in for a few minutes in the playoffs. When you only get four minutes, you can't play scared. You play the next possession.</p><p>So stop playing the whole game in your head. Pick one thing you control: sprint back on D, box out, talk. Do that on the first possession and your body calms down. Mistakes will happen. Next play. Before every game I take a breath and remind myself who I play for. Then I go.</p><em>Today's rep: In your next practice, every time you mess up, clap once, say "next play," and sprint to your spot. Count how many times you do it.</em></div>
       <p class="fine">This is a short answer. In the app, I go deeper.</p></div>
+    </div>
   </section>
+
+  <section class="narrow" id="value">
+    <h2 class="sec serif">Help with the mental game, from someone you can trust.</h2>
+    <p class="body vs-sub">One trusted voice your player can ask anything, any time, about pressure, confidence, bad games, and the habits that keep them going. Built on faith, with who they are coming before their stats.</p>
+    <div class="vs-card">
+      <ul class="vs-rows">
+        <li><span class="vs-emoji" aria-hidden="true">🧠</span><span class="vs-text"><span class="vs-label">The mental game: nerves, pressure, confidence.</span><span class="vs-instead">Instead of a mental-performance coach.</span></span><span class="vs-price">$150/mo</span></li>
+        <li><span class="vs-emoji" aria-hidden="true">🔄</span><span class="vs-text"><span class="vs-label">Bouncing back from a bad game.</span><span class="vs-instead">Instead of a teen mental-performance check-in.</span></span><span class="vs-price">$65/mo</span></li>
+        <li><span class="vs-emoji" aria-hidden="true">🙏</span><span class="vs-text"><span class="vs-label">Faith and character: an identity that doesn't rise and fall with the box score.</span><span class="vs-instead">Instead of a faith-based life coach.</span></span><span class="vs-price">$85/mo</span></li>
+        <li><span class="vs-emoji" aria-hidden="true">🔁</span><span class="vs-text"><span class="vs-label">Consistency with habits and recovery.</span><span class="vs-instead">Instead of a habits and motivation coach.</span></span><span class="vs-price">$120/mo</span></li>
+        <li><span class="vs-emoji" aria-hidden="true">🪑</span><span class="vs-text"><span class="vs-label">Coaches and playing time.</span><span class="vs-instead">Instead of a basketball mentorship plan.</span></span><span class="vs-price">$99/mo</span></li>
+        <li><span class="vs-emoji" aria-hidden="true">🥗</span><span class="vs-text"><span class="vs-label">Game-day food.</span><span class="vs-instead">Instead of a dietitian follow-up.</span></span><span class="vs-price">$85/mo</span></li>
+      </ul>
+      <div class="vs-total"><span class="vs-total-label">What you'd spend otherwise:</span><s class="vs-total-amt">$604/mo</s></div>
+      <p class="vs-founding">Ask Elijah founding price: revealed at launch. Join the waitlist to lock it in.</p>
+      <div class="formbox signup vs-form">
+        <form novalidate>
+          <label class="hp" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" /></label>
+          <input type="email" name="email" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Email address" required />
+          <button class="btn" type="submit">Get early access</button>
+          <p class="msg" role="status" aria-live="polite"></p>
+        </form>
+        <div class="success"></div>
+      </div>
+      <p class="vs-close serif">Who your kid is matters more than what they score. I'll help with both.</p>
+    </div>
+    <p class="vs-fine">'Elsewhere' prices are typical U.S. rates for a live professional, one session a month. Ask Elijah gives guidance built from what Elijah has said and lived. It isn't therapy, medical or legal advice. If your child is struggling with more than the game, please reach out to a counselor or doctor.</p>
+  </section>
+
 
   <section class="narrow">
     <h2 class="sec serif">Who it's for</h2>
@@ -195,7 +271,7 @@
     <div class="formbox signup">
       <form novalidate>
         <label class="hp" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" /></label>
-        <input type="email" name="email" placeholder="your@email.com" autocomplete="email" inputmode="email" aria-label="Email address" required />
+        <input type="email" name="email" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Email address" required />
         <button class="btn" type="submit">Get early access</button>
         <p class="msg" role="status" aria-live="polite"></p>
       </form>
@@ -208,6 +284,7 @@
     Signups are handled by Beehiiv. Unsubscribe anytime.
   </footer>
 </main>
+<div class="sticky-cta" id="sticky-cta" aria-hidden="true"><button class="btn" type="button" tabindex="-1">Get early access</button></div>
 <script>
 (function () {
   var qs = new URLSearchParams(location.search), extra = {};
@@ -244,6 +321,30 @@
     });
   });
 })();
+  (function () {
+    var bar = document.getElementById('sticky-cta'); if (!bar || !('IntersectionObserver' in window)) return;
+    var forms = [].slice.call(document.querySelectorAll('.signup')), visible = new Set(), heroPassed = false;
+    function update() {
+      var done = document.querySelector('.signup.done');
+      var show = heroPassed && visible.size === 0 && !done;
+      bar.classList.toggle('show', show); bar.setAttribute('aria-hidden', show ? 'false' : 'true');
+      bar.querySelector('button').tabIndex = show ? 0 : -1;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) visible.add(e.target); else visible.delete(e.target);
+        if (e.target === forms[0]) heroPassed = !e.isIntersecting && e.boundingClientRect.top < 0;
+      });
+      update();
+    }, { threshold: 0 });
+    forms.forEach(function (f) { io.observe(f); });
+    document.addEventListener('submit', function () { setTimeout(update, 1200); }, true);
+    bar.querySelector('button').addEventListener('click', function () {
+      var target = forms.find(function (f) { return f.getBoundingClientRect().top > 0; }) || forms[0];
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var input = target.querySelector('input[type=email]'); if (input) input.focus({ preventScroll: true });
+    });
+  })();
 </script>
 </body>
 </html>
